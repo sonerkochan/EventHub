@@ -135,7 +135,12 @@ namespace EzyShape.Controllers
 
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    var roles = await userManager.GetRolesAsync(user);
+                    var role = roles.FirstOrDefault();
+
+                    return !string.IsNullOrEmpty(role)
+                        ? RedirectToAction("Index", "Home", new { area = role })
+                        : RedirectToAction("Index", "Home");
                 }
             }
 
