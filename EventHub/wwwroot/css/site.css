@@ -19,6 +19,13 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-color: white;
+  color: black;
+}
+body.dark {
+    margin-bottom: 60px;
+    background-color: #121212;
+    color: white;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -29,3 +36,4 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
