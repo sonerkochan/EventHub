@@ -1,3 +1,5 @@
+using Elastic.Apm.AspNetCore;
+using Elastic.Apm.NetCoreAll;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
 using Microsoft.AspNetCore.Identity;
@@ -87,6 +89,7 @@ app.UseRequestLocalization(localizationOptions);
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseAllElasticApm();
 // After Auth
 
 app.UseEndpoints(endpoints =>

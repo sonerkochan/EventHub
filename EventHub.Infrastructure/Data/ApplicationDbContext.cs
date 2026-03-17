@@ -19,9 +19,9 @@ namespace EventHub.Infrastructure.Data
             builder.Entity<EmailVerificationToken>(ev => ev.HasKey(ev => ev.TokenId));
         }
 
-        DbSet<Venue> Venues { get; set; }
-        DbSet<Room> Rooms { get; set; }
-        DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
+        public DbSet<Venue> Venues { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
 
     }
 }
