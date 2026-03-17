@@ -13,6 +13,15 @@ namespace EventHub.Infrastructure.Data
             builder.ApplyConfiguration(new UserConfiguration());
             builder.ApplyConfiguration(new UserRoleConfiguration());
             base.OnModelCreating(builder);
+
+            builder.Entity<Venue>(v => v.HasKey(v => v.Id));
+            builder.Entity<Room>(r => r.HasKey(r => r.RoomId));
+            builder.Entity<EmailVerificationToken>(ev => ev.HasKey(ev => ev.TokenId));
         }
+
+        DbSet<Venue> Venues { get; set; }
+        DbSet<Room> Rooms { get; set; }
+        DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
+
     }
 }
