@@ -1,0 +1,48 @@
+﻿@model IEnumerable<EventHub.Core.Models.Venue.VenueListViewModel>
+
+@{
+    ViewData["Title"] = "All Venues";
+}
+
+<h2>All Venues</h2>
+
+<a asp-area="Admin"
+   asp-controller="Venues"
+   asp-action="Create"
+   class="btn btn-primary mb-3">
+    Create New Venue
+</a>
+
+
+@if (!Model.Any())
+{
+    <p class="alert alert-info">No venues yet. Create your first one!</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>Address</th>
+                <th>Coordinates</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venue in Model)
+            {
+                <tr>
+                    <td>@venue.Name</td>
+                    <td>@venue.City</td>
+                    <td>@venue.Country</td>
+                    <td>@venue.Address</td>
+                    <td>
+                        @venue.Latitude , @venue.Longitude
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
