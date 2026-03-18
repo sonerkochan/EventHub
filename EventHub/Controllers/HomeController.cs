@@ -8,8 +8,20 @@ namespace EventHub.Controllers
     {
         public IActionResult Index()
         {
+
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Index", "Home", new { area = "Admin" });
+            }
+
+            if (User.IsInRole("Client"))
+            {
+                return RedirectToAction("Index", "Home", new { area = "Client" });
+            }
+
             return View();
         }
+
 
         public IActionResult Privacy()
         {

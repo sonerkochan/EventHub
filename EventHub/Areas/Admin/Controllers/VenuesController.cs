@@ -1,4 +1,6 @@
-﻿using EventHub.Infrastructure.Data;
+﻿using EventHub.Core.Contracts;
+using EventHub.Core.Models.Venue;
+using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
 using EventHub.Models;
@@ -7,36 +9,41 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
-namespace EventHub.Controllers
+namespace EventHub.Areas.Admin.Controllers
 {
-    public class VenuesController : Controller
+    public class VenuesController : BaseController
     {
-        private readonly ApplicationDbContext _dbContext;
-        public VenuesController(ApplicationDbContext dbContext)
+        private readonly IVenueService venueService;
+
+        public VenuesController(IVenueService _venueService)
         {
-            _dbContext = dbContext;
+            venueService = _venueService;
         }
+
         public async Task<IActionResult> Index()
         {
-            var venues = await _dbContext.Venues.ToListAsync();
-            return View(venues);
+            var model = await venueService.GetAllVenuesAsync();
+            return View(model);
         }
+
+        [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            return View(new AddVenueViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Venue venue)
+        public async Task<IActionResult> Create(AddVenueViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(venue);
+                return View(model);
             }
 
-            await _dbContext.Venues.AddAsync(venue);
-            await _dbContext.SaveChangesAsync();
+            Guid userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+
+            await venueService.AddVenueAsync(model, userId);
 
             return RedirectToAction(nameof(Index));
         }
