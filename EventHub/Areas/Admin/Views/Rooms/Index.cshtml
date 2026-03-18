@@ -1,0 +1,46 @@
+﻿@model EventHub.Infrastructure.Data.Models.Room
+
+@{
+    ViewData["Title"] = "All Rooms";
+}
+
+<h2>All Rooms... Kidding its only one.</h2>
+
+<a asp-area="Admin"
+       asp-controller="Room"
+       asp-action="Create"
+       class="btn btn-primary mb-3">
+    Create New Room
+</a>
+
+
+@if (Model is null)
+{
+    <p class="alert alert-info">No rooms yet. Create your first one!</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>IsActive</th>
+                <th>RoomType</th>
+                <th>Coordinates</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* @foreach (var room in Model)
+            { *@
+                <tr>
+                    <td>@Model.Name</td>
+                <td>@Model.Description</td>
+                <td>@Model.IsActive</td>
+                <td>@Model.RoomType</td>
+                <td>@Model.Capacity</td>
+                @* </tr> *@
+            @* } *@
+        </tbody>
+    </table>
+}

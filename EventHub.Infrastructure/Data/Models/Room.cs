@@ -13,7 +13,7 @@ namespace EventHub.Infrastructure.Data.Models
         public Guid CreatedBy { get; set; }
         public string? Name { get; set; } = null;
         public string? Description { get; set; } = null;
-        public int Capacity { get; set; }
+        public long Capacity { get; set; }
         public RoomType RoomType { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;

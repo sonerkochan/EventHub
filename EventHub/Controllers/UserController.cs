@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace EzyShape.Controllers
+namespace EventHub.Controllers
 {
     /// <summary>
     /// The controller is responsible for user management.

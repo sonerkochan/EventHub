@@ -1,5 +1,7 @@
 using Elastic.Apm.AspNetCore;
 using Elastic.Apm.NetCoreAll;
+using EventHub.Core.Contracts;
+using EventHub.Core.Services;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
 using Microsoft.AspNetCore.Identity;
@@ -52,8 +54,6 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = supportedCultures;
 });
 
-
-
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization();
@@ -104,5 +104,14 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapRazorPages();
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    if (!app.Environment.IsDevelopment())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate();
+    }
+}
 
 app.Run();

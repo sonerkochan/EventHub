@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddScoped<IRepository, Repository>();
             services.AddScoped<IVenueService, VenueService>();
-
+            services.AddScoped<IRoomService, RoomService>();
 
             return services;
         }
