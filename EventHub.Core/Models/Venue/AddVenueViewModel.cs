@@ -8,9 +8,6 @@ namespace EventHub.Core.Models.Venue
     public class AddVenueViewModel
     {
         [Required]
-        public Guid CreatedBy { get; set; }
-
-        [Required]
         [StringLength(100)]
         public string Name { get; set; } = null!;
 
