@@ -30,6 +30,19 @@ namespace EventHub.Infrastructure.Data
         public DbSet<Zone> Zones { get; set; }
         public DbSet<SeatLayout> SeatLayouts { get; set; }
         public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
+        public DbSet<Event> Events { get; set; }
+        public DbSet<EmailLog> EmailLogs { get; set; }
+        public DbSet<EmailTemplate> EmailTemplates { get; set; }
+        public DbSet<EventPricingTier> EventPricingTiers { get; set; }
+        public DbSet<EventTrustScore> EventTrustScores { get; set; }
+        public DbSet<OrganizerTrustScore> OrganizerTrustScores { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<PaymentTicket> PaymentTickets { get; set; }
+        public DbSet<Refund> Refunds { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<ReviewVote> ReviewVotes { get; set; }
+        public DbSet<SystemConfiguration> SystemConfigurations { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
 
     }
 }
