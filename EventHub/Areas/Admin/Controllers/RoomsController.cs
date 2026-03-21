@@ -1,4 +1,5 @@
 ﻿using EventHub.Core.Contracts;
+using EventHub.Infrastructure.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventHub.Areas.Admin.Controllers
@@ -14,7 +15,8 @@ namespace EventHub.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var model = await roomService.GetSingleRoomById(Guid.Parse("156EC0AE-ED2D-42C2-9FD1-CD4C1E224579"));
+            var model = new Room();
+                //await roomService.GetSingleRoomById(Guid.Parse("156EC0AE-ED2D-42C2-9FD1-CD4C1E224579"));// NO HARDCODED RANDOM GUIDS!
             return View(model);
         }
     }
