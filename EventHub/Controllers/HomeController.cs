@@ -19,6 +19,12 @@ namespace EventHub.Controllers
                 return RedirectToAction("Index", "Home", new { area = "Client" });
             }
 
+            if (User.IsInRole("Moderator"))
+            {
+                return RedirectToAction("Index", "Home", new { area = "Moderator" });
+            }
+
+
             return View();
         }
 
