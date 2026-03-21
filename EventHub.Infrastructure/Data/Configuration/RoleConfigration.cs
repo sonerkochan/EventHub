@@ -39,6 +39,12 @@ namespace EventHub.Infrastructure.Data.Configuration
             Name = "Organizer",
             NormalizedName = "ORGANIZER"
         },
+        new IdentityRole()
+        {
+            Id = "e4f5a6b7-c8d9-0123-def0-123456789abc",
+            Name = "Moderator",
+            NormalizedName = "MODERATOR"
+        },
     };
         }
     }
