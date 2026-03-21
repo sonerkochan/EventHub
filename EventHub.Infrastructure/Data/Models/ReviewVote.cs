@@ -10,11 +10,11 @@ namespace EventHub.Infrastructure.Data.Models
         public Guid Id { get; set; }
         public Guid ReviewId { get; set; }
         public Guid UserId { get; set; }
-        public Type ReviewType { get; set; }
+        public VoteType ReviewType { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
-        public enum Type
+        public enum VoteType
         {
             Positive,
             Negative,
