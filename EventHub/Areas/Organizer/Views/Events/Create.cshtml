@@ -1,0 +1,94 @@
+﻿@model EventHub.Core.Models.Event.CreateEventViewModel
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<h2>Create Event</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="row g-3">
+        <div class="col-md-8">
+            <label asp-for="EventName" class="form-label"></label>
+            <input asp-for="EventName" class="form-control" />
+            <span asp-validation-for="EventName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="RoomId" class="form-label">Room</label>
+            <select asp-for="RoomId" asp-items="Model.AvailableRooms" class="form-select">
+                <option value="">— select a room —</option>
+            </select>
+            <span asp-validation-for="RoomId" class="text-danger"></span>
+        </div>
+
+        <div class="col-12">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="EventType" class="form-label"></label>
+            <select asp-for="EventType" asp-items="Html.GetEnumSelectList<EventHub.Infrastructure.Data.Models.EventType>()" class="form-select"></select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="EventPriority" class="form-label"></label>
+            <select asp-for="EventPriority" asp-items="Html.GetEnumSelectList<EventHub.Infrastructure.Data.Models.EventPriority>()" class="form-select"></select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="TotalTickets" class="form-label"></label>
+            <input asp-for="TotalTickets" class="form-control" type="number" min="1" />
+            <span asp-validation-for="TotalTickets" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="StartDateTime" class="form-label"></label>
+            <input asp-for="StartDateTime" class="form-control" type="datetime-local" />
+            <span asp-validation-for="StartDateTime" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="EndDateTime" class="form-label"></label>
+            <input asp-for="EndDateTime" class="form-control" type="datetime-local" />
+            <span asp-validation-for="EndDateTime" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-check mt-4">
+                <input asp-for="AllowRefunds" class="form-check-input" type="checkbox" id="allowRefunds" />
+                <label class="form-check-label" for="allowRefunds">Allow Refunds</label>
+            </div>
+        </div>
+
+        <div class="col-md-4" id="refundDeadlineGroup" style="display:none">
+            <label asp-for="RefundDeadline" class="form-label"></label>
+            <input asp-for="RefundDeadline" class="form-control" type="datetime-local" />
+        </div>
+
+        <div class="col-md-8">
+            <label asp-for="CoverImageUrl" class="form-label">Cover Image URL</label>
+            <input asp-for="CoverImageUrl" class="form-control" placeholder="https://..." />
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Create Event</button>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        const cb = document.getElementById('allowRefunds');
+        const group = document.getElementById('refundDeadlineGroup');
+        cb.addEventListener('change', () => group.style.display = cb.checked ? 'block' : 'none');
+        if (cb.checked) group.style.display = 'block';
+    </script>
+}

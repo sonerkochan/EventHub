@@ -48,6 +48,8 @@ namespace EventHub.Core.Services
             await repo.AddAsync(entity);
             await repo.SaveChangesAsync();
         }
+
+        [Description("Returns all existing Venues from the database.")]
         public async Task<IEnumerable<VenueListViewModel>> GetAllVenuesAsync()
         {
             return await repo.AllReadonly<Venue>()

@@ -27,8 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Organizer\Controllers\" />
-    <Folder Include="Areas\Organizer\Views\" />
     <Folder Include="Areas\Supplier\Controllers\" />
     <Folder Include="Areas\Supplier\Views\" />
     <Folder Include="Middlewares\" />

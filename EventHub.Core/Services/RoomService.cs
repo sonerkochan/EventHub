@@ -2,6 +2,7 @@
 using EventHub.Core.Models.Room;
 using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Collections.Generic;
@@ -54,14 +55,27 @@ namespace EventHub.Core.Services
             var roomExists = await _repo.GetByIdAsync<Room>(room.RoomId);
             if (roomExists is null)
             {
-                throw new Exception($"Room with ID {room.RoomId} does not exist.");
+                throw new Exception($"Room with ID: {room.RoomId} does not exist.");
             }
-            await _repo.DeleteAsync<Room>(room);
+            await _repo.DeleteAsync<Room>(roomExists);
+            await _repo.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync()
+        public async Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync()
         {
-            throw new NotImplementedException();
+            return await _repo.AllReadonly<Room>()
+                .Where(r => r.IsActive)
+                .Select(r => new RoomListViewModel
+                {
+                    Id = r.RoomId,
+                    Name = r.Name!,
+                    VenueId = r.VenueId,
+                    Description = r.Description,
+                    Capacity = r.Capacity,
+                    RoomType = r.RoomType,
+                    IsActive = r.IsActive
+                })
+                .ToListAsync<RoomListViewModel>();
         }
 
         public Task UpdateRoomAsync(Room room)

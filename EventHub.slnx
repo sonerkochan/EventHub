@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="EventHub.Core/EventHub.Core.csproj" />
   <Project Path="EventHub.Infrastructure/EventHub.Infrastructure.csproj" />
+  <Project Path="EventHub.Tests/EventHub.Tests.csproj" Id="aa26e628-4af2-4db4-8aa7-faf457649cdb" />
   <Project Path="EventHub/EventHub.csproj" />
 </Solution>

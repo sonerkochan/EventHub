@@ -11,6 +11,7 @@ namespace EventHub.Areas.Moderator.Controllers
     [Authorize(Roles = "Moderator")]
     public class BaseController : Controller
     {
-
+        [HttpGet]
+        public IActionResult Index() => View();
     }
 }

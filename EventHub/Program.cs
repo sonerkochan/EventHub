@@ -4,6 +4,7 @@ using EventHub.Core.Contracts;
 using EventHub.Core.Services;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
+using EventHub.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -90,7 +91,6 @@ var localizationOptions = new RequestLocalizationOptions()
     .AddSupportedCultures(supportedCultures)
     .AddSupportedUICultures(supportedCultures);
 app.UseRequestLocalization(localizationOptions);
-
 
 app.UseAuthentication();
 app.UseAuthorization();
