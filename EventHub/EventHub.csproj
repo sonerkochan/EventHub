@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Areas\Organizer\Views\Shared\ViewImports.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Elastic.Apm.AspNetCore" Version="1.34.1" />
     <PackageReference Include="Elastic.Apm.NetCoreAll" Version="1.34.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.3" />
@@ -27,8 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Supplier\Controllers\" />
-    <Folder Include="Areas\Supplier\Views\" />
     <Folder Include="Middlewares\" />
   </ItemGroup>
 

@@ -1,7 +1,35 @@
-﻿<a asp-action="Apply" asp-route-type="1" class="btn btn-success">
-    Apply as Organizer
-</a>
+﻿@using EventHub.Infrastructure.Data.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 
-<a asp-action="Apply" asp-route-type="2" class="btn btn-primary">
-    Apply as Supplier
-</a>
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var currentUser = await UserManager.GetUserAsync(User);
+
+    @if (!await UserManager.IsInRoleAsync(currentUser, "Organizer"))
+    {
+        <a asp-action="Apply" asp-route-type="1" class="btn btn-success">
+            Apply as Organizer
+        </a>
+    }
+    else
+    {
+        <p>
+            You are already an Organizer <br>
+        </p>
+    }
+    @if (!await UserManager.IsInRoleAsync(currentUser, "Supplier"))
+    {
+        <a asp-action="Apply" asp-route-type="2" class="btn btn-primary">
+            Apply as Supplier
+        </a>
+    }
+    else
+    {
+        <p>
+            You are already a Supplier <br>
+        </p>        
+    }
+}

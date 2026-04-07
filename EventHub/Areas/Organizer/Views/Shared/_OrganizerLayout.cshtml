@@ -8,7 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EventHub Client Page</title>
+    <title>@ViewData["Title"] - EventHub Oranizer Page</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EventHub.styles.css" asp-append-version="true" />
@@ -30,36 +30,6 @@
                 <li class="nav-item">
                     <small class="text-uppercase text-secondary" style="font-size: 0.7rem; letter-spacing: 0.08em;">Overview</small>
                 </li>
-                <li>
-                    <a asp-area="Client" asp-controller="Application" asp-action="Index"
-                           class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Application" ? "active" : "")">
-                        Applications
-                    </a>
-                </li>
-                @if (SignInManager.IsSignedIn(User))
-                {
-                    var currentUser = await UserManager.GetUserAsync(User);
-
-                    if (await UserManager.IsInRoleAsync(currentUser, "Organizer"))
-                    {
-                        <li class="nav-item">
-                            <a asp-area="Organizer" asp-controller="Home" asp-action="Index"
-                                   class="nav-link text-white">
-                                Organizer page
-                            </a>
-                        </li>
-                    }
-
-                    if (await UserManager.IsInRoleAsync(currentUser, "Supplier"))
-                    {
-                        <li class="nav-item">
-                            <a asp-area="Supplier" asp-controller="Home" asp-action="Index"
-                                   class="nav-link text-white">
-                                Supplier page
-                            </a>
-                        </li>
-                    }
-                }
             </ul>
 
             <hr class="text-secondary" />
