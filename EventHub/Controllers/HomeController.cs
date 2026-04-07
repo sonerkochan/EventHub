@@ -8,6 +8,12 @@ namespace EventHub.Controllers
     {
         public IActionResult Index()
         {
+            return View();
+        }
+
+
+        public IActionResult Dashboard()
+        {
 
             if (User.IsInRole("Admin"))
             {
@@ -27,8 +33,6 @@ namespace EventHub.Controllers
 
             return View();
         }
-
-
         public IActionResult Privacy()
         {
             return View();

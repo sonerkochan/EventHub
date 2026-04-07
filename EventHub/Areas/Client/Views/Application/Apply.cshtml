@@ -1,0 +1,29 @@
+﻿@using EventHub.Core.Models.ApplicationForm
+@model ApplicationFormViewModel
+
+<h2>
+    Apply as @Model.Type
+</h2>
+
+<form asp-action="Apply" method="post">
+    <input type="hidden" asp-for="Type" />
+
+    <div class="form-group">
+        <label>Name</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Phone Number</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <button class="btn btn-success mt-3">
+        Submit
+    </button>
+</form>
