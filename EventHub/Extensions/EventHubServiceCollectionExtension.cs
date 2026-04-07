@@ -15,6 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IModeratorService, ModeratorService>();
             services.AddScoped<IApplicationService, ApplicationService>();
+            services.AddScoped<ISeatLayoutService, SeatLayoutService>();
 
             return services;
         }
