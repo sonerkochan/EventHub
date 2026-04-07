@@ -9,5 +9,8 @@ namespace EventHub.Core.Contracts
     public interface IApplicationService
     {
         Task<bool> ApplyAsync(string userId, ApplicationFormViewModel model);
+        Task<IEnumerable<ApplicationListViewModel>> GetAllPendingAsync();
+        Task<bool> ApproveAsync(int applicationId, string adminUserName);
+        Task<bool> RejectAsync(int applicationId, string adminUserName, string comment);
     }
 }

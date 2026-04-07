@@ -32,7 +32,7 @@ namespace EventHub.Infrastructure.Data.Models
     }
     public enum ApplicationType
     {
-        Organiser = 1,
+        Organizer = 1,
         Supplier = 2
     }
 

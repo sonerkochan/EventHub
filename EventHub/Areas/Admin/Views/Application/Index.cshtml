@@ -1,0 +1,40 @@
+﻿@model IEnumerable<ApplicationListViewModel>
+
+<h2>Pending Applications</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Type</th>
+            <th>Name / Organization</th>
+            <th>Phone</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var app in Model)
+        {
+            <tr>
+                <td>@app.UserName</td>
+                <td>@app.Type</td>
+                <td>@app.OrganizationName</td>
+                <td>@app.PhoneNumber</td>
+                <td>@app.Description</td>
+                <td>
+                    <form asp-action="Approve" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@app.Id" />
+                        <button class="btn btn-success btn-sm">Approve</button>
+                    </form>
+
+                    <form asp-action="Reject" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@app.Id" />
+                        <input type="text" name="comment" placeholder="Comment" class="form-control form-control-sm d-inline w-50" />
+                        <button class="btn btn-danger btn-sm">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
