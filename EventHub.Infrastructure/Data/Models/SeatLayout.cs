@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
-
 namespace EventHub.Infrastructure.Data.Models
 {
     public class SeatLayout
@@ -12,8 +9,6 @@ namespace EventHub.Infrastructure.Data.Models
         public Guid RoomId { get; set; }
         public Guid CreatedBy { get; set; }
         public string? Name { get; set; }
-
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public string? Structure { get; set; }
         public string? Description { get; set; }
         public int TotalSeats { get; set; }

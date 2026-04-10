@@ -1,0 +1,447 @@
+@using EventHub.Infrastructure.Data.Models
+@model EventHub.Core.Models.Room.SeatLayoutEditorViewModel
+@{
+    ViewData["Title"] = $"Layout — {Model.RoomName}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h5 class="fw-semibold mb-0">@Model.RoomName</h5>
+        <small class="text-muted">Capacity: @Model.RoomCapacity</small>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-dark btn-sm" onclick="saveLayout()">Save Layout</button>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back to Rooms</a>
+    </div>
+</div>
+
+<!-- Controls -->
+<div class="card border mb-3">
+    <div class="card-body py-2 d-flex align-items-center gap-4 flex-wrap">
+        <div class="d-flex align-items-center gap-2">
+            <label class="small fw-medium mb-0">Rows</label>
+            <input type="number" id="gridRows" value="@Model.GridRows" min="1" max="50" class="form-control form-control-sm" style="width:70px" />
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <label class="small fw-medium mb-0">Cols</label>
+            <input type="number" id="gridCols" value="@Model.GridColumns" min="1" max="50" class="form-control form-control-sm" style="width:70px" />
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="resizeGrid()">Resize</button>
+        <button class="btn btn-outline-success btn-sm" onclick="fillAll()">Fill All</button>
+        <button class="btn btn-outline-danger btn-sm" onclick="clearAll()">Clear All</button>
+        <div class="vr"></div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="form-check form-check-inline mb-0">
+                <input class="form-check-input" type="radio" name="mode" id="modPlace" value="place" checked>
+                <label class="form-check-label small" for="modPlace">Place seats</label>
+            </div>
+            <div class="form-check form-check-inline mb-0">
+                <input class="form-check-input" type="radio" name="mode" id="modSelect" value="select">
+                <label class="form-check-label small" for="modSelect">Select for zone</label>
+            </div>
+        </div>
+        <div class="vr"></div>
+        <span id="statusText" class="small text-muted"></span>
+    </div>
+</div>
+
+<div class="d-flex gap-4">
+    <!-- Grid -->
+    <div class="flex-grow-1">
+        <div class="card border">
+            <div class="card-body" style="overflow:auto">
+                <div id="seatGrid" class="seat-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zone Panel -->
+    <div style="min-width:260px; max-width:300px;">
+        <div class="card border">
+            <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+                <span class="small fw-semibold">Zones</span>
+                <button class="btn btn-dark btn-sm" onclick="showCreateZone()">+ Zone</button>
+            </div>
+            <div class="card-body p-0">
+                <!-- Create zone form (hidden) -->
+                <div id="createZoneForm" class="p-3 border-bottom" style="display:none">
+                    <div class="mb-2">
+                        <input type="text" id="newZoneName" class="form-control form-control-sm" placeholder="Zone name" />
+                    </div>
+                    <div class="mb-2">
+                        <select id="newZoneType" class="form-select form-select-sm">
+                            <option value="0">VIP</option>
+                            <option value="1">Regular</option>
+                            <option value="2">Economy</option>
+                        </select>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-dark btn-sm flex-grow-1" onclick="createZone()">Create</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="hideCreateZone()">Cancel</button>
+                    </div>
+                </div>
+
+                <!-- Zone list -->
+                <div id="zoneList"></div>
+
+                <!-- Zone actions -->
+                <div id="zoneActions" class="p-3 border-top" style="display:none">
+                    <button class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="assignSelected()">Assign selected seats</button>
+                    <button class="btn btn-outline-secondary btn-sm w-100" onclick="removeFromZone()">Remove from zone</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="card border mt-3">
+            <div class="card-body py-2">
+                <div class="small fw-semibold mb-2">Legend</div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div style="width:18px;height:18px;background:#dee2e6;border:1px solid #adb5bd;border-radius:3px"></div>
+                    <span class="small text-muted">Empty cell</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div style="width:18px;height:18px;background:#212529;border-radius:3px"></div>
+                    <span class="small text-muted">Seat (no zone)</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div style="width:18px;height:18px;background:#dc3545;border-radius:3px"></div>
+                    <span class="small text-muted">VIP</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div style="width:18px;height:18px;background:#0d6efd;border-radius:3px"></div>
+                    <span class="small text-muted">Regular</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width:18px;height:18px;background:#198754;border-radius:3px"></div>
+                    <span class="small text-muted">Economy</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="~/css/seat-layout.css" asp-append-version="true" />
+
+@section Scripts {
+    <script>
+        const roomId = '@Model.RoomId';
+        const zoneColors = { 0: '#dc3545', 1: '#0d6efd', 2: '#198754' }; // VIP, Regular, Economy
+        const zoneTypeNames = { 0: 'VIP', 1: 'Regular', 2: 'Economy' };
+
+        let gridRows = @Model.GridRows;
+        let gridCols = @Model.GridColumns;
+        let seats = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Seats, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        let zones = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Zones, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        let selectedSeatIds = new Set();
+        let activeZoneId = null;
+        let isMouseDown = false;
+        let paintValue = null; // true = place, false = remove
+
+        function getMode() {
+            return document.querySelector('input[name="mode"]:checked').value;
+        }
+
+        function seatKey(r, c) { return `${r},${c}`; }
+
+        function getSeatMap() {
+            const map = {};
+            seats.forEach(s => map[seatKey(s.row, s.column)] = s);
+            return map;
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('seatGrid');
+            grid.style.gridTemplateColumns = `repeat(${gridCols}, 32px)`;
+            grid.innerHTML = '';
+
+            const seatMap = getSeatMap();
+
+            for (let r = 0; r < gridRows; r++) {
+                for (let c = 0; c < gridCols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'seat-cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+
+                    const seat = seatMap[seatKey(r, c)];
+                    if (seat) {
+                        cell.classList.add('seat-placed');
+                        cell.textContent = seat.seatNumber;
+
+                        if (seat.zoneId) {
+                            const zone = zones.find(z => z.id === seat.zoneId);
+                            if (zone) {
+                                cell.style.background = zoneColors[zone.zoneType] || '#212529';
+                                cell.style.borderColor = zoneColors[zone.zoneType] || '#212529';
+                            }
+                        }
+
+                        if (seat.id && selectedSeatIds.has(seat.id)) {
+                            cell.classList.add('seat-selected');
+                        }
+                    }
+
+                    cell.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        isMouseDown = true;
+                        handleCellInteraction(r, c, true);
+                    });
+                    cell.addEventListener('mouseenter', () => {
+                        if (isMouseDown) handleCellInteraction(r, c, false);
+                    });
+
+                    grid.appendChild(cell);
+                }
+            }
+
+            updateStatus();
+        }
+
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            paintValue = null;
+        });
+
+        function handleCellInteraction(r, c, isClick) {
+            const mode = getMode();
+            const key = seatKey(r, c);
+            const seatMap = getSeatMap();
+            const existing = seatMap[key];
+
+            if (mode === 'place') {
+                if (isClick) {
+                    paintValue = !existing;
+                }
+                if (paintValue && !existing) {
+                    seats.push({ id: null, row: r, column: c, seatNumber: 0, zoneId: null, isActive: true });
+                    renumberSeats();
+                    renderGrid();
+                } else if (!paintValue && existing) {
+                    seats = seats.filter(s => !(s.row === r && s.column === c));
+                    renumberSeats();
+                    renderGrid();
+                }
+            } else if (mode === 'select' && existing && existing.id) {
+                if (isClick) {
+                    if (selectedSeatIds.has(existing.id)) {
+                        selectedSeatIds.delete(existing.id);
+                    } else {
+                        selectedSeatIds.add(existing.id);
+                    }
+                } else {
+                    selectedSeatIds.add(existing.id);
+                }
+                renderGrid();
+            }
+        }
+
+        function renumberSeats() {
+            const sorted = [...seats].sort((a, b) => a.row - b.row || a.column - b.column);
+            sorted.forEach((s, i) => s.seatNumber = i + 1);
+        }
+
+        function updateStatus() {
+            const total = seats.length;
+            const zoned = seats.filter(s => s.zoneId).length;
+            const selected = selectedSeatIds.size;
+            let text = `${total} seats`;
+            if (zoned > 0) text += `, ${zoned} in zones`;
+            if (selected > 0) text += `, ${selected} selected`;
+            document.getElementById('statusText').textContent = text;
+
+            const actions = document.getElementById('zoneActions');
+            actions.style.display = (getMode() === 'select' && selected > 0) ? 'block' : 'none';
+        }
+
+        document.querySelectorAll('input[name="mode"]').forEach(r => {
+            r.addEventListener('change', () => {
+                selectedSeatIds.clear();
+                renderGrid();
+            });
+        });
+
+        function resizeGrid() {
+            gridRows = parseInt(document.getElementById('gridRows').value) || 10;
+            gridCols = parseInt(document.getElementById('gridCols').value) || 10;
+            seats = seats.filter(s => s.row < gridRows && s.column < gridCols);
+            renumberSeats();
+            renderGrid();
+        }
+
+        function fillAll() {
+            const seatMap = getSeatMap();
+            for (let r = 0; r < gridRows; r++) {
+                for (let c = 0; c < gridCols; c++) {
+                    if (!seatMap[seatKey(r, c)]) {
+                        seats.push({ id: null, row: r, column: c, seatNumber: 0, zoneId: null, isActive: true });
+                    }
+                }
+            }
+            renumberSeats();
+            renderGrid();
+        }
+
+        function clearAll() {
+            if (!confirm('Remove all seats and zones?')) return;
+            seats = [];
+            selectedSeatIds.clear();
+            renderGrid();
+        }
+
+        // ── AJAX helpers ──
+
+        function ajaxPost(url, body) {
+            return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            }).then(r => r.json());
+        }
+
+        function saveLayout() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            ajaxPost('@Url.Action("SaveLayout")', {
+                roomId: roomId,
+                layoutName: null,
+                gridRows: gridRows,
+                gridColumns: gridCols,
+                seats: seats
+            }).then(data => {
+                if (data.success) {
+                    seats = data.seats;
+                    zones = data.zones;
+                    selectedSeatIds.clear();
+                    renderGrid();
+                    renderZones();
+                }
+                btn.disabled = false;
+                btn.textContent = 'Save Layout';
+            }).catch(() => {
+                btn.disabled = false;
+                btn.textContent = 'Save Layout';
+                alert('Failed to save layout.');
+            });
+        }
+
+        // ── Zones ──
+
+        function renderZones() {
+            const list = document.getElementById('zoneList');
+            if (zones.length === 0) {
+                list.innerHTML = '<div class="p-3 text-center text-muted small">No zones yet</div>';
+                return;
+            }
+            list.innerHTML = zones.map(z => `
+                <div class="zone-item ${activeZoneId === z.id ? 'active' : ''}" onclick="selectZone('${z.id}')">
+                    <div class="zone-color" style="background:${zoneColors[z.zoneType] || '#6c757d'}"></div>
+                    <div class="flex-grow-1">
+                        <div class="small fw-medium">${z.name}</div>
+                        <div class="small text-muted">${zoneTypeNames[z.zoneType]} &middot; ${z.seatCount} seats</div>
+                    </div>
+                    <button class="btn btn-outline-danger btn-sm" style="font-size:0.65rem;padding:1px 6px"
+                            onclick="event.stopPropagation(); deleteZone('${z.id}')">x</button>
+                </div>
+            `).join('');
+        }
+
+        function selectZone(id) {
+            activeZoneId = activeZoneId === id ? null : id;
+            renderZones();
+        }
+
+        function showCreateZone() {
+            document.getElementById('createZoneForm').style.display = 'block';
+            document.getElementById('newZoneName').focus();
+        }
+
+        function hideCreateZone() {
+            document.getElementById('createZoneForm').style.display = 'none';
+            document.getElementById('newZoneName').value = '';
+        }
+
+        function createZone() {
+            const name = document.getElementById('newZoneName').value.trim();
+            if (!name) return;
+            const zoneType = parseInt(document.getElementById('newZoneType').value);
+
+            ajaxPost('@Url.Action("CreateZone")', {
+                roomId: roomId,
+                name: name,
+                zoneType: zoneType
+            }).then(data => {
+                if (data.success) {
+                    zones.push(data.zone);
+                    activeZoneId = data.zone.id;
+                    hideCreateZone();
+                    renderZones();
+                }
+            });
+        }
+
+        function assignSelected() {
+            if (!activeZoneId) {
+                alert('Select a zone first (click one in the zone panel).');
+                return;
+            }
+            if (selectedSeatIds.size === 0) return;
+
+            ajaxPost('@Url.Action("AssignZone")', {
+                roomId: roomId,
+                zoneId: activeZoneId,
+                seatIds: Array.from(selectedSeatIds)
+            }).then(data => {
+                if (data.success) {
+                    seats = data.seats;
+                    zones = data.zones;
+                    selectedSeatIds.clear();
+                    renderGrid();
+                    renderZones();
+                }
+            });
+        }
+
+        function removeFromZone() {
+            if (selectedSeatIds.size === 0) return;
+
+            ajaxPost('@Url.Action("RemoveFromZone")', {
+                roomId: roomId,
+                seatIds: Array.from(selectedSeatIds)
+            }).then(data => {
+                if (data.success) {
+                    seats = data.seats;
+                    zones = data.zones;
+                    selectedSeatIds.clear();
+                    renderGrid();
+                    renderZones();
+                }
+            });
+        }
+
+        function deleteZone(id) {
+            if (!confirm('Delete this zone? Seats will be unassigned.')) return;
+
+            ajaxPost('@Url.Action("DeleteZone")', { id: id })
+                .then(data => {
+                    if (data.success) {
+                        zones = zones.filter(z => z.id !== id);
+                        if (activeZoneId === id) activeZoneId = null;
+                        // Unassign locally
+                        seats.forEach(s => { if (s.zoneId === id) s.zoneId = null; });
+                        renderGrid();
+                        renderZones();
+                    }
+                });
+        }
+
+        // ── Init ──
+        renumberSeats();
+        renderGrid();
+        renderZones();
+    </script>
+}
+
+@Html.AntiForgeryToken()

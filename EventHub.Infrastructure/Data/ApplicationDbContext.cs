@@ -45,6 +45,7 @@ namespace EventHub.Infrastructure.Data
         public DbSet<SystemConfiguration> SystemConfigurations { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<ApplicationForm> ApplicationForms { get; set; }
+        public DbSet<SeatHolds> SeatHolds { get; set; }
 
     }
 }
