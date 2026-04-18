@@ -8,13 +8,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EventHub Client Page</title>
+    <title>@ViewData["Title"] - EventHub</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EventHub.styles.css" asp-append-version="true" />
 </head>
 <body class="bg-light">
-
     <div class="d-flex" style="min-height: 100vh;">
 
         <!-- Sidebar -->
@@ -28,34 +27,52 @@
 
             <ul class="nav nav-pills flex-column mb-auto gap-1">
                 <li class="nav-item">
-                    <small class="text-uppercase text-secondary" style="font-size: 0.7rem; letter-spacing: 0.08em;">Overview</small>
+                    <small class="text-uppercase text-secondary" style="font-size: 0.7rem; letter-spacing: 0.08em;">Discover</small>
+                </li>
+                <li>
+                    <a asp-area="Client" asp-controller="Events" asp-action="Index"
+                       class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")">
+                        Browse Events
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Client" asp-controller="Tickets" asp-action="Index"
+                       class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Tickets" ? "active" : "")">
+                        My Tickets
+                    </a>
+                </li>
+
+                <li class="nav-item mt-2">
+                    <small class="text-uppercase text-secondary" style="font-size: 0.7rem; letter-spacing: 0.08em;">Account</small>
                 </li>
                 <li>
                     <a asp-area="Client" asp-controller="Application" asp-action="Index"
-                           class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Application" ? "active" : "")">
+                       class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Application" ? "active" : "")">
                         Applications
                     </a>
                 </li>
+
                 @if (SignInManager.IsSignedIn(User))
                 {
                     var currentUser = await UserManager.GetUserAsync(User);
-
-                    if (await UserManager.IsInRoleAsync(currentUser, "Organizer"))
+                    if (await UserManager.IsInRoleAsync(currentUser!, "Organizer"))
                     {
-                        <li class="nav-item">
+                        <li class="nav-item mt-2">
+                            <small class="text-uppercase text-secondary" style="font-size: 0.7rem; letter-spacing: 0.08em;">Manage</small>
+                        </li>
+                        <li>
                             <a asp-area="Organizer" asp-controller="Home" asp-action="Index"
-                                   class="nav-link text-white">
-                                Organizer page
+                               class="nav-link text-white">
+                                Organizer Panel
                             </a>
                         </li>
                     }
-
-                    if (await UserManager.IsInRoleAsync(currentUser, "Supplier"))
+                    if (await UserManager.IsInRoleAsync(currentUser!, "Supplier"))
                     {
-                        <li class="nav-item">
+                        <li>
                             <a asp-area="Supplier" asp-controller="Home" asp-action="Index"
-                                   class="nav-link text-white">
-                                Supplier page
+                               class="nav-link text-white">
+                                Supplier Panel
                             </a>
                         </li>
                     }
@@ -65,7 +82,7 @@
             <hr class="text-secondary" />
 
             <a asp-area="" asp-controller="Home" asp-action="Index"
-                   class="btn btn-outline-secondary btn-sm mb-2">
+               class="btn btn-outline-secondary btn-sm mb-2">
                 Back to site
             </a>
             <form asp-area="" asp-controller="User" asp-action="Logout" method="post">

@@ -37,6 +37,9 @@ namespace EventHub.Core.Models.Event
         [Range(1, int.MaxValue, ErrorMessage = "Must have at least 1 ticket.")]
         public int TotalTickets { get; set; }
 
+        [Range(0, double.MaxValue, ErrorMessage = "Price must be 0 or greater.")]
+        public decimal BasePrice { get; set; } = 0;
+
         public bool AllowRefunds { get; set; }
 
         [DataType(DataType.DateTime)]

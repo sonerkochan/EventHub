@@ -42,6 +42,9 @@ namespace EventHub.Core.Models.Event
         [Range(1, int.MaxValue)]
         public int TotalTickets { get; set; }
 
+        [Range(0, double.MaxValue)]
+        public decimal BasePrice { get; set; } = 0;
+
         public bool AllowRefunds { get; set; }
 
         [DataType(DataType.DateTime)]

@@ -1,0 +1,152 @@
+@using EventHub.Infrastructure.Data.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EventHub Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/modern-design.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body style="background-color: hsl(var(--background));">
+
+    <div class="d-flex" style="min-height: 100vh;">
+
+        <!-- Modern Sidebar -->
+        <div class="sidebar-modern" style="width: 260px;">
+            <div class="p-4">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                        🎫
+                    </div>
+                    <div>
+                        <div class="fw-bold">EventHub</div>
+                        <div style="font-size: 0.7rem; color: hsl(var(--muted-foreground));">Admin Panel</div>
+                    </div>
+                </div>
+
+                <div class="mb-3" style="padding: 0.5rem 1rem; background: hsl(var(--muted)); border-radius: var(--radius);">
+                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Logged in as</div>
+                    <div class="fw-medium small">@User.Identity?.Name</div>
+                </div>
+            </div>
+
+            <nav class="px-3 pb-4">
+                <div class="sidebar-nav-modern">
+                    <div class="px-3 mb-2">
+                        <div style="font-size: 0.7rem; font-weight: 600; color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.05em;">
+                            Overview
+                        </div>
+                    </div>
+
+                    <a asp-area="Admin" asp-controller="Home" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <span>📊</span> Dashboard
+                    </a>
+
+                    <div class="px-3 mb-2 mt-3">
+                        <div style="font-size: 0.7rem; font-weight: 600; color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.05em;">
+                            Manage
+                        </div>
+                    </div>
+
+                    <a asp-area="Admin" asp-controller="Events" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")">
+                        <span>🎭</span> Events
+                    </a>
+
+                    <a asp-area="Admin" asp-controller="Venues" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Venues" ? "active" : "")">
+                        <span>🏛️</span> Venues
+                    </a>
+
+                    <a asp-area="Admin" asp-controller="Rooms" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Rooms" ? "active" : "")">
+                        <span>🚪</span> Rooms
+                    </a>
+
+                    <div class="px-3 mb-2 mt-3">
+                        <div style="font-size: 0.7rem; font-weight: 600; color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.05em;">
+                            Users
+                        </div>
+                    </div>
+
+                    <a asp-area="Admin" asp-controller="Users" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")">
+                        <span>👥</span> All Users
+                    </a>
+
+                    <a asp-area="Admin" asp-controller="Moderator" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Moderator" ? "active" : "")">
+                        <span>🛡️</span> Moderators
+                    </a>
+
+                    <a asp-area="Admin" asp-controller="Application" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Application" ? "active" : "")">
+                        <span>📋</span> Applications
+                        @{
+                            // You could inject IApplicationService here to show count badge
+                        }
+                    </a>
+
+                    <div class="px-3 mb-2 mt-3">
+                        <div style="font-size: 0.7rem; font-weight: 600; color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.05em;">
+                            System
+                        </div>
+                    </div>
+
+                    <a asp-area="Admin" asp-controller="SystemConfiguration" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "SystemConfiguration" ? "active" : "")">
+                        <span>⚙️</span> Settings
+                    </a>
+                </div>
+
+                <div class="mt-4 px-3">
+                    <hr style="border-color: hsl(var(--border)); margin: 1rem 0;" />
+
+                    <a asp-area="" asp-controller="Home" asp-action="Index"
+                       class="btn-modern btn-modern-outline w-100 mb-2" style="font-size: 0.8rem;">
+                        ← Back to Site
+                    </a>
+
+                    <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
+                        <button type="submit" class="btn-modern btn-modern-ghost w-100" style="font-size: 0.8rem; color: hsl(var(--destructive));">
+                            🚪 Sign Out
+                        </button>
+                    </form>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-grow-1" style="max-width: 100%; overflow-x: hidden;">
+            <!-- Top Bar -->
+            <div style="background-color: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">@(ViewData["Title"] ?? "Admin")</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <span style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">
+                            @DateTime.Now.ToString("MMM dd, yyyy")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Content -->
+            <main class="p-4 animate-fade-in">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

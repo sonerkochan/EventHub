@@ -183,6 +183,9 @@ namespace EventHub.Infrastructure.Migrations
                     b.Property<bool>("AllowRefunds")
                         .HasColumnType("bit");
 
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("CoverImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -399,11 +402,11 @@ namespace EventHub.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("StripePaymentIntentId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("StripePaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("StripeSessionId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("StripeSessionId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("SucceededAt")
                         .HasColumnType("datetime2");
@@ -586,6 +589,9 @@ namespace EventHub.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
+                            RoomId = new Guid("77319e29-3fe8-4892-ab10-337def59ac59"),
+                            Capacity = 100L,
+                            CreatedAt = new DateTime(2026, 4, 16, 15, 55, 47, 39, DateTimeKind.Utc).AddTicks(7594),
                             RoomId = new Guid("96a6ec78-64c5-460f-acb0-aa9d0031fa51"),
                             Capacity = 100L,
                             CreatedAt = new DateTime(2026, 4, 7, 21, 2, 10, 410, DateTimeKind.Utc).AddTicks(7551),
@@ -594,6 +600,7 @@ namespace EventHub.Infrastructure.Migrations
                             IsActive = true,
                             Name = "Fancy",
                             RoomType = 0,
+                            UpdatedAt = new DateTime(2026, 4, 16, 15, 55, 47, 39, DateTimeKind.Utc).AddTicks(7952),
                             UpdatedAt = new DateTime(2026, 4, 7, 21, 2, 10, 410, DateTimeKind.Utc).AddTicks(8248),
                             VenueId = new Guid("12345678-90ab-cdef-1234-567890abcdef")
                         });

@@ -16,7 +16,9 @@ namespace EventHub.Core.Models.Event
         public DateTime EndDateTime { get; set; }
         public int TotalTickets { get; set; }
         public int TicketsSold { get; set; }
+        public decimal BasePrice { get; set; }
         public bool IsActive { get; set; }
         public string? RoomName { get; set; }
+        public string? CoverImageUrl { get; set; }
     }
 }

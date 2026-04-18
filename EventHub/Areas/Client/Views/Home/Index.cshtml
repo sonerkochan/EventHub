@@ -1,3 +1,147 @@
-﻿
+﻿@using EventHub.Core.Models.Event
+@using EventHub.Core.Models.Ticket
+@{
+    ViewData["Title"] = "Client Dashboard";
+    var upcomingEvents = ViewBag.UpcomingEvents as IEnumerable<EventListViewModel> ?? Enumerable.Empty<EventListViewModel>();
+    var myTickets = ViewBag.MyTickets as IEnumerable<TicketListViewModel> ?? Enumerable.Empty<TicketListViewModel>();
+}
 
-You are client 1
+<div class="animate-fade-in">
+    <!-- Welcome Header -->
+    <div class="mb-4">
+        <h4 class="fw-bold mb-1">Welcome back, @User.Identity?.Name! 👋</h4>
+        <p class="text-muted-modern mb-0">Your personalized event dashboard</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-4 stagger-children">
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-card-label">My Tickets</div>
+                <div class="stat-card-value">@myTickets.Count()</div>
+                <div class="stat-card-change">
+                    <span class="text-muted-modern">@myTickets.Count(t => t.EventStart > DateTime.Now) upcoming</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-card-label">Available Events</div>
+                <div class="stat-card-value">@upcomingEvents.Count()</div>
+                <div class="stat-card-change">
+                    <span class="text-muted-modern">Ready to book</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <a asp-controller="Events" asp-action="Index" class="text-decoration-none">
+                <div class="stat-card hover-lift" style="transition: all 0.3s; cursor: pointer;">
+                    <div class="stat-card-label">Browse</div>
+                    <div style="font-size: 2rem;">🎭</div>
+                    <div class="stat-card-change">
+                        <span class="text-muted-modern">Find events</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <a asp-controller="Tickets" asp-action="Index" class="text-decoration-none">
+                <div class="stat-card hover-lift" style="transition: all 0.3s; cursor: pointer;">
+                    <div class="stat-card-label">Tickets</div>
+                    <div style="font-size: 2rem;">🎫</div>
+                    <div class="stat-card-change">
+                        <span class="text-muted-modern">View all</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- My Upcoming Tickets -->
+    @if (myTickets.Any(t => t.EventStart > DateTime.Now))
+    {
+        <div class="mb-4">
+            <h5 class="fw-semibold mb-3">Upcoming Events</h5>
+            <div class="row g-3">
+                @foreach (var ticket in myTickets.Where(t => t.EventStart > DateTime.Now).Take(3))
+                {
+                    <div class="col-md-4">
+                        <div class="modern-card hover-lift" style="transition: all 0.3s;">
+                            <div class="modern-card-body">
+                                <div class="mb-2">
+                                    <span class="badge-modern badge-modern-default">Ticket #@ticket.TicketNumber</span>
+                                </div>
+                                <h6 class="fw-semibold mb-2">@ticket.EventName</h6>
+                                <p class="text-muted-modern small mb-2">
+                                    📅 @ticket.EventStart.ToString("ddd, MMM dd")
+                                </p>
+                                <p class="text-muted-modern small mb-3">
+                                    🕐 @ticket.EventStart.ToString("h:mm tt")
+                                </p>
+                                <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id"
+                                   class="btn-modern btn-modern-outline w-100">
+                                    View Ticket
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Discover Events -->
+    <div class="modern-card">
+        <div class="modern-card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-semibold">Discover Events</h6>
+                <a asp-controller="Events" asp-action="Index" class="btn-modern btn-modern-ghost" style="padding: 0.375rem 0.75rem; font-size: 0.8rem;">
+                    View All →
+                </a>
+            </div>
+        </div>
+        <div class="modern-card-body">
+            @if (upcomingEvents.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var e in upcomingEvents.Take(3))
+                    {
+                        <div class="col-md-4">
+                            <a asp-controller="Events" asp-action="Details" asp-route-id="@e.Id" class="text-decoration-none">
+                                <div class="border-modern rounded-modern p-3 hover-lift" style="transition: all 0.3s;">
+                                    <div class="mb-2">
+                                        <span class="badge-modern badge-modern-secondary">@e.EventType</span>
+                                    </div>
+                                    <h6 class="fw-semibold mb-2">@e.EventName</h6>
+                                    <p class="text-muted-modern small mb-2">@e.StartDateTime.ToString("dd MMM, HH:mm")</p>
+                                    <p class="text-muted-modern small mb-0">@(e.TotalTickets - e.TicketsSold) tickets left</p>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4">
+                    <div style="font-size: 48px; opacity: 0.3; margin-bottom: 1rem;">🎭</div>
+                    <p class="text-muted-modern small mb-0">No events available</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+</style>

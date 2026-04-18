@@ -17,6 +17,7 @@ namespace EventHub.Core.Models.Event
         public DateTime EndDateTime { get; set; }
         public int TotalTickets { get; set; }
         public int TicketsSold { get; set; }
+        public decimal BasePrice { get; set; }
         public bool AllowRefunds { get; set; }
         public DateTime? RefundDeadline { get; set; }
         public bool IsActive { get; set; }

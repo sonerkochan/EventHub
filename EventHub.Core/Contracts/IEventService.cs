@@ -1,8 +1,7 @@
 ﻿using EventHub.Core.Models.Event;
-using EventHub.Infrastructure.Data.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace EventHub.Core.Contracts
 {
@@ -10,9 +9,13 @@ namespace EventHub.Core.Contracts
     {
         Task<Guid> CreateAsync(CreateEventViewModel model, Guid createdBy);
         Task<IEnumerable<EventListViewModel>> GetAllEventsAsync();
+        Task<IEnumerable<EventListViewModel>> GetPublishedEventsAsync();
         Task<EventDetailViewModel?> GetEventByIdAsync(Guid id);
+        Task<EventDetailViewModel?> GetPublishedEventByIdAsync(Guid id);
         Task<EditEventViewModel?> GetEventForEditAsync(Guid id);
         Task<bool> UpdateAsync(EditEventViewModel model);
         Task<bool> DeactivateAsync(Guid id);
+        Task<bool> PublishAsync(Guid id);
     }
 }
+    

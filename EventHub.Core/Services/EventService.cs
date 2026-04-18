@@ -34,6 +34,7 @@ namespace EventHub.Core.Services
                 EndDateTime = model.EndDateTime,
                 TotalTickets = model.TotalTickets,
                 TicketsSold = 0,
+                BasePrice = model.BasePrice,
                 AllowRefunds = model.AllowRefunds,
                 RefundDeadline = model.RefundDeadline ?? default,
                 IsActive = true,
@@ -49,59 +50,29 @@ namespace EventHub.Core.Services
 
         public async Task<IEnumerable<EventListViewModel>> GetAllEventsAsync()
         {
-            return await repo.AllReadonly<Event>()
-                .Where(e => e.IsActive)
-                .Join(
-                    repo.AllReadonly<Room>(),
-                    e => e.RoomId,
-                    r => r.RoomId,
-                    (e, r) => new EventListViewModel
-                    {
-                        Id = e.Id,
-                        EventName = e.EventName!,
-                        EventType = e.EventType,
-                        EventStatus = e.EventStatus,
-                        EventPriority = e.EventPriority,
-                        StartDateTime = e.StartDateTime,
-                        EndDateTime = e.EndDateTime,
-                        TotalTickets = e.TotalTickets,
-                        TicketsSold = e.TicketsSold,
-                        IsActive = e.IsActive,
-                        RoomName = r.Name
-                    })
-                .OrderBy(e => e.StartDateTime)
+            return await BuildEventListQuery(repo.AllReadonly<Event>().Where(e => e.IsActive))
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<EventListViewModel>> GetPublishedEventsAsync()
+        {
+            return await BuildEventListQuery(
+                    repo.AllReadonly<Event>()
+                        .Where(e => e.IsActive && e.EventStatus == EventStatus.Published))
                 .ToListAsync();
         }
 
         public async Task<EventDetailViewModel?> GetEventByIdAsync(Guid id)
         {
-            return await repo.AllReadonly<Event>()
-                .Where(e => e.Id == id)
-                .Join(
-                    repo.AllReadonly<Room>(),
-                    e => e.RoomId,
-                    r => r.RoomId,
-                    (e, r) => new EventDetailViewModel
-                    {
-                        Id = e.Id,
-                        EventName = e.EventName!,
-                        Description = e.Description,
-                        EventType = e.EventType,
-                        EventStatus = e.EventStatus,
-                        EventPriority = e.EventPriority,
-                        StartDateTime = e.StartDateTime,
-                        EndDateTime = e.EndDateTime,
-                        TotalTickets = e.TotalTickets,
-                        TicketsSold = e.TicketsSold,
-                        AllowRefunds = e.AllowRefunds,
-                        RefundDeadline = e.RefundDeadline == default ? null : e.RefundDeadline,
-                        IsActive = e.IsActive,
-                        CoverImageUrl = e.CoverImageUrl,
-                        RoomName = r.Name,
-                        RoomId = e.RoomId,
-                        CreatedAt = e.CreatedAt,
-                        UpdatedAt = e.UpdatedAt
-                    })
+            return await BuildEventDetailQuery(repo.AllReadonly<Event>().Where(e => e.Id == id))
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<EventDetailViewModel?> GetPublishedEventByIdAsync(Guid id)
+        {
+            return await BuildEventDetailQuery(
+                    repo.AllReadonly<Event>()
+                        .Where(e => e.Id == id && e.IsActive && e.EventStatus == EventStatus.Published))
                 .FirstOrDefaultAsync();
         }
 
@@ -124,6 +95,7 @@ namespace EventHub.Core.Services
                 StartDateTime = ev.StartDateTime,
                 EndDateTime = ev.EndDateTime,
                 TotalTickets = ev.TotalTickets,
+                BasePrice = ev.BasePrice,
                 AllowRefunds = ev.AllowRefunds,
                 RefundDeadline = ev.RefundDeadline == default ? null : ev.RefundDeadline,
                 CoverImageUrl = ev.CoverImageUrl
@@ -146,6 +118,7 @@ namespace EventHub.Core.Services
             ev.StartDateTime = model.StartDateTime;
             ev.EndDateTime = model.EndDateTime;
             ev.TotalTickets = model.TotalTickets;
+            ev.BasePrice = model.BasePrice;
             ev.AllowRefunds = model.AllowRefunds;
             ev.RefundDeadline = model.RefundDeadline ?? default;
             ev.CoverImageUrl = model.CoverImageUrl;
@@ -170,6 +143,78 @@ namespace EventHub.Core.Services
             repo.Update(ev);
             await repo.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> PublishAsync(Guid id)
+        {
+            var ev = await repo.All<Event>()
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (ev == null) return false;
+
+            ev.EventStatus = EventStatus.Published;
+            ev.UpdatedAt = DateTime.UtcNow;
+
+            repo.Update(ev);
+            await repo.SaveChangesAsync();
+            return true;
+        }
+
+        private IQueryable<EventListViewModel> BuildEventListQuery(IQueryable<Event> source)
+        {
+            return source
+                .Join(
+                    repo.AllReadonly<Room>(),
+                    e => e.RoomId,
+                    r => r.RoomId,
+                    (e, r) => new EventListViewModel
+                    {
+                        Id = e.Id,
+                        EventName = e.EventName!,
+                        EventType = e.EventType,
+                        EventStatus = e.EventStatus,
+                        EventPriority = e.EventPriority,
+                        StartDateTime = e.StartDateTime,
+                        EndDateTime = e.EndDateTime,
+                        TotalTickets = e.TotalTickets,
+                        TicketsSold = e.TicketsSold,
+                        BasePrice = e.BasePrice,
+                        IsActive = e.IsActive,
+                        RoomName = r.Name,
+                        CoverImageUrl = e.CoverImageUrl
+                    })
+                .OrderBy(e => e.StartDateTime);
+        }
+
+        private IQueryable<EventDetailViewModel> BuildEventDetailQuery(IQueryable<Event> source)
+        {
+            return source
+                .Join(
+                    repo.AllReadonly<Room>(),
+                    e => e.RoomId,
+                    r => r.RoomId,
+                    (e, r) => new EventDetailViewModel
+                    {
+                        Id = e.Id,
+                        EventName = e.EventName!,
+                        Description = e.Description,
+                        EventType = e.EventType,
+                        EventStatus = e.EventStatus,
+                        EventPriority = e.EventPriority,
+                        StartDateTime = e.StartDateTime,
+                        EndDateTime = e.EndDateTime,
+                        TotalTickets = e.TotalTickets,
+                        TicketsSold = e.TicketsSold,
+                        BasePrice = e.BasePrice,
+                        AllowRefunds = e.AllowRefunds,
+                        RefundDeadline = e.RefundDeadline == default ? null : e.RefundDeadline,
+                        IsActive = e.IsActive,
+                        CoverImageUrl = e.CoverImageUrl,
+                        RoomName = r.Name,
+                        RoomId = e.RoomId,
+                        CreatedAt = e.CreatedAt,
+                        UpdatedAt = e.UpdatedAt
+                    });
         }
     }
 }

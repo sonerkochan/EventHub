@@ -1,0 +1,44 @@
+@model EventHub.Core.Models.Ticket.TicketDetailViewModel
+
+@{
+    ViewData["Title"] = $"Ticket #{Model.TicketNumber}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-semibold mb-0">Ticket #@Model.TicketNumber</h5>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">My Tickets</a>
+</div>
+
+<div class="card border" style="max-width: 480px;">
+    <div class="card-body">
+        <div class="text-center mb-4">
+            <span class="badge bg-@(Model.IsUsed ? "secondary" : "success") mb-2">
+                @(Model.IsUsed ? "Used" : "Valid")
+            </span>
+            <h6 class="fw-semibold mb-0">@Model.EventName</h6>
+        </div>
+
+        <hr />
+
+        <div class="row mb-2">
+            <div class="col-5 text-muted small">Ticket Code</div>
+            <div class="col-7 fw-medium small font-monospace">@Model.HashedCode</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-5 text-muted small">Date &amp; Time</div>
+            <div class="col-7 small">@Model.EventStart.ToString("dd MMM yyyy, HH:mm")</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-5 text-muted small">Ends</div>
+            <div class="col-7 small">@Model.EventEnd.ToString("dd MMM yyyy, HH:mm")</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-5 text-muted small">Venue / Room</div>
+            <div class="col-7 small">@Model.RoomName</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-5 text-muted small">Purchased</div>
+            <div class="col-7 small">@Model.PurchasedAt.ToString("dd MMM yyyy, HH:mm")</div>
+        </div>
+    </div>
+</div>

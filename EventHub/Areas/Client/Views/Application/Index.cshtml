@@ -3,33 +3,61 @@
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
 
+@{
+    ViewData["Title"] = "Applications";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show small" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show small" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
 @if (SignInManager.IsSignedIn(User))
 {
     var currentUser = await UserManager.GetUserAsync(User);
 
-    @if (!await UserManager.IsInRoleAsync(currentUser, "Organizer"))
-    {
-        <a asp-action="Apply" asp-route-type="1" class="btn btn-success">
-            Apply as Organizer
-        </a>
-    }
-    else
-    {
-        <p>
-            You are already an Organizer <br>
-        </p>
-    }
-    @if (!await UserManager.IsInRoleAsync(currentUser, "Supplier"))
-    {
-        <a asp-action="Apply" asp-route-type="2" class="btn btn-primary">
-            Apply as Supplier
-        </a>
-    }
-    else
-    {
-        <p>
-            You are already a Supplier <br>
-        </p>        
-    }
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card border h-100">
+                <div class="card-body">
+                    <h6 class="fw-semibold mb-1">Organizer</h6>
+                    <p class="text-muted small mb-3">Create and manage events, venues, and ticket sales.</p>
+                    @if (await UserManager.IsInRoleAsync(currentUser!, "Organizer"))
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <a asp-action="Apply" asp-route-type="1" class="btn btn-dark btn-sm">Apply as Organizer</a>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border h-100">
+                <div class="card-body">
+                    <h6 class="fw-semibold mb-1">Supplier</h6>
+                    <p class="text-muted small mb-3">Supply goods and services to event organizers on the platform.</p>
+                    @if (await UserManager.IsInRoleAsync(currentUser!, "Supplier"))
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <a asp-action="Apply" asp-route-type="2" class="btn btn-dark btn-sm">Apply as Supplier</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 }

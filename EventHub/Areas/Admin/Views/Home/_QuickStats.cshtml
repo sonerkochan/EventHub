@@ -1,0 +1,19 @@
+@using EventHub.Core.Contracts
+@inject IUserService UserService
+@inject IEventService EventService
+@inject IApplicationService ApplicationService
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+
+    var users = await UserService.GetAllUsersAsync();
+    var events = await EventService.GetAllEventsAsync();
+    var applications = await ApplicationService.GetAllPendingAsync();
+}
+
+<div class="modern-card">
+    <div class="modern-card-body">
+        <h5>Admin Overview</h5>
+        <p>Users: @users.Count() | Events: @events.Count() | Pending Apps: @applications.Count()</p>
+    </div>
+</div>

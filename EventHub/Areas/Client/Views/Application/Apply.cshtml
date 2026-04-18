@@ -1,29 +1,46 @@
 ﻿@using EventHub.Core.Models.ApplicationForm
 @model ApplicationFormViewModel
 
-<h2>
-    Apply as @Model.Type
-</h2>
+@{
+    ViewData["Title"] = $"Apply as {Model.Type}";
+}
 
-<form asp-action="Apply" method="post">
-    <input type="hidden" asp-for="Type" />
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-semibold mb-0">Apply as @Model.Type</h5>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
 
-    <div class="form-group">
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" />
+<div class="card border" style="max-width: 520px;">
+    <div class="card-body">
+        <form asp-action="Apply" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Type" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label small fw-medium">Organization / Business Name</label>
+                <input asp-for="Name" class="form-control form-control-sm" />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label small fw-medium">Contact Phone</label>
+                <input asp-for="PhoneNumber" class="form-control form-control-sm" />
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Description" class="form-label small fw-medium">Tell us about yourself</label>
+                <textarea asp-for="Description" class="form-control form-control-sm" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-dark btn-sm w-100">Submit Application</button>
+        </form>
     </div>
+</div>
 
-    <div class="form-group">
-        <label>Phone Number</label>
-        <input asp-for="PhoneNumber" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
-
-    <button class="btn btn-success mt-3">
-        Submit
-    </button>
-</form>
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

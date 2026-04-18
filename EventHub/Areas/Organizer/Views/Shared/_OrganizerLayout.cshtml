@@ -8,20 +8,19 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EventHub Oranizer Page</title>
+    <title>@ViewData["Title"] - EventHub Organizer</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EventHub.styles.css" asp-append-version="true" />
 </head>
 <body class="bg-light">
-
     <div class="d-flex" style="min-height: 100vh;">
 
         <!-- Sidebar -->
         <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 220px;">
 
             <span class="fs-6 fw-semibold text-white text-decoration-none mb-3">
-                EventHub <span class="badge bg-secondary fw-normal">Client</span>
+                EventHub <span class="badge bg-primary fw-normal">Organizer</span>
             </span>
 
             <hr class="text-secondary" />
@@ -30,13 +29,35 @@
                 <li class="nav-item">
                     <small class="text-uppercase text-secondary" style="font-size: 0.7rem; letter-spacing: 0.08em;">Overview</small>
                 </li>
+                <li>
+                    <a asp-area="Organizer" asp-controller="Home" asp-action="Index"
+                       class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item mt-2">
+                    <small class="text-uppercase text-secondary" style="font-size: 0.7rem; letter-spacing: 0.08em;">Events</small>
+                </li>
+                <li>
+                    <a asp-area="Organizer" asp-controller="Events" asp-action="Index"
+                       class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")">
+                        My Events
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Organizer" asp-controller="Events" asp-action="Create"
+                       class="nav-link text-white">
+                        + New Event
+                    </a>
+                </li>
             </ul>
 
             <hr class="text-secondary" />
 
-            <a asp-area="" asp-controller="Home" asp-action="Index"
-                   class="btn btn-outline-secondary btn-sm mb-2">
-                Back to site
+            <a asp-area="Client" asp-controller="Home" asp-action="Index"
+               class="btn btn-outline-secondary btn-sm mb-2">
+                Client Area
             </a>
             <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
                 <button type="submit" class="btn btn-outline-danger btn-sm w-100">Log out</button>
@@ -48,7 +69,7 @@
 
             <!-- Top bar -->
             <div class="bg-white border-bottom px-4 py-2 d-flex align-items-center justify-content-between">
-                <span class="fw-medium">@(ViewData["Title"] ?? "Client")</span>
+                <span class="fw-medium">@(ViewData["Title"] ?? "Organizer")</span>
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <small class="text-muted">@User.Identity?.Name</small>
