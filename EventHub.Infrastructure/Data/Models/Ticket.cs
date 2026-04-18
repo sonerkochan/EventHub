@@ -13,6 +13,7 @@ namespace EventHub.Infrastructure.Data.Models
         public Guid PricingTierId { get; set; }
         public Guid ValidatedBy { get; set; }
         public long TicketNumber { get; set; }
+        public TicketStatus Status { get; set; }
         public float Price { get; set; }
         public string? Currency { get; set; }
         public string? HashedCode { get; set; }
@@ -21,5 +22,15 @@ namespace EventHub.Infrastructure.Data.Models
         public DateTime ReservationExpiresAt { get; set; }
         public DateTime PurchasedAt { get; set; }
         public DateTime ValidatedAt { get; set; }
+    }
+
+    public enum TicketStatus
+    {
+        Reserved,
+        Purchased,
+        Used,
+        Expired,
+        Refunded,
+        Cancelled
     }
 }

@@ -19,6 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<IPaymentService, StripePaymentService>();
             services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<ISeatLayoutService, SeatLayoutService>();
 
             return services;
         }

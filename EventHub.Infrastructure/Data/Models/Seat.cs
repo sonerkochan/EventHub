@@ -8,7 +8,7 @@ namespace EventHub.Infrastructure.Data.Models
     {
         public Guid Id { get; set; }
         public Guid RoomId { get; set; }
-        public Guid ZoneId { get; set; }
+        public Guid? ZoneId { get; set; }
         //seeded with default values -> Row 1, Column 1 (First row and col) , positionX 0.0f, postiionY 0.0f (top left corner)
         public int SeatNumber { get; set; }
         public int Row { get; set; } = 1;
