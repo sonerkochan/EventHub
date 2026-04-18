@@ -183,6 +183,9 @@ namespace EventHub.Infrastructure.Migrations
                     b.Property<bool>("AllowRefunds")
                         .HasColumnType("bit");
 
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("CoverImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -399,11 +402,11 @@ namespace EventHub.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("StripePaymentIntentId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("StripePaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("StripeSessionId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("StripeSessionId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("SucceededAt")
                         .HasColumnType("datetime2");
@@ -586,15 +589,15 @@ namespace EventHub.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            RoomId = new Guid("017328df-bca4-4e6b-b230-02570961d4dd"),
+                            RoomId = new Guid("77319e29-3fe8-4892-ab10-337def59ac59"),
                             Capacity = 100L,
-                            CreatedAt = new DateTime(2026, 4, 7, 17, 57, 34, 492, DateTimeKind.Utc).AddTicks(1407),
+                            CreatedAt = new DateTime(2026, 4, 16, 15, 55, 47, 39, DateTimeKind.Utc).AddTicks(7594),
                             CreatedBy = new Guid("f7a1b2c3-d4e5-6789-abcd-ef0123456789"),
                             Description = "Very nice and cool big room (to test)",
                             IsActive = true,
                             Name = "Fancy",
                             RoomType = 0,
-                            UpdatedAt = new DateTime(2026, 4, 7, 17, 57, 34, 492, DateTimeKind.Utc).AddTicks(2027),
+                            UpdatedAt = new DateTime(2026, 4, 16, 15, 55, 47, 39, DateTimeKind.Utc).AddTicks(7952),
                             VenueId = new Guid("12345678-90ab-cdef-1234-567890abcdef")
                         });
                 });
@@ -857,7 +860,7 @@ namespace EventHub.Infrastructure.Migrations
                             Id = "f7a1b2c3-d4e5-6789-abcd-ef0123456789",
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                            CreatedAt = new DateTime(2026, 4, 7, 20, 57, 34, 426, DateTimeKind.Local).AddTicks(5259),
+                            CreatedAt = new DateTime(2026, 4, 16, 18, 55, 46, 992, DateTimeKind.Local).AddTicks(5925),
                             Email = "admin@eventhub.com",
                             EmailConfirmed = true,
                             IsActive = false,
@@ -865,11 +868,11 @@ namespace EventHub.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EVENTHUB.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEC+8N9jAcPcc+7AaohzcKSXQMzwe0lihGlHRHfehAiaCStKto5cOx7xCfKnx7NiZ6g==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHMfelf14EjalhfTXa952NrME2DOzavDgmTLzscquouKlVE5ddDBZLa6SJjIzGdplg==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "STATIC_SECURITY_STAMP_ADMIN_001",
                             TwoFactorEnabled = false,
-                            UpdatedAt = new DateTime(2026, 4, 7, 20, 57, 34, 428, DateTimeKind.Local).AddTicks(8656),
+                            UpdatedAt = new DateTime(2026, 4, 16, 18, 55, 46, 994, DateTimeKind.Local).AddTicks(2400),
                             UserName = "admin"
                         });
                 });
@@ -995,35 +998,35 @@ namespace EventHub.Infrastructure.Migrations
                         new
                         {
                             Id = "d9de7285-b674-454c-9889-5210abb8d347",
-                            ConcurrencyStamp = "4682b576-dd37-40a1-8f4f-eb1bc1387ef7",
+                            ConcurrencyStamp = "964978d4-8bb0-4034-9a5e-334ccc1589b2",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "07358494-247c-421c-8f7f-82c12be55276",
-                            ConcurrencyStamp = "2144b981-2c5b-4d7c-9528-e7da68263fc3",
+                            ConcurrencyStamp = "e32bee36-102c-4b06-a163-26f4226cce35",
                             Name = "Client",
                             NormalizedName = "CLIENT"
                         },
                         new
                         {
                             Id = "b2c3d4e5-f6a7-8901-bcde-f01234567891",
-                            ConcurrencyStamp = "d028e465-409f-4142-8923-f92119f4b3f3",
+                            ConcurrencyStamp = "4dc1f43a-2cfc-41d0-9c7c-3a6df3d24f63",
                             Name = "Supplier",
                             NormalizedName = "SUPPLIER"
                         },
                         new
                         {
                             Id = "c3d4e5f6-a7b8-9012-cdef-012345678912",
-                            ConcurrencyStamp = "f0dfa391-67a9-4fea-b90b-c90e2fec2b18",
+                            ConcurrencyStamp = "6912653a-7e9f-42da-a39d-a78219f971ba",
                             Name = "Organizer",
                             NormalizedName = "ORGANIZER"
                         },
                         new
                         {
                             Id = "e4f5a6b7-c8d9-0123-def0-123456789abc",
-                            ConcurrencyStamp = "5ca77617-9971-4da3-b703-595c4680e088",
+                            ConcurrencyStamp = "c29336c1-793f-4522-b1bc-54c5d4c486d6",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });

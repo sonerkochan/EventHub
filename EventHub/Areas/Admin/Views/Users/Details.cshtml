@@ -1,0 +1,141 @@
+@model EventHub.Core.Models.User.UserDetailViewModel
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-semibold mb-0">User Details</h5>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back to List</a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border mb-3">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Account Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-4 text-muted small">Username:</div>
+                    <div class="col-8 fw-medium">@Model.UserName</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted small">Email:</div>
+                    <div class="col-8">
+                        @Model.Email
+                        @if (Model.EmailConfirmed)
+                        {
+                            <span class="badge bg-success ms-2">Verified</span>
+                        }
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted small">Name:</div>
+                    <div class="col-8">@Model.FirstName @Model.LastName</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted small">Phone:</div>
+                    <div class="col-8">
+                        @(Model.PhoneNumber ?? "Not provided")
+                        @if (Model.PhoneNumberConfirmed)
+                        {
+                            <span class="badge bg-success ms-2">Verified</span>
+                        }
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted small">Status:</div>
+                    <div class="col-8">
+                        <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
+                            @(Model.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted small">Created:</div>
+                    <div class="col-8">@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted small">Last Login:</div>
+                    <div class="col-8">@(Model.LastLoginAt?.ToString("dd MMM yyyy HH:mm") ?? "Never")</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Roles</h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Roles.Any())
+                {
+                    @foreach (var role in Model.Roles)
+                    {
+                        <span class="badge bg-primary me-2 mb-2">
+                            @role
+                            <form asp-action="RemoveRole" asp-route-userId="@Model.Id" asp-route-role="@role"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Remove @role role?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-close btn-close-white ms-1" style="font-size: 0.6rem; vertical-align: middle;"></button>
+                            </form>
+                        </span>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted small mb-0">No roles assigned</p>
+                }
+
+                <hr />
+
+                <form asp-action="AddRole" asp-route-userId="@Model.Id" method="post" class="row g-2">
+                    @Html.AntiForgeryToken()
+                    <div class="col-auto">
+                        <select name="role" class="form-select form-select-sm">
+                            <option value="Client">Client</option>
+                            <option value="Organizer">Organizer</option>
+                            <option value="Supplier">Supplier</option>
+                            <option value="Moderator">Moderator</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary btn-sm">Add Role</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Actions</h6>
+            </div>
+            <div class="card-body">
+                @if (Model.IsActive)
+                {
+                    <form asp-action="Deactivate" asp-route-id="@Model.Id" method="post"
+                          onsubmit="return confirm('Deactivate this user?')">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-warning btn-sm w-100 mb-2">Deactivate User</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="Reactivate" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-success btn-sm w-100 mb-2">Reactivate User</button>
+                    </form>
+                }
+
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
+                      onsubmit="return confirm('Permanently delete this user? This cannot be undone.')">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-danger btn-sm w-100">Delete User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

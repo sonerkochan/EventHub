@@ -1,8 +1,222 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using EventHub.Infrastructure.Data.Models
+@using Microsoft.AspNetCore.Identity
+@model IEnumerable<EventHub.Core.Models.Event.EventListViewModel>
+@inject SignInManager<User> SignInManager
+
+@{
+    ViewData["Title"] = "EventHub - Your Event Marketplace";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to EventHub!</h1>
-    <h4>Sign Up Now!! Only for €0.01</h4>
+<!-- Hero Section -->
+<div class="bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 80px 0;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3">Discover Amazing Events</h1>
+                <p class="lead mb-4">From concerts to conferences, workshops to sports - find and book tickets for events that inspire you.</p>
+                @if (!SignInManager.IsSignedIn(User))
+                {
+                    <div class="d-flex gap-3">
+                        <a href="/User/Register" class="btn btn-light btn-lg px-4">Get Started</a>
+                        <a href="/User/Login" class="btn btn-outline-light btn-lg px-4">Sign In</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex gap-3">
+                        <a asp-area="Client" asp-controller="Events" asp-action="Index" class="btn btn-light btn-lg px-4">Browse Events</a>
+                        <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="btn btn-outline-light btn-lg px-4">My Tickets</a>
+                    </div>
+                }
+            </div>
+            <div class="col-lg-6 text-center d-none d-lg-block">
+                <div style="font-size: 200px; opacity: 0.2;">🎫</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Stats Section -->
+<div class="bg-light py-4">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 col-6 mb-3 mb-md-0">
+                <h3 class="fw-bold mb-0">@Model.Count()</h3>
+                <small class="text-muted">Live Events</small>
+            </div>
+            <div class="col-md-3 col-6 mb-3 mb-md-0">
+                <h3 class="fw-bold mb-0">@Model.Sum(e => e.TotalTickets)</h3>
+                <small class="text-muted">Total Tickets</small>
+            </div>
+            <div class="col-md-3 col-6">
+                <h3 class="fw-bold mb-0">@Model.Sum(e => e.TicketsSold)</h3>
+                <small class="text-muted">Tickets Sold</small>
+            </div>
+            <div class="col-md-3 col-6">
+                <h3 class="fw-bold mb-0">@Model.Select(e => e.EventType).Distinct().Count()</h3>
+                <small class="text-muted">Categories</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Events Section -->
+<div class="container my-5">
+    @if (Model.Any())
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Upcoming Events</h2>
+            <a asp-area="Client" asp-controller="Events" asp-action="Index" class="btn btn-outline-dark">View All →</a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var e in Model.Take(6))
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 hover-lift" style="transition: all 0.3s;">
+                        @if (!string.IsNullOrEmpty(e.CoverImageUrl))
+                        {
+                            <img src="@e.CoverImageUrl" class="card-img-top" alt="@e.EventName" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center" 
+                                 style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <span style="font-size: 64px;">@GetEventIcon(e.EventType)</span>
+                            </div>
+                        }
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-2">
+                                <span class="badge bg-@GetTypeBadgeColor(e.EventType) fw-normal small">@e.EventType</span>
+                                <span class="badge bg-secondary fw-normal small ms-1">@e.RoomName</span>
+                            </div>
+                            <h5 class="card-title fw-semibold mb-2">@e.EventName</h5>
+                            <p class="text-muted small mb-2">
+                                📅 @e.StartDateTime.ToString("ddd, MMM dd, yyyy")
+                            </p>
+                            <p class="text-muted small mb-3">
+                                🕐 @e.StartDateTime.ToString("h:mm tt")
+                            </p>
+                            <div class="mt-auto">
+                                @if (e.BasePrice > 0)
+                                {
+                                    <div class="mb-2">
+                                        <span class="fw-bold" style="font-size: 1.25rem; color: #667eea;">$@e.BasePrice.ToString("F2")</span>
+                                        <small class="text-muted"> per ticket</small>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="mb-2">
+                                        <span class="badge fw-normal" style="background: #10b981; color: white; padding: 0.25rem 0.75rem;">FREE</span>
+                                    </div>
+                                }
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small class="text-muted">@(e.TotalTickets - e.TicketsSold) tickets left</small>
+                                    <div class="progress" style="width: 100px; height: 6px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: @((e.TotalTickets - e.TicketsSold) * 100.0 / e.TotalTickets)%"></div>
+                                    </div>
+                                </div>
+                                @if (SignInManager.IsSignedIn(User))
+                                {
+                                    <a asp-area="Client" asp-controller="Events" asp-action="Details" asp-route-id="@e.Id" 
+                                       class="btn btn-dark btn-sm w-100">View Details</a>
+                                }
+                                else
+                                {
+                                    <a href="/User/Login" class="btn btn-dark btn-sm w-100">Sign in to Book</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div style="font-size: 80px; opacity: 0.3; margin-bottom: 20px;">🎭</div>
+            <h3 class="text-muted">No events available right now</h3>
+            <p class="text-muted">Check back soon for upcoming events!</p>
+            @if (User.IsInRole("Admin") || User.IsInRole("Organizer"))
+            {
+                <a asp-area="Admin" asp-controller="Events" asp-action="Create" class="btn btn-primary mt-3">Create Your First Event</a>
+            }
+        </div>
+    }
+</div>
+
+<!-- Categories Section -->
+<div class="bg-light py-5">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-4">Browse by Category</h2>
+        <div class="row g-3">
+            @foreach (var type in Enum.GetValues<EventType>())
+            {
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a asp-area="Client" asp-controller="Events" asp-action="Index" 
+                       class="text-decoration-none">
+                        <div class="card border-0 shadow-sm text-center p-3 h-100 hover-lift" style="transition: all 0.3s;">
+                            <div style="font-size: 40px;">@GetEventIcon(type)</div>
+                            <small class="fw-medium mt-2">@type</small>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section for Organizers -->
+@if (!SignInManager.IsSignedIn(User) || !User.IsInRole("Organizer"))
+{
+    <div class="container my-5">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body text-white text-center py-5">
+                <h2 class="fw-bold mb-3">Want to Host Events?</h2>
+                <p class="lead mb-4">Join EventHub as an organizer and reach thousands of potential attendees.</p>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a asp-area="Client" asp-controller="Application" asp-action="Apply" asp-route-type="1" 
+                       class="btn btn-light btn-lg px-5">Apply as Organizer</a>
+                }
+                else
+                {
+                    <a href="/User/Register" class="btn btn-light btn-lg px-5">Get Started</a>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    string GetEventIcon(EventType type) => type switch
+    {
+        EventType.Conference => "💼",
+        EventType.Workshop => "🛠️",
+        EventType.Seminar => "🎓",
+        EventType.Concert => "🎵",
+        EventType.Sports => "⚽",
+        EventType.Other => "🎭",
+        _ => "🎫"
+    };
+
+    string GetTypeBadgeColor(EventType type) => type switch
+    {
+        EventType.Conference => "primary",
+        EventType.Workshop => "warning",
+        EventType.Seminar => "info",
+        EventType.Concert => "danger",
+        EventType.Sports => "success",
+        _ => "secondary"
+    };
+}
+
+<style>
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>

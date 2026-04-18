@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="appsettings.json" />
     <Content Remove="Areas\Organizer\Views\Shared\ViewImports.cshtml" />
   </ItemGroup>
 
@@ -32,6 +33,10 @@
 
   <ItemGroup>
     <Folder Include="Middlewares\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appsettings.json" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿using EventHub.Core.Contracts;
+using EventHub.Core.Models.Payment;
 using EventHub.Core.Services;
 using EventHub.Infrastructure.Data.Common;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -15,7 +15,19 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IModeratorService, ModeratorService>();
             services.AddScoped<IApplicationService, ApplicationService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITicketService, TicketService>();
+            services.AddScoped<IPaymentService, StripePaymentService>();
+            services.AddScoped<IDashboardService, DashboardService>();
 
+            return services;
+        }
+
+        public static IServiceCollection AddStripe(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            services.Configure<StripeOptions>(configuration.GetSection(StripeOptions.Section));
             return services;
         }
     }

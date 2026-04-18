@@ -1,54 +1,41 @@
 ﻿using EventHub.Core.Contracts;
-using EventHub.Infrastructure.Data.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace EventHub.Areas.Admin.Controllers
 {
     public class ApplicationController : BaseController
     {
         private readonly IApplicationService applicationService;
-        private readonly UserManager<User> userManager;
 
-        public ApplicationController(IApplicationService _applicationService, UserManager<User> _userManager)
+        public ApplicationController(IApplicationService _applicationService)
         {
             applicationService = _applicationService;
-            userManager = _userManager;
         }
 
-        // List all pending
         public async Task<IActionResult> Index()
         {
-            var applications = await applicationService.GetAllPendingAsync();
-            return View(applications);
+            var model = await applicationService.GetAllPendingAsync();
+            return View(model);
         }
 
-        // Approve
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id)
         {
-            var currentUser = await userManager.GetUserAsync(User);
-
-            var result = await applicationService.ApproveAsync(id, currentUser.Id);
-
-            TempData[result ? "Success" : "Error"] = result
-                ? "Application approved!"
-                : "Failed to approve application.";
-
+            var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            await applicationService.ApproveAsync(id, adminId);
+            TempData["Success"] = "Application approved.";
             return RedirectToAction(nameof(Index));
         }
 
-        // Reject
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id, string comment)
         {
-            var currentUser = await userManager.GetUserAsync(User);
-            var result = await applicationService.RejectAsync(id, currentUser.Id, comment);
-
-            TempData[result ? "Success" : "Error"] = result
-                ? "Application rejected!"
-                : "Failed to reject application.";
-
+            var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            await applicationService.RejectAsync(id, adminId, comment);
+            TempData["Success"] = "Application rejected.";
             return RedirectToAction(nameof(Index));
         }
     }

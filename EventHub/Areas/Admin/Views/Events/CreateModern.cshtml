@@ -1,0 +1,146 @@
+@model EventHub.Core.Models.Event.CreateEventViewModel
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<div class="animate-fade-in" style="max-width: 800px; margin: 0 auto;">
+    <div class="mb-4">
+        <a asp-action="Index" class="btn-modern btn-modern-ghost mb-2" style="padding: 0.375rem 0.75rem;">
+            ← Back to Events
+        </a>
+        <h4 class="fw-bold mb-1">Create New Event</h4>
+        <p class="text-muted-modern mb-0">Fill in the details below to create your event.</p>
+    </div>
+
+    <div class="modern-card">
+        <div class="modern-card-body">
+            <form asp-action="Create" method="post" class="form-modern">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
+
+                <!-- Event Name -->
+                <div class="form-group-modern">
+                    <label asp-for="EventName" class="form-label-modern">Event Name</label>
+                    <input asp-for="EventName" class="form-input-modern" placeholder="Summer Music Festival 2026" />
+                    <span asp-validation-for="EventName" class="text-danger small"></span>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group-modern">
+                    <label asp-for="Description" class="form-label-modern">Description</label>
+                    <textarea asp-for="Description" class="form-input-modern" rows="4" 
+                              placeholder="Tell attendees what makes this event special..."></textarea>
+                </div>
+
+                <!-- Type & Priority Row -->
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="form-group-modern">
+                            <label asp-for="EventType" class="form-label-modern">Event Type</label>
+                            <select asp-for="EventType"
+                                    asp-items="Html.GetEnumSelectList<EventHub.Infrastructure.Data.Models.EventType>()"
+                                    class="form-select-modern"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group-modern">
+                            <label asp-for="EventPriority" class="form-label-modern">Priority</label>
+                            <select asp-for="EventPriority"
+                                    asp-items="Html.GetEnumSelectList<EventHub.Infrastructure.Data.Models.EventPriority>()"
+                                    class="form-select-modern"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group-modern">
+                            <label asp-for="RoomId" class="form-label-modern">Room / Venue</label>
+                            <select asp-for="RoomId" asp-items="Model.AvailableRooms" class="form-select-modern">
+                                <option value="">— Select —</option>
+                            </select>
+                            <span asp-validation-for="RoomId" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dates Row -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group-modern">
+                            <label asp-for="StartDateTime" class="form-label-modern">Start Date & Time</label>
+                            <input asp-for="StartDateTime" class="form-input-modern" type="datetime-local" />
+                            <span asp-validation-for="StartDateTime" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group-modern">
+                            <label asp-for="EndDateTime" class="form-label-modern">End Date & Time</label>
+                            <input asp-for="EndDateTime" class="form-input-modern" type="datetime-local" />
+                            <span asp-validation-for="EndDateTime" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tickets & Cover -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group-modern">
+                            <label asp-for="TotalTickets" class="form-label-modern">Total Tickets</label>
+                            <input asp-for="TotalTickets" class="form-input-modern" type="number" min="1" placeholder="100" />
+                            <span asp-validation-for="TotalTickets" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group-modern">
+                            <label asp-for="CoverImageUrl" class="form-label-modern">Cover Image URL</label>
+                            <input asp-for="CoverImageUrl" class="form-input-modern" placeholder="https://example.com/image.jpg" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Refunds Section -->
+                <div class="modern-card" style="background: hsl(var(--muted)); border: none; padding: 1.25rem;">
+                    <div class="form-check mb-3">
+                        <input asp-for="AllowRefunds" class="form-check-input" type="checkbox" id="allowRefunds" />
+                        <label class="form-check-label fw-medium" for="allowRefunds">
+                            Allow Refunds
+                        </label>
+                    </div>
+
+                    <div id="refundDeadlineGroup" style="display:none">
+                        <div class="form-group-modern mb-0">
+                            <label asp-for="RefundDeadline" class="form-label-modern">Refund Deadline</label>
+                            <input asp-for="RefundDeadline" class="form-input-modern" type="datetime-local" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-modern btn-modern-primary" style="padding: 0.625rem 2rem;">
+                        Create Event
+                    </button>
+                    <a asp-action="Index" class="btn-modern btn-modern-outline" style="padding: 0.625rem 2rem;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        const cb = document.getElementById('allowRefunds');
+        const group = document.getElementById('refundDeadlineGroup');
+        const toggle = () => {
+            if (cb.checked) {
+                group.style.display = 'block';
+                group.style.animation = 'fadeIn 0.3s ease-out';
+            } else {
+                group.style.display = 'none';
+            }
+        };
+        cb.addEventListener('change', toggle);
+        toggle();
+    </script>
+}

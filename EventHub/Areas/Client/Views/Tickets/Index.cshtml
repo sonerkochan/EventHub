@@ -1,0 +1,60 @@
+@model IEnumerable<EventHub.Core.Models.Ticket.TicketListViewModel>
+
+@{
+    ViewData["Title"] = "My Tickets";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show small" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border">
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="small">#</th>
+                    <th class="small">Event</th>
+                    <th class="small">Date</th>
+                    <th class="small">Venue</th>
+                    <th class="small">Status</th>
+                    <th class="small">Purchased</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr>
+                        <td class="small text-muted">@t.TicketNumber</td>
+                        <td class="small fw-medium">@t.EventName</td>
+                        <td class="small">@t.EventStart.ToString("dd MMM yyyy, HH:mm")</td>
+                        <td class="small">@t.RoomName</td>
+                        <td>
+                            <span class="badge bg-@(t.IsUsed ? "secondary" : "success") fw-normal">
+                                @(t.IsUsed ? "Used" : "Valid")
+                            </span>
+                        </td>
+                        <td class="small">@t.PurchasedAt.ToString("dd MMM yyyy")</td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@t.Id"
+                               class="btn btn-outline-secondary btn-sm">View</a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted small py-4">
+                            No tickets yet. <a asp-action="Index" asp-controller="Events">Browse events</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

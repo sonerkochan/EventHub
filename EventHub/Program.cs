@@ -48,6 +48,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add localization support
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
+builder.Services.AddApplicationServices();
+builder.Services.AddStripe(builder.Configuration);
+
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
@@ -64,8 +67,6 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization();
-
-builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 

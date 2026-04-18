@@ -90,6 +90,15 @@ namespace EventHub.Areas.Organizer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Publish(Guid id)
+        {
+            await eventService.PublishAsync(id);
+            TempData["Success"] = "Event published successfully!";
+            return RedirectToAction(nameof(Index));
+        }
+
         private async Task<IEnumerable<SelectListItem>> BuildRoomSelectList()
         {
             var rooms = await roomService.GetAllRoomsAsync();
