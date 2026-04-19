@@ -591,9 +591,6 @@ namespace EventHub.Infrastructure.Migrations
                         {
                             RoomId = new Guid("77319e29-3fe8-4892-ab10-337def59ac59"),
                             Capacity = 100L,
-                            CreatedAt = new DateTime(2026, 4, 16, 15, 55, 47, 39, DateTimeKind.Utc).AddTicks(7594),
-                            RoomId = new Guid("96a6ec78-64c5-460f-acb0-aa9d0031fa51"),
-                            Capacity = 100L,
                             CreatedAt = new DateTime(2026, 4, 7, 21, 2, 10, 410, DateTimeKind.Utc).AddTicks(7551),
                             CreatedBy = new Guid("f7a1b2c3-d4e5-6789-abcd-ef0123456789"),
                             Description = "Very nice and cool big room (to test)",
@@ -601,7 +598,6 @@ namespace EventHub.Infrastructure.Migrations
                             Name = "Fancy",
                             RoomType = 0,
                             UpdatedAt = new DateTime(2026, 4, 16, 15, 55, 47, 39, DateTimeKind.Utc).AddTicks(7952),
-                            UpdatedAt = new DateTime(2026, 4, 7, 21, 2, 10, 410, DateTimeKind.Utc).AddTicks(8248),
                             VenueId = new Guid("12345678-90ab-cdef-1234-567890abcdef")
                         });
                 });
