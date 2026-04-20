@@ -27,7 +27,7 @@ namespace EventHub.Infrastructure.Data.Models
 
         public string? ReviewComment { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? ReviewedAt { get; set; }
     }
     public enum ApplicationType

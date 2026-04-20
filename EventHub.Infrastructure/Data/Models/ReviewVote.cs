@@ -11,8 +11,8 @@ namespace EventHub.Infrastructure.Data.Models
         public Guid ReviewId { get; set; }
         public Guid UserId { get; set; }
         public VoteType ReviewType { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public enum VoteType
         {

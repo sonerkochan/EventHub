@@ -13,6 +13,6 @@ namespace EventHub.Infrastructure.Data.Models
         public string? Token { get; set; }
         public int ExpiresAt { get; set; }
         public DateTime? VerifiedAt { get; set; } = null;
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }
