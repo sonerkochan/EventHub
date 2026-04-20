@@ -20,6 +20,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IPaymentService, StripePaymentService>();
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<ISeatLayoutService, SeatLayoutService>();
+            services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<IRefundService, RefundService>();
+            services.AddScoped<ISeatService, SeatService>();
+            services.AddScoped<IZoneService, ZoneService>();
+            services.AddScoped<IEventPricingTierService, EventPricingTierService>();
 
             return services;
         }
