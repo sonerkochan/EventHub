@@ -66,5 +66,91 @@ namespace EventHub.Core.Services
                 })
                 .ToListAsync();
         }
+
+        public async Task<VenueDetailViewModel?> GetByIdAsync(Guid id)
+        {
+            return await repo.AllReadonly<Venue>()
+                .Where(v => v.Id == id && v.IsActive)
+                .Select(v => new VenueDetailViewModel
+                {
+                    Id = v.Id,
+                    Name = v.Name!,
+                    Description = v.Description,
+                    Address = v.Address,
+                    City = v.City,
+                    Country = v.Country,
+                    PostalCode = v.PostalCode,
+                    Latitude = v.Latitude,
+                    Longitude = v.Longitude,
+                    ContactEmail = v.ContactEmail,
+                    ContactPhone = v.ContactPhone,
+                    IsActive = v.IsActive,
+                    CreatedAt = v.CreatedAt,
+                    UpdatedAt = v.UpdatedAt
+                })
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<EditVenueViewModel?> GetForEditAsync(Guid id)
+        {
+            var entity = await repo.AllReadonly<Venue>()
+                .FirstOrDefaultAsync(v => v.Id == id);
+
+            if (entity == null) return null;
+
+            return new EditVenueViewModel
+            {
+                Id = entity.Id,
+                Name = entity.Name!,
+                Description = entity.Description,
+                Address = entity.Address!,
+                City = entity.City!,
+                Country = entity.Country!,
+                PostalCode = entity.PostalCode,
+                Latitude = entity.Latitude,
+                Longitude = entity.Longitude,
+                ContactEmail = entity.ContactEmail,
+                ContactPhone = entity.ContactPhone
+            };
+        }
+
+        public async Task<bool> UpdateAsync(EditVenueViewModel model)
+        {
+            var entity = await repo.All<Venue>()
+                .FirstOrDefaultAsync(v => v.Id == model.Id);
+
+            if (entity == null) return false;
+
+            entity.Name = model.Name;
+            entity.Description = model.Description;
+            entity.Address = model.Address;
+            entity.City = model.City;
+            entity.Country = model.Country;
+            entity.PostalCode = model.PostalCode;
+            entity.Latitude = model.Latitude;
+            entity.Longitude = model.Longitude;
+            entity.ContactEmail = model.ContactEmail;
+            entity.ContactPhone = model.ContactPhone;
+            entity.UpdatedAt = DateTime.UtcNow;
+
+            repo.Update(entity);
+            await repo.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeactivateAsync(Guid id)
+        {
+            var entity = await repo.All<Venue>()
+                .FirstOrDefaultAsync(v => v.Id == id);
+
+            if (entity == null) return false;
+
+            entity.IsActive = false;
+            entity.UpdatedAt = DateTime.UtcNow;
+
+            repo.Update(entity);
+            await repo.SaveChangesAsync();
+            return true;
+        }
     }
 }
