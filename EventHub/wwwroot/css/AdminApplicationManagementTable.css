@@ -1,8 +1,8 @@
 ﻿
 .card.border {
-    border: none ;
-    border-radius: 24px ;
-    overflow: hidden;  This rounds the table corners inside 
+    border: none;
+    border-radius: 24px;
+    overflow: hidden; /* This rounds the table corners inside */
     box-shadow: 0 15px 35px rgba(80, 120, 255, 0.12);
     background: linear-gradient(145deg, #ffffff 0%, #f3f7fc 100%);
 }
