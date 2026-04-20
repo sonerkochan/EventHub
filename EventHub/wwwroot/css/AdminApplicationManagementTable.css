@@ -1,0 +1,83 @@
+﻿
+.card.border {
+    border: none ;
+    border-radius: 24px ;
+    overflow: hidden;  This rounds the table corners inside 
+    box-shadow: 0 15px 35px rgba(80, 120, 255, 0.12);
+    background: linear-gradient(145deg, #ffffff 0%, #f3f7fc 100%);
+}
+
+.table-light th {
+    background-color: rgba(16, 137, 211, 0.05) ;
+    color: #1089d3;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 15px;
+    border: none;
+}
+
+
+.table-hover tbody tr:hover {
+    background-color: rgba(16, 137, 211, 0.02);
+}
+
+.table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-weight: 600;
+}
+
+
+.table-btn {
+    border: none;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.btn-approve {
+    background: linear-gradient(45deg, #28a745 0%, #34ce57 100%);
+    color: white;
+}
+
+.btn-reject {
+    background: #dc3545;
+    color: white;
+}
+
+.table-btn:hover {
+    filter: brightness(0.9);
+    transform: translateY(-1px);
+}
+
+.table-input {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 4px 10px;
+}
+
+.table-responsivness {
+    overflow-x: auto;
+}
+
+.text-end {
+    white-space: nowrap;
+    padding-right: 15px;
+}
+
+
+
+   
+
+
