@@ -7,6 +7,8 @@
     ViewData["Title"] = "Applications";
 }
 
+<link rel="stylesheet" href="~/css/applicationForms.css" asp-append-version="true">
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success alert-dismissible fade show small" role="alert">
@@ -27,37 +29,61 @@
     var currentUser = await UserManager.GetUserAsync(User);
 
     <div class="row g-3">
-        <div class="col-md-6">
-            <div class="card border h-100">
-                <div class="card-body">
-                    <h6 class="fw-semibold mb-1">Organizer</h6>
-                    <p class="text-muted small mb-3">Create and manage events, venues, and ticket sales.</p>
-                    @if (await UserManager.IsInRoleAsync(currentUser!, "Organizer"))
-                    {
-                        <span class="badge bg-success">Active</span>
-                    }
-                    else
-                    {
-                        <a asp-action="Apply" asp-route-type="1" class="btn btn-dark btn-sm">Apply as Organizer</a>
-                    }
-                </div>
+            <div class="col-md-6">
+                @if (!(await UserManager.IsInRoleAsync(currentUser!, "Organizer")))
+                {
+                    <a asp-action="Apply" asp-route-type="1" class="text-decoration-none">
+                        <div class="container hover-lift selection-card">
+                            <div class="card-body">
+                                <h6 class="heading-sm">Organizer</h6>
+                                <p class="text-muted small">Create and manage events, venues, and ticket sales.</p>
+                                <div class="apply-text">Apply As Organizer Now &rarr;</div>
+                            </div>
+                        </div>
+                    </a>
+                
+                }
+                else
+                {
+                    <div class="container hover-lift selection-card">
+                        <div class="card-body">
+                            <h6 class="heading-sm">Supplier</h6>
+                            <p class="text-muted small">Create and manage events, venues, and ticket sales.</p>
+                            <span class="badge bg-success">Active</span>
+
+                            <div class="text-success small fw-bold">You are already registered as Organizer</div>
+                        </div>
+                       
+                    </div>
+                }
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card border h-100">
-                <div class="card-body">
-                    <h6 class="fw-semibold mb-1">Supplier</h6>
-                    <p class="text-muted small mb-3">Supply goods and services to event organizers on the platform.</p>
-                    @if (await UserManager.IsInRoleAsync(currentUser!, "Supplier"))
-                    {
-                        <span class="badge bg-success">Active</span>
-                    }
-                    else
-                    {
-                        <a asp-action="Apply" asp-route-type="2" class="btn btn-dark btn-sm">Apply as Supplier</a>
-                    }
-                </div>
-            </div>
+
+        <div class="col-md-6">                   
+                @if (!(await UserManager.IsInRoleAsync(currentUser!, "Supplier")))
+                {
+                    <a asp-action="Apply" asp-route-type="2" class="text-decoration-none">
+                        <div class="container hover-lift selection-card">
+                            <div class="card-body">
+                                <h6 class="heading-sm">Supplier</h6>
+                                <p class="text-muted small">Supply goods and services to event organizers on the platform.</p>
+                                <div class="apply-text">Apply As Supplier Now &rarr;</div>
+                            </div>
+                        </div>
+                    </a>
+                    
+                }
+                else
+                {                  
+                    <div class="container hover-lift selection-card">
+                        <div class="card-body">
+                            <h6 class="heading-sm">Supplier</h6>
+                            <p class="text-muted small">Supply goods and services to event organizers on the platform.</p>
+                            <span class="badge bg-success">Active</span>
+                            <div class="text-success small fw-bold">You are already registered as Supplier</div>
+                        </div>
+                        
+                    </div>
+                }     
         </div>
     </div>
 }
