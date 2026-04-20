@@ -16,7 +16,7 @@ namespace EventHub.Infrastructure.Data.Models
         public float PositionX { get; set; } = 0.0f;
         public float PositionY { get; set; } = 0.0f;
         public bool IsActive { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -24,7 +24,7 @@ namespace EventHub.Infrastructure.Data.Models
         public string? ContactEmail { get; set; } = null;
         public string? ContactPhone { get; set; } = null;
         public bool IsActive { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -16,7 +16,7 @@ namespace EventHub.Infrastructure.Data.Models
         public DateTime SentAt { get; set; }
         public string? FailureReason { get; set; }
         public Guid? ExternalMessageId { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public enum EmailStatus
         {
