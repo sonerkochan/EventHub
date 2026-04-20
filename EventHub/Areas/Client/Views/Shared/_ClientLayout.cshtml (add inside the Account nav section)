@@ -1,6 +1,0 @@
-<li>
-    <a asp-area="Client" asp-controller="Payment" asp-action="History"
-       class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payment" ? "active" : "")">
-        Payment History
-    </a>
-</li>
