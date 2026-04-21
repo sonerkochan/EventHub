@@ -23,6 +23,11 @@ namespace EventHub.Infrastructure.Data
             builder.Entity<SeatLayout>(sl => sl.HasKey(sl => sl.Id));
             builder.Entity<EmailVerificationToken>(ev => ev.HasKey(ev => ev.TokenId));
             builder.Entity<PaymentTicket>().HasKey(pt => new { pt.PaymentId, pt.TicketId });
+            builder.Entity<SupplierService>(s =>
+            {
+                s.HasKey(x => x.Id);
+                s.HasQueryFilter(x => !x.IsDeleted);
+            });
         }
 
         public DbSet<Venue> Venues { get; set; }
@@ -46,6 +51,7 @@ namespace EventHub.Infrastructure.Data
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<ApplicationForm> ApplicationForms { get; set; }
         public DbSet<SeatHolds> SeatHolds { get; set; }
+        public DbSet<SupplierService> SupplierServices { get; set; }
 
     }
 }

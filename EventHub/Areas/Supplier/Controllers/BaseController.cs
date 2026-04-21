@@ -5,6 +5,6 @@ namespace EventHub.Areas.Supplier.Controllers
 {
     [Area("Supplier")]
     [Route("/Supplier/[controller]/[Action]/{id?}")]
-    [Authorize(Roles = "Organizer,Admin")]
+    [Authorize(Roles = "Supplier,Admin")]
     public class BaseController : Controller { }
 }

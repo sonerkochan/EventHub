@@ -1,0 +1,22 @@
+@model EventHub.Infrastructure.Data.Models.SupplierService
+
+@{
+    ViewData["Title"] = "Delete Service";
+    Layout = "~/Areas/Supplier/Views/Shared/_SupplierLayout.cshtml";
+}
+
+<h3>Delete Service</h3>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Name</h5>
+        <p class="card-text">@Model.Description</p>
+        <p class="card-text"><small class="text-muted">Price: @(Model.Price.HasValue ? string.Format("{0:C}", Model.Price.Value) : "—")</small></p>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-area="Supplier" asp-controller="Services" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+</form>
