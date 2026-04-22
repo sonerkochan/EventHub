@@ -74,9 +74,6 @@ namespace EventHub.Areas.Client.Controllers
         }
     }
 
-    /// <summary>
-    /// Stripe webhook endpoint — lives outside the Client area so it requires no auth.
-    /// </summary>
     [AllowAnonymous]
     [ApiController]
     [Route("api/stripe/webhook")]

@@ -3,6 +3,7 @@ using EventHub.Core.Models.Ticket;
 using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using QRCoder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +18,12 @@ namespace EventHub.Core.Services
     public class TicketService : ITicketService
     {
         private readonly IRepository repo;
+        private readonly IQRCodeService qrCodeService;
 
-        public TicketService(IRepository _repo)
+        public TicketService(IRepository _repo, IQRCodeService _qrCodeService)
         {
             repo = _repo;
+            qrCodeService = _qrCodeService;
         }
 
         public async Task<List<Guid>> PurchaseAsync(Guid eventId, Guid userId, int quantity)
@@ -40,6 +43,7 @@ namespace EventHub.Core.Services
             long nextNumber = (lastTicket?.TicketNumber ?? 1_000_000) + 1;
             var createdIds = new List<Guid>();
 
+
             for (int i = 0; i < quantity; i++)
             {
                 var ticket = new Ticket
@@ -51,8 +55,9 @@ namespace EventHub.Core.Services
                     PricingTierId = Guid.Empty,
                     ValidatedBy = Guid.Empty,
                     TicketNumber = nextNumber + i,
+                    Status = TicketStatus.Purchased,
                     Price = (float)ev.BasePrice,
-                    Currency = "USD",
+                    Currency = "EUR",
                     HashedCode = GenerateHashedCode(userId, eventId, nextNumber + i),
                     IsUsed = false,
                     ReservedAt = DateTime.UtcNow,
@@ -61,10 +66,19 @@ namespace EventHub.Core.Services
                     ValidatedAt = default
                 };
 
+                try
+                {
+                    ticket.QRCodeImage = qrCodeService.GenerateQRCode(ticket.HashedCode!);
+                }
+                catch
+                {
+                    ticket.QRCodeImage = null;
+                }
+
                 await repo.AddAsync(ticket);
                 createdIds.Add(ticket.Id);
             }
-
+            
             ev.TicketsSold += quantity;
             ev.UpdatedAt = DateTime.UtcNow;
             repo.Update(ev);
@@ -75,62 +89,75 @@ namespace EventHub.Core.Services
 
         public async Task<IEnumerable<TicketListViewModel>> GetUserTicketsAsync(Guid userId)
         {
-            return await repo.AllReadonly<Ticket>()
+            var tickets = await repo.AllReadonly<Ticket>()
                 .Where(t => t.UserId == userId)
-                .Join(
-                    repo.AllReadonly<Event>(),
-                    t => t.EventId,
-                    e => e.Id,
-                    (t, e) => new { t, e })
-                .Join(
-                    repo.AllReadonly<Room>(),
-                    te => te.e.RoomId,
-                    r => r.RoomId,
-                    (te, r) => new TicketListViewModel
-                    {
-                        Id = te.t.Id,
-                        TicketNumber = te.t.TicketNumber,
-                        EventName = te.e.EventName!,
-                        EventStart = te.e.StartDateTime,
-                        RoomName = r.Name!,
-                        Price = te.t.Price,
-                        Currency = te.t.Currency ?? "USD",
-                        IsUsed = te.t.IsUsed,
-                        PurchasedAt = te.t.PurchasedAt
-                    })
-                .OrderByDescending(t => t.PurchasedAt)
                 .ToListAsync();
+
+            var eventIds = tickets.Select(t => t.EventId).Distinct().ToList();
+            var events = await repo.AllReadonly<Event>()
+                .Where(e => eventIds.Contains(e.Id))
+                .ToListAsync();
+
+            var roomIds = events.Select(e => e.RoomId).Distinct().ToList();
+            var rooms = await repo.AllReadonly<Room>()
+                .Where(r => roomIds.Contains(r.RoomId))
+                .ToListAsync();
+
+            var result = tickets.Select(t =>
+            {
+                var evt = events.FirstOrDefault(e => e.Id == t.EventId);
+                var room = rooms.FirstOrDefault(r => r.RoomId == evt?.RoomId);
+                return new TicketListViewModel
+                {
+                    Id = t.Id,
+                    TicketNumber = t.TicketNumber,
+                    EventName = evt?.EventName ?? "Unknown Event",
+                    EventStart = evt?.StartDateTime ?? DateTime.MinValue,
+                    RoomName = room?.Name ?? "Unknown Room",
+                    Price = t.Price,
+                    Currency = t.Currency ?? "EUR",
+                    IsUsed = t.IsUsed,
+                    PurchasedAt = t.PurchasedAt,
+                    Status = t.Status
+                };
+            }).OrderByDescending(t => t.PurchasedAt);
+
+            return result;
         }
 
         public async Task<TicketDetailViewModel?> GetTicketByIdAsync(Guid ticketId, Guid userId)
         {
-            return await repo.AllReadonly<Ticket>()
-                .Where(t => t.Id == ticketId && t.UserId == userId)
-                .Join(
-                    repo.AllReadonly<Event>(),
-                    t => t.EventId,
-                    e => e.Id,
-                    (t, e) => new { t, e })
-                .Join(
-                    repo.AllReadonly<Room>(),
-                    te => te.e.RoomId,
-                    r => r.RoomId,
-                    (te, r) => new TicketDetailViewModel
-                    {
-                        Id = te.t.Id,
-                        TicketNumber = te.t.TicketNumber,
-                        HashedCode = te.t.HashedCode!,
-                        EventName = te.e.EventName!,
-                        EventDescription = te.e.Description,
-                        EventStart = te.e.StartDateTime,
-                        EventEnd = te.e.EndDateTime,
-                        RoomName = r.Name!,
-                        Price = te.t.Price,
-                        Currency = te.t.Currency ?? "USD",
-                        IsUsed = te.t.IsUsed,
-                        PurchasedAt = te.t.PurchasedAt
-                    })
-                .FirstOrDefaultAsync();
+            var ticket = await repo.AllReadonly<Ticket>()
+                .FirstOrDefaultAsync(t => t.Id == ticketId && t.UserId == userId);
+
+            if (ticket == null)
+                return null;
+
+            var evt = await repo.AllReadonly<Event>()
+                .FirstOrDefaultAsync(e => e.Id == ticket.EventId);
+
+            if (evt == null)
+                return null;
+
+            var room = await repo.AllReadonly<Room>()
+                .FirstOrDefaultAsync(r => r.RoomId == evt.RoomId);
+
+            return new TicketDetailViewModel
+            {
+                Id = ticket.Id,
+                TicketNumber = ticket.TicketNumber,
+                HashedCode = ticket.HashedCode!,
+                QRCodeImage = ticket.QRCodeImage,
+                EventName = evt.EventName!,
+                EventDescription = evt.Description,
+                EventStart = evt.StartDateTime,
+                EventEnd = evt.EndDateTime,
+                RoomName = room?.Name ?? "Unknown Room",
+                Price = ticket.Price,
+                Currency = ticket.Currency ?? "EUR",
+                IsUsed = ticket.IsUsed,
+                PurchasedAt = ticket.PurchasedAt
+            };
         }
 
         private static string GenerateHashedCode(Guid userId, Guid eventId, long ticketNumber)
