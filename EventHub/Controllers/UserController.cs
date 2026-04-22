@@ -1,10 +1,10 @@
-﻿using EventHub.Core.Models.User;
+﻿using System.Security.Claims;
+using EventHub.Core.Models.User;
 using EventHub.Infrastructure.Data.Models;
 using EzyShape.Core.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace EventHub.Controllers
 {
@@ -20,14 +20,14 @@ namespace EventHub.Controllers
 
         private readonly RoleManager<IdentityRole> roleManager;
 
-
         /// <summary>
         /// Constructor for the user controller.
         /// </summary>
         public UserController(
             UserManager<User> _userManager,
             SignInManager<User> _signInManager,
-            RoleManager<IdentityRole> _roleManager)
+            RoleManager<IdentityRole> _roleManager
+        )
         {
             userManager = _userManager;
             signInManager = _signInManager;
@@ -66,18 +66,12 @@ namespace EventHub.Controllers
                 return View(model);
             }
 
-
-            var user = new User()
-            {
-                Email = model.Email,
-                UserName = model.UserName
-            };
+            var user = new User() { Email = model.Email, UserName = model.UserName };
 
             var result = await userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
             {
-
                 var roleName = "Client";
                 var roleExists = await roleManager.RoleExistsAsync(roleName);
 
@@ -114,7 +108,6 @@ namespace EventHub.Controllers
             return View(model);
         }
 
-
         /// <summary>
         /// The login action for the controller.
         /// </summary>
@@ -131,7 +124,12 @@ namespace EventHub.Controllers
 
             if (user != null)
             {
-                var result = await signInManager.PasswordSignInAsync(user, model.Password, false, false);
+                var result = await signInManager.PasswordSignInAsync(
+                    user,
+                    model.Password,
+                    false,
+                    false
+                );
 
                 if (result.Succeeded)
                 {
@@ -155,11 +153,9 @@ namespace EventHub.Controllers
         /// <returns>Returns the user to the index page.</returns>
         public async Task<IActionResult> Logout()
         {
-
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await userManager.FindByIdAsync(userId);
             await userManager.UpdateAsync(user);
-
 
             await signInManager.SignOutAsync();
 

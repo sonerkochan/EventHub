@@ -1,4 +1,5 @@
 using System;
+using EventHub.Infrastructure.Data.Models;
 
 namespace EventHub.Core.Models.Ticket
 {
@@ -10,8 +11,9 @@ namespace EventHub.Core.Models.Ticket
         public DateTime EventStart { get; set; }
         public string RoomName { get; set; } = null!;
         public float Price { get; set; }
-        public string Currency { get; set; } = "USD";
+        public string Currency { get; set; } = "EUR";
         public bool IsUsed { get; set; }
         public DateTime PurchasedAt { get; set; }
+        public TicketStatus Status { get; set; }
     }
 }

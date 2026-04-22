@@ -120,20 +120,42 @@ namespace EventHub.Core.Services
 
         public async Task<IEnumerable<PaymentListViewModel>> GetPaymentHistoryAsync(Guid userId)
         {
-            return await repo.AllReadonly<Payment>()
+            var raw = await repo.AllReadonly<Payment>()
                 .Where(p => p.UserId == userId && p.Status != Payment.PaymentStatus.Pending)
-                .Join(repo.AllReadonly<Ticket>(), p => p.TicketId, t => t.Id, (p, t) => new { p, t })
-                .Join(repo.AllReadonly<DataEvent>(), pt => pt.t.EventId, e => e.Id, (pt, e) => new PaymentListViewModel
-                {
-                    Id = pt.p.Id,
-                    EventName = e.EventName!,
-                    Amount = pt.p.Amount,
-                    Currency = pt.p.Currency ?? "USD",
-                    Status = pt.p.Status.ToString(),
-                    CreatedAt = pt.p.CreatedAt
-                })
+                .Join(repo.AllReadonly<PaymentTicket>(),
+                      p => p.Id,
+                      pt => pt.PaymentId,
+                      (p, pt) => new { p, pt })
+                .Join(repo.AllReadonly<Ticket>(),
+                      ppt => ppt.pt.TicketId,
+                      t => t.Id,
+                      (ppt, t) => new { ppt.p, t })
+                .Join(repo.AllReadonly<DataEvent>(),
+                      ptt => ptt.t.EventId,
+                      e => e.Id,
+                      (ptt, e) => new
+                      {
+                          ptt.p.Id,
+                          EventName = e.EventName!,
+                          ptt.p.Amount,
+                          Currency = ptt.p.Currency ?? "EUR",
+                          ptt.p.Status,          // ← bring the enum, convert after
+                          ptt.p.CreatedAt
+                      })
+                .ToListAsync(); // ← materialize here, then do client-side ops below
+
+            return raw
+                .DistinctBy(p => p.Id)
                 .OrderByDescending(p => p.CreatedAt)
-                .ToListAsync();
+                .Select(p => new PaymentListViewModel
+                {
+                    Id = p.Id,
+                    EventName = p.EventName,
+                    Amount = p.Amount,
+                    Currency = p.Currency,
+                    Status = p.Status.ToString(), // ← safe, runs in-memory now
+                    CreatedAt = p.CreatedAt
+                });
         }
 
         private async Task FulfillOrderAsync(Session session)

@@ -39,10 +39,16 @@
             <select asp-for="EventPriority" asp-items="Html.GetEnumSelectList<EventHub.Infrastructure.Data.Models.EventPriority>()" class="form-select"></select>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label asp-for="TotalTickets" class="form-label"></label>
             <input asp-for="TotalTickets" class="form-control" type="number" min="1" />
             <span asp-validation-for="TotalTickets" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="BasePrice" class="form-label">Ticket Price (EUR)</label>
+            <input asp-for="BasePrice" class="form-control" type="number" min="0" step="0.01" placeholder="0.00" />
+            <span asp-validation-for="BasePrice" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">

@@ -10,5 +10,6 @@ namespace EventHub.Core.Contracts
         Task<List<Guid>> PurchaseAsync(Guid eventId, Guid userId, int quantity);
         Task<IEnumerable<TicketListViewModel>> GetUserTicketsAsync(Guid userId);
         Task<TicketDetailViewModel?> GetTicketByIdAsync(Guid ticketId, Guid userId);
+        Task<TicketValidationResult?> ValidateTicketAsync(string hashedCode);
     }
 }

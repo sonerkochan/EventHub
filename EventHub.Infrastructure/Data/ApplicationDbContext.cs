@@ -23,6 +23,8 @@ namespace EventHub.Infrastructure.Data
             builder.Entity<SeatLayout>(sl => sl.HasKey(sl => sl.Id));
             builder.Entity<EmailVerificationToken>(ev => ev.HasKey(ev => ev.TokenId));
             builder.Entity<PaymentTicket>().HasKey(pt => new { pt.PaymentId, pt.TicketId });
+
+            builder.Entity<Event>().Property(e => e.BasePrice).HasPrecision(18, 4);
         }
 
         public DbSet<Venue> Venues { get; set; }
