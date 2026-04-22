@@ -47,6 +47,8 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 builder.Services.AddApplicationServices();
 builder.Services.AddStripe(builder.Configuration);
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[] { new CultureInfo("en"), new CultureInfo("bg") };

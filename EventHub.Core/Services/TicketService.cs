@@ -2,9 +2,11 @@ using EventHub.Core.Contracts;
 using EventHub.Core.Models.Ticket;
 using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using QRCoder;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -19,11 +21,13 @@ namespace EventHub.Core.Services
     {
         private readonly IRepository repo;
         private readonly IQRCodeService qrCodeService;
+        private readonly IHttpContextAccessor _http;
 
-        public TicketService(IRepository _repo, IQRCodeService _qrCodeService)
+        public TicketService(IRepository _repo, IQRCodeService _qrCodeService, IHttpContextAccessor http)
         {
             repo = _repo;
             qrCodeService = _qrCodeService;
+            _http = http;
         }
 
         public async Task<List<Guid>> PurchaseAsync(Guid eventId, Guid userId, int quantity)
@@ -68,7 +72,10 @@ namespace EventHub.Core.Services
 
                 try
                 {
-                    ticket.QRCodeImage = qrCodeService.GenerateQRCode(ticket.HashedCode!);
+                    var request = _http.HttpContext!.Request;
+                    var baseUrl = $"{request.Scheme}://{request.Host}";
+                    var validationUrl = $"{baseUrl}/validate/{ticket.HashedCode}";
+                    ticket.QRCodeImage = qrCodeService.GenerateQRCode(validationUrl);
                 }
                 catch
                 {
@@ -85,6 +92,49 @@ namespace EventHub.Core.Services
 
             await repo.SaveChangesAsync();
             return createdIds;
+        }
+
+        public async Task<TicketValidationResult?> ValidateTicketAsync(string hashedCode)
+        {
+            var ticket = await repo.All<Ticket>()
+                .FirstOrDefaultAsync(t => t.HashedCode == hashedCode);
+
+            if (ticket == null) return null;
+
+            var ev = await repo.AllReadonly<DataEvent>()
+                .FirstOrDefaultAsync(e => e.Id == ticket.EventId);
+
+            var room = await repo.AllReadonly<Room>()
+                .FirstOrDefaultAsync(r => r.RoomId == ev!.RoomId);
+
+            var user = await repo.AllReadonly<User>()
+                .FirstOrDefaultAsync(u => u.Id == ticket.UserId.ToString());
+
+            bool wasAlreadyUsed = ticket.IsUsed;
+
+            if (!ticket.IsUsed)
+            {
+                ticket.IsUsed = true;
+                ticket.Status = TicketStatus.Used;
+                ticket.ValidatedAt = DateTime.UtcNow;
+                repo.Update(ticket);
+                await repo.SaveChangesAsync();
+            }
+
+            return new TicketValidationResult
+            {
+                TicketId = ticket.Id,
+                TicketNumber = ticket.TicketNumber,
+                EventName = ev!.EventName!,
+                EventStart = ev.StartDateTime,
+                RoomName = room?.Name ?? "Unknown",
+                UserFullName = $"{user?.FirstName} {user?.LastName}".Trim(),
+                UserEmail = user?.Email ?? "Unknown",
+                Price = ticket.Price,
+                Currency = ticket.Currency ?? "EUR",
+                WasAlreadyUsed = wasAlreadyUsed,
+                UsedAt = ticket.ValidatedAt == default ? null : ticket.ValidatedAt
+            };
         }
 
         public async Task<IEnumerable<TicketListViewModel>> GetUserTicketsAsync(Guid userId)
@@ -164,7 +214,7 @@ namespace EventHub.Core.Services
         {
             var raw = $"{userId}-{eventId}-{ticketNumber}-{DateTime.UtcNow.Ticks}";
             var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(raw));
-            return Convert.ToBase64String(bytes)[..16].ToUpperInvariant();
+            return Convert.ToBase64String(bytes)[..16].ToUpperInvariant().Replace("/", "A").Replace("+", "B").Replace("=", "");
         }
     }
 }
