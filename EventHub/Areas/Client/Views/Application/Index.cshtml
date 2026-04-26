@@ -8,6 +8,8 @@
 }
 
 <link rel="stylesheet" href="~/css/applicationForms.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/forms.css" asp-append-version="true"/>
+
 
 @if (TempData["Success"] != null)
 {
@@ -33,7 +35,7 @@
                 @if (!(await UserManager.IsInRoleAsync(currentUser!, "Organizer")))
                 {
                     <a asp-action="Apply" asp-route-type="1" class="text-decoration-none">
-                        <div class="container hover-lift selection-card">
+                        <div class="form-box hover-lift selection-card">
                             <div class="card-body">
                                 <h6 class="heading-sm">Organizer</h6>
                                 <p class="text-muted small">Create and manage events, venues, and ticket sales.</p>
@@ -45,7 +47,7 @@
                 }
                 else
                 {
-                    <div class="container hover-lift selection-card">
+                    <div class="form-box hover-lift selection-card">
                         <div class="card-body">
                             <h6 class="heading-sm">Supplier</h6>
                             <p class="text-muted small">Create and manage events, venues, and ticket sales.</p>
@@ -62,7 +64,7 @@
                 @if (!(await UserManager.IsInRoleAsync(currentUser!, "Supplier")))
                 {
                     <a asp-action="Apply" asp-route-type="2" class="text-decoration-none">
-                        <div class="container hover-lift selection-card">
+                        <div class="form-box hover-lift selection-card">
                             <div class="card-body">
                                 <h6 class="heading-sm">Supplier</h6>
                                 <p class="text-muted small">Supply goods and services to event organizers on the platform.</p>
@@ -74,7 +76,7 @@
                 }
                 else
                 {                  
-                    <div class="container hover-lift selection-card">
+                    <div class="form-box hover-lift selection-card">
                         <div class="card-body">
                             <h6 class="heading-sm">Supplier</h6>
                             <p class="text-muted small">Supply goods and services to event organizers on the platform.</p>

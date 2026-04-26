@@ -1,14 +1,13 @@
-﻿
-/*.form-wrapper {
+﻿.form-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    margin-left: 50px; 
+    padding: 24px;
 }
 
 
-.container {
+.form-box {
     max-width: 450px;
     background: linear-gradient(145deg, #ffffff 0%, #f3f7fc 45%, #eaf1ff 100%);
     border-radius: 32px;
@@ -20,7 +19,7 @@
     transition: all 0.3s ease;
 }
 
-    .container:hover {
+    .form-box:hover {
         transform: translateY(-4px);
         box-shadow: 0 28px 45px rgba(80, 120, 255, 0.18), 0 12px 24px rgba(0, 0, 0, 0.08);
     }
@@ -53,19 +52,14 @@
     margin-top: 5px;
     box-shadow: #cff0ff 0px 10px 10px -5px;
     border-inline: 2px solid transparent;
-
 }
 
     .form .input:focus {
         outline: none;
         border-inline: 2px solid #12B1D1;
-    }*/
-
-    .form .input-textarea {
-        box-sizing: border-box;
-        resize: none;
     }
-/*.form .form-button {
+
+.form .form-button {
     display: block;
     width: 100%;
     font-weight: bold;
@@ -82,48 +76,4 @@
 
     .form .form-button:hover {
         transform: scale(1.03);
-    }*/
-
-.agreement a {
-    text-decoration: none;
-    color: #0099ff;
-    font-size: 12px;
-}
-
-
-/*Index page - application buttons*/
-
-.selection-card {
-    max-width: 100% !important;
-    margin: 0 !important; 
-    height: 100%;
-    cursor: pointer;
-    padding: 25px !important;
-}
-
-
-.heading-sm {
-    font-weight: 800;
-    font-size: 20px;
-    color: rgb(16, 137, 211);
-    margin-bottom: 8px;
-}
-
-
-.apply-text {
-    color: #0099ff;
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 15px;
-    transition: transform 0.2s ease;
-}
-
-.hover-lift:hover .apply-text {
-    transform: translateX(5px); 
-}
-
-
-.text-decoration-none, .text-decoration-none:hover {
-    color: inherit;
-}
-
+    }

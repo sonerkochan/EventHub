@@ -6,9 +6,10 @@
 }
 
 <link rel="stylesheet" href="~/css/applicationForms.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/forms.css" asd-append-version="true" />
 
 <div class="form-wrapper">
-    <div class="container">
+    <div class="form-box">
         <div class="heading">Apply as @Model.Type</div>
         
         <form asp-action="Apply" method="post" class="form">
@@ -35,7 +36,7 @@
                 <span asp-validation-for="Description" class="text-danger small"></span>
             </div>
 
-            <button type="submit" class="login-button">Submit Application</button>
+            <button type="submit" class="form-button">Submit Application</button>
             
             <div class="agreement">
                 <a asp-action="Index">Go Back</a>
