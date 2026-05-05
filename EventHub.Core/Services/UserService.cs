@@ -19,6 +19,7 @@ namespace EventHub.Core.Services
         {
             userManager = _userManager;
             roleManager = _roleManager;
+            Console.WriteLine("Hell Yuhhhh Boy");
         }
 
         public async Task<IEnumerable<UserListViewModel>> GetAllUsersAsync()
