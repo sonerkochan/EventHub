@@ -22,7 +22,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore EventHub.sln
+        run: dotnet restore EventHub.slnx
 
       - name: Publish
         run: dotnet publish ./EventHub/EventHub.csproj -c Release -o ./publish
