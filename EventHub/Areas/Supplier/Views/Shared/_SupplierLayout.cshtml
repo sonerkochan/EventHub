@@ -30,12 +30,22 @@
                 <li class="nav-item">
                     <small class="text-uppercase text-secondary" style="font-size: 0.7rem; letter-spacing: 0.08em;">Overview</small>
                 </li>
+                <li class="nav-item mt-2">
+                    <a asp-area="Supplier" asp-controller="Services" asp-action="Create" class="nav-link text-white p-2">
+                        Create Service
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="Supplier" asp-controller="Services" asp-action="Index" class="nav-link text-white p-2">
+                        My Services
+                    </a>
+                </li>
             </ul>
 
             <hr class="text-secondary" />
 
             <a asp-area="" asp-controller="Home" asp-action="Index"
-                   class="btn btn-outline-secondary btn-sm mb-2">
+               class="btn btn-outline-secondary btn-sm mb-2">
                 Back to site
             </a>
             <form asp-area="" asp-controller="User" asp-action="Logout" method="post">

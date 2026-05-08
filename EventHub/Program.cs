@@ -108,10 +108,17 @@ app.UseEndpoints(endpoints =>
 
 using (var scope = app.Services.CreateScope())
 {
-    if (!app.Environment.IsDevelopment())
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         dbContext.Database.Migrate();
+        logger.LogInformation("Database migrations applied successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating the database.");
+        throw;
     }
 }
 
