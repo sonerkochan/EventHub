@@ -1,0 +1,61 @@
+﻿@model EventHub.Core.Models.Ticket.TicketValidationResult
+
+@{
+    ViewData["Title"] = "Ticket Validation";
+    var valid = !Model.WasAlreadyUsed;
+}
+
+<div class="container py-4" style="max-width: 480px;">
+    <div class="card border-@(valid ? "success" : "danger")">
+        <div class="card-body text-center">
+
+            <div class="mb-3">
+                @if (valid)
+                {
+                    <span style="font-size: 3rem;">V</span>
+                    <h5 class="text-success fw-bold mt-2">Valid Ticket</h5>
+                }
+                else
+                {
+                    <span style="font-size: 3rem;">X</span>
+                    <h5 class="text-danger fw-bold mt-2">Already Used</h5>
+                    <p class="text-muted small">Used at @Model.UsedAt?.ToString("dd MMM yyyy, HH:mm")</p>
+                }
+            </div>
+
+            <hr />
+
+            <div class="text-start">
+                <div class="row mb-2">
+                    <div class="col-5 text-muted small">Event</div>
+                    <div class="col-7 fw-medium small">@Model.EventName</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted small">Date</div>
+                    <div class="col-7 small">@Model.EventStart.ToString("dd MMM yyyy, HH:mm")</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted small">Room</div>
+                    <div class="col-7 small">@Model.RoomName</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted small">Ticket #</div>
+                    <div class="col-7 small font-monospace">@Model.TicketNumber</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted small">Name</div>
+                    <div class="col-7 small">@Model.UserFullName</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted small">Email</div>
+                    <div class="col-7 small">@Model.UserEmail</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted small">Price</div>
+                    <div class="col-7 small">@Model.Currency @Model.Price.ToString("F2")</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

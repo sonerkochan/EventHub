@@ -17,6 +17,7 @@ namespace EventHub.Infrastructure.Data.Models
         public float Price { get; set; }
         public string? Currency { get; set; }
         public string? HashedCode { get; set; }
+        public string? QRCodeImage { get; set; }
         public bool IsUsed { get; set; }
         public DateTime ReservedAt{ get; set; }
         public DateTime ReservationExpiresAt { get; set; }

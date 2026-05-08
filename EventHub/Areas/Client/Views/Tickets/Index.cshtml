@@ -21,6 +21,7 @@
                     <th class="small">Event</th>
                     <th class="small">Date</th>
                     <th class="small">Venue</th>
+                    <th class="small">Type</th>
                     <th class="small">Status</th>
                     <th class="small">Purchased</th>
                     <th></th>
@@ -34,6 +35,11 @@
                         <td class="small fw-medium">@t.EventName</td>
                         <td class="small">@t.EventStart.ToString("dd MMM yyyy, HH:mm")</td>
                         <td class="small">@t.RoomName</td>
+                        <td>
+                            <span class="badge bg-@(t.Status == EventHub.Infrastructure.Data.Models.TicketStatus.Purchased ? "primary" : "info") fw-normal">
+                                @t.Status
+                            </span>
+                        </td>
                         <td>
                             <span class="badge bg-@(t.IsUsed ? "secondary" : "success") fw-normal">
                                 @(t.IsUsed ? "Used" : "Valid")

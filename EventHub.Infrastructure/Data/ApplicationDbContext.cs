@@ -28,6 +28,8 @@ namespace EventHub.Infrastructure.Data
                 s.HasKey(x => x.Id);
                 s.HasQueryFilter(x => !x.IsDeleted);
             });
+
+            builder.Entity<Event>().Property(e => e.BasePrice).HasPrecision(18, 4);
         }
 
         public DbSet<Venue> Venues { get; set; }

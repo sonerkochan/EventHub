@@ -1,48 +1,39 @@
-using Elastic.Apm.AspNetCore;
+using System.Globalization;
 using Elastic.Apm.NetCoreAll;
-using EventHub.Core.Contracts;
-using EventHub.Core.Services;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
-using EventHub.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
-using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Environment.EnvironmentName switch
-{
-    "Production" => builder.Configuration.GetConnectionString("ProdConnection"),
-    "Staging" => builder.Configuration.GetConnectionString("StagingConnection"),
-    _ => builder.Configuration.GetConnectionString("DevConnection")
-} ?? builder.Configuration.GetConnectionString("DefaultConnection"); 
+var connectionString =
+    builder.Environment.EnvironmentName switch
+    {
+        "Production" => builder.Configuration.GetConnectionString("ProdConnection"),
+        "Staging" => builder.Configuration.GetConnectionString("StagingConnection"),
+        _ => builder.Configuration.GetConnectionString("DevConnection"),
+    } ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(connectionString, sqlOptions =>
-    {
-        // Enable transient fault handling / retry on failure for transient SQL errors
-        sqlOptions.EnableRetryOnFailure();
-    });
-    options.ConfigureWarnings(w =>
-        w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    options.UseSqlServer(connectionString);
+    options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
 });
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<User>(options =>
-{
-    options.SignIn.RequireConfirmedAccount = false;
-    options.SignIn.RequireConfirmedEmail = false;
-    options.SignIn.RequireConfirmedPhoneNumber = false;
-    options.Password.RequireNonAlphanumeric = false;
-})
-.AddRoles<IdentityRole>()
-.AddEntityFrameworkStores<ApplicationDbContext>();
+builder
+    .Services.AddDefaultIdentity<User>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.SignIn.RequireConfirmedEmail = false;
+        options.SignIn.RequireConfirmedPhoneNumber = false;
+        options.Password.RequireNonAlphanumeric = false;
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -56,22 +47,18 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 builder.Services.AddApplicationServices();
 builder.Services.AddStripe(builder.Configuration);
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    var supportedCultures = new[]
-    {
-        new CultureInfo("en"),
-        new CultureInfo("bg")
-    };
+    var supportedCultures = new[] { new CultureInfo("en"), new CultureInfo("bg") };
 
     options.DefaultRequestCulture = new RequestCulture("en");
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
 });
 
-builder.Services.AddControllersWithViews()
-    .AddViewLocalization()
-    .AddDataAnnotationsLocalization();
+builder.Services.AddControllersWithViews().AddViewLocalization().AddDataAnnotationsLocalization();
 
 var app = builder.Build();
 
@@ -102,20 +89,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseAllElasticApm();
-// After Auth
 
+// After Auth
+#pragma warning disable ASP0014 // disabled just cuz it was bitchy
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
-
+        pattern: "{controller=Home}/{action=Index}/{id?}"
+    );
     endpoints.MapControllerRoute(
         name: "areas",
-        pattern: "{area:exists}/{controller=Home}/{action=Index}");
-
+        pattern: "{area:exists}/{controller=Home}/{action=Index}"
+    );
     endpoints.MapRazorPages();
 });
+#pragma warning restore ASP0014
 
 using (var scope = app.Services.CreateScope())
 {
