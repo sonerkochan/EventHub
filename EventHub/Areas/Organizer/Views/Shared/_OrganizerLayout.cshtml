@@ -51,6 +51,16 @@
                         + New Event
                     </a>
                 </li>
+
+                <li class="nav-item mt-2">
+                    <small class="text-uppercase text-secondary" style="font-size: 0.7rem; letter-spacing: 0.08em;">Services</small>
+                </li>
+                <li>
+                    <a asp-area="Organizer" asp-controller="Services" asp-action="Index"
+                       class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Services" ? "active" : "")">
+                        Find Services
+                    </a>
+                </li>
             </ul>
 
             <hr class="text-secondary" />

@@ -36,6 +36,12 @@
                     </a>
                 </li>
                 <li>
+                    <a asp-area="Client" asp-controller="Services" asp-action="Index"
+                       class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Services" ? "active" : "")">
+                        Find Services
+                    </a>
+                </li>
+                <li>
                     <a asp-area="Client" asp-controller="Tickets" asp-action="Index"
                        class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Tickets" ? "active" : "")">
                         My Tickets

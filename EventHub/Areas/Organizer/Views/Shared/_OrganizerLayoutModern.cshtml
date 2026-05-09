@@ -64,6 +64,17 @@
                        class="sidebar-nav-item">
                         <span>➕</span> Create Event
                     </a>
+
+                    <div class="px-3 mb-2 mt-3">
+                        <div style="font-size: 0.7rem; font-weight: 600; color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.05em;">
+                            Services
+                        </div>
+                    </div>
+
+                    <a asp-area="Organizer" asp-controller="Services" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Services" ? "active" : "")">
+                        <span>🧰</span> Find Services
+                    </a>
                 </div>
 
                 <div class="mt-4 px-3">
