@@ -1,4 +1,6 @@
-﻿namespace EventHub.Tests
+﻿using System.ComponentModel;
+
+namespace EventHub.Tests
 {
     public class UnitTest1
     {

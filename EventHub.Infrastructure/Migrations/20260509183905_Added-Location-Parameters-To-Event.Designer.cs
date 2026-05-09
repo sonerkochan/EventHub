@@ -4,6 +4,7 @@ using EventHub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventHub.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260509183905_Added-Location-Parameters-To-Event")]
+    partial class AddedLocationParametersToEvent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -605,15 +608,15 @@ namespace EventHub.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            RoomId = new Guid("e2234787-cb89-4bf0-8662-9a82d4609a27"),
+                            RoomId = new Guid("aa1d5ce2-000b-4f13-8b7e-58d4c7a5a215"),
                             Capacity = 100L,
-                            CreatedAt = new DateTime(2026, 5, 8, 14, 25, 27, 193, DateTimeKind.Utc).AddTicks(8934),
+                            CreatedAt = new DateTime(2026, 5, 9, 18, 39, 4, 585, DateTimeKind.Utc).AddTicks(873),
                             CreatedBy = new Guid("f7a1b2c3-d4e5-6789-abcd-ef0123456789"),
                             Description = "Very nice and cool big room (to test)",
                             IsActive = true,
                             Name = "Fancy",
                             RoomType = 0,
-                            UpdatedAt = new DateTime(2026, 5, 8, 14, 25, 27, 193, DateTimeKind.Utc).AddTicks(9310),
+                            UpdatedAt = new DateTime(2026, 5, 9, 18, 39, 4, 585, DateTimeKind.Utc).AddTicks(1245),
                             VenueId = new Guid("12345678-90ab-cdef-1234-567890abcdef")
                         });
                 });
@@ -727,50 +730,6 @@ namespace EventHub.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SeatLayouts");
-                });
-
-            modelBuilder.Entity("EventHub.Infrastructure.Data.Models.ServiceRentalRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RequestedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("RequesterId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ResponseComment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ReviewedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ReviewedById")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SupplierServiceId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RequesterId");
-
-                    b.HasIndex("ReviewedById");
-
-                    b.HasIndex("SupplierServiceId");
-
-                    b.ToTable("ServiceRentalRequests");
                 });
 
             modelBuilder.Entity("EventHub.Infrastructure.Data.Models.SupplierService", b =>
@@ -996,7 +955,7 @@ namespace EventHub.Infrastructure.Migrations
                             Id = "f7a1b2c3-d4e5-6789-abcd-ef0123456789",
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                            CreatedAt = new DateTime(2026, 5, 8, 14, 25, 27, 144, DateTimeKind.Utc).AddTicks(6465),
+                            CreatedAt = new DateTime(2026, 5, 9, 18, 39, 4, 536, DateTimeKind.Utc).AddTicks(4803),
                             Email = "admin@eventhub.com",
                             EmailConfirmed = true,
                             IsActive = false,
@@ -1004,11 +963,11 @@ namespace EventHub.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EVENTHUB.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAECc6Z/QFZ2Vl1kh/e4DhvMUDmK972iLpoAgyhKfOJsOQ/0Cr12lfhS15Y4eqg+BsZQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAECroL/LvFgwM7xUvYLL+1R++am0/OcRTEAlK4XieJDB8gY1LISy+Yk50+VDizzKUeQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "STATIC_SECURITY_STAMP_ADMIN_001",
                             TwoFactorEnabled = false,
-                            UpdatedAt = new DateTime(2026, 5, 8, 14, 25, 27, 144, DateTimeKind.Utc).AddTicks(6470),
+                            UpdatedAt = new DateTime(2026, 5, 9, 18, 39, 4, 536, DateTimeKind.Utc).AddTicks(4805),
                             UserName = "admin"
                         });
                 });
@@ -1134,35 +1093,35 @@ namespace EventHub.Infrastructure.Migrations
                         new
                         {
                             Id = "d9de7285-b674-454c-9889-5210abb8d347",
-                            ConcurrencyStamp = "128ce202-7617-4945-9dc8-681a6db17252",
+                            ConcurrencyStamp = "a32a6482-536d-42b1-aace-64c9a285c49b",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "07358494-247c-421c-8f7f-82c12be55276",
-                            ConcurrencyStamp = "71b5daad-cd76-476d-9885-0c9e92bfd669",
+                            ConcurrencyStamp = "52ed0d55-82de-4402-b870-b89e8159a7a5",
                             Name = "Client",
                             NormalizedName = "CLIENT"
                         },
                         new
                         {
                             Id = "b2c3d4e5-f6a7-8901-bcde-f01234567891",
-                            ConcurrencyStamp = "d33edf03-d801-44d4-bf4b-2d47cdaf7ad5",
+                            ConcurrencyStamp = "feb44200-eb46-42cc-883f-da17c016221b",
                             Name = "Supplier",
                             NormalizedName = "SUPPLIER"
                         },
                         new
                         {
                             Id = "c3d4e5f6-a7b8-9012-cdef-012345678912",
-                            ConcurrencyStamp = "ab53b537-8466-44b0-9f4a-9e5ff6bda3f7",
+                            ConcurrencyStamp = "d8d24fb1-b725-44c1-9173-08f5a0b4e3cd",
                             Name = "Organizer",
                             NormalizedName = "ORGANIZER"
                         },
                         new
                         {
                             Id = "e4f5a6b7-c8d9-0123-def0-123456789abc",
-                            ConcurrencyStamp = "47335ec4-9392-4a2b-ae99-7c39862d61d1",
+                            ConcurrencyStamp = "faa891aa-e28f-4a22-9b89-818ff453849f",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });
@@ -1300,32 +1259,6 @@ namespace EventHub.Infrastructure.Migrations
                     b.Navigation("ReviewedBy");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("EventHub.Infrastructure.Data.Models.ServiceRentalRequest", b =>
-                {
-                    b.HasOne("EventHub.Infrastructure.Data.Models.User", "Requester")
-                        .WithMany()
-                        .HasForeignKey("RequesterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EventHub.Infrastructure.Data.Models.User", "ReviewedBy")
-                        .WithMany()
-                        .HasForeignKey("ReviewedById")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("EventHub.Infrastructure.Data.Models.SupplierService", "SupplierService")
-                        .WithMany()
-                        .HasForeignKey("SupplierServiceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Requester");
-
-                    b.Navigation("ReviewedBy");
-
-                    b.Navigation("SupplierService");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

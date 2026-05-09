@@ -14,6 +14,10 @@ namespace EventHub.Core.Models.Event
         public EventPriority EventPriority { get; set; }
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
+        public string? Latitude { get; set; }
+        public string? Longitude { get; set; }
+        public string? City { get; set; }
+        public string? Address { get; set; }
         public int TotalTickets { get; set; }
         public int TicketsSold { get; set; }
         public decimal BasePrice { get; set; }
