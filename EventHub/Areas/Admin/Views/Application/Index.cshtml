@@ -6,6 +6,8 @@
 }
 
 <link rel="stylesheet" href="~/css/adminApplicationManagementTable.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/modalStyles.css" asp-append-version="true">
+
 
 @if (TempData["Success"] != null)
 {
@@ -52,10 +54,10 @@
                                 </td>
                                 <td class="small">@app.CreatedAt.ToString("dd MMM yyyy")</td>
                                 <td class="text-end">
-                                    <form asp-action="Approve" asp-route-id="@app.Id" method="post" class="d-inline"
-                                          onsubmit="return confirm('Approve this application?')">
+                                    <form asp-action="Approve" asp-route-id="@app.Id" method="post" class="approve-form"
+                                          @* onsubmit="return confirm('Approve this application?')" *@>
                                         @Html.AntiForgeryToken()
-                                        <button class="table-btn btn-approve">Approve</button>
+                                        <button type="button" class="table-btn btn-approve">Approve</button>
                                     </form>
 
                                     <button class="table-btn btn-reject"
@@ -86,3 +88,76 @@
         </div>
     </div>
 </div>
+
+
+    <div class="modal fade" id="approveModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content custom-modal">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Confirm Approval
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    Are you sure you want to approve this application?
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="modal-button modal-cancel"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            id="confirmApproveBtn"
+                            class="modal-button modal-approve">
+                        Approve
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+   <script>
+        let selectedForm = null;
+
+        // open modal
+        document.querySelectorAll(".btn-approve").forEach(btn => {
+
+            btn.addEventListener("click", function () {
+
+                selectedForm = this.closest("form");
+
+                const modal = new bootstrap.Modal(
+                    document.getElementById("approveModal")
+                );
+
+                modal.show();
+            });
+        });
+
+        // confirm approve
+        document.getElementById("confirmApproveBtn")
+            .addEventListener("click", function () {
+
+                if (selectedForm) {
+                    selectedForm.submit();
+                }
+
+            });
+</script>
