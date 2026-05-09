@@ -28,6 +28,22 @@ namespace EventHub.Infrastructure.Data
                 s.HasKey(x => x.Id);
                 s.HasQueryFilter(x => !x.IsDeleted);
             });
+            builder.Entity<ServiceRentalRequest>(r =>
+            {
+                r.HasKey(x => x.Id);
+                r.HasOne(x => x.SupplierService)
+                    .WithMany()
+                    .HasForeignKey(x => x.SupplierServiceId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                r.HasOne(x => x.Requester)
+                    .WithMany()
+                    .HasForeignKey(x => x.RequesterId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                r.HasOne(x => x.ReviewedBy)
+                    .WithMany()
+                    .HasForeignKey(x => x.ReviewedById)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
             builder.Entity<Event>().Property(e => e.BasePrice).HasPrecision(18, 4);
         }
@@ -54,6 +70,7 @@ namespace EventHub.Infrastructure.Data
         public DbSet<ApplicationForm> ApplicationForms { get; set; }
         public DbSet<SeatHolds> SeatHolds { get; set; }
         public DbSet<SupplierService> SupplierServices { get; set; }
+        public DbSet<ServiceRentalRequest> ServiceRentalRequests { get; set; }
 
     }
 }

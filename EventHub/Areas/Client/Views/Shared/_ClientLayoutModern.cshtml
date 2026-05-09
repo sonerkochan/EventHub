@@ -49,6 +49,11 @@
                         <span>🎭</span> Browse Events
                     </a>
 
+                    <a asp-area="Client" asp-controller="Services" asp-action="Index"
+                       class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Services" ? "active" : "")">
+                        <span>🧰</span> Find Services
+                    </a>
+
                     <a asp-area="Client" asp-controller="Tickets" asp-action="Index"
                        class="sidebar-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Tickets" ? "active" : "")">
                         <span>🎫</span> My Tickets
