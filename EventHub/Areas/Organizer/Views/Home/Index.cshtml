@@ -1,4 +1,4 @@
-﻿@model EventHub.Core.Models.Dashboard.OrganizerDashboardViewModel
+@model EventHub.Core.Models.Dashboard.OrganizerDashboardViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -7,8 +7,8 @@
 <div class="animate-fade-in">
     <!-- Welcome Header -->
     <div class="mb-4">
-        <h4 class="fw-bold mb-1">Your Events Dashboard 🎯</h4>
-        <p class="text-muted-modern mb-0">Track your event performance and manage your upcoming events.</p>
+        <h4 class="fw-bold mb-1">Your Events Dashboard</h4>
+        <p class="text-muted mb-0">Track your event performance and manage your upcoming events.</p>
     </div>
 
     <!-- Stat Cards Grid -->
@@ -19,7 +19,7 @@
                 <div class="stat-card-label">My Events</div>
                 <div class="stat-card-value">@Model.MyEvents</div>
                 <div class="stat-card-change">
-                    <span class="text-muted-modern">@Model.PublishedEvents published, @Model.DraftEvents drafts</span>
+                    <span class="text-muted">@Model.PublishedEvents published, @Model.DraftEvents drafts</span>
                 </div>
             </div>
         </div>
@@ -41,7 +41,7 @@
                 <div class="stat-card-label">Upcoming</div>
                 <div class="stat-card-value">@Model.UpcomingEventsCount</div>
                 <div class="stat-card-change">
-                    <span class="text-muted-modern">Events scheduled</span>
+                    <span class="text-muted">Events scheduled</span>
                 </div>
             </div>
         </div>
@@ -50,26 +50,26 @@
     <!-- Quick Actions -->
     <div class="row g-4">
         <div class="col-lg-8">
-            <div class="modern-card">
-                <div class="modern-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h6 class="mb-0 fw-semibold">Quick Actions</h6>
                 </div>
-                <div class="modern-card-body">
+                <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <a asp-controller="Events" asp-action="Create" 
-                               class="text-decoration-none d-block p-4 rounded-modern border-modern hover-lift text-center"
+                               class="text-decoration-none d-block p-4 rounded border hover-lift text-center"
                                style="transition: all 0.3s;">
-                                <div style="font-size: 48px; margin-bottom: 0.5rem;">➕</div>
+                                <div style="font-size: 48px; margin-bottom: 0.5rem;"><i class="fa fa-plus"></i></div>
                                 <div class="fw-semibold">Create New Event</div>
                                 <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Start planning your next event</div>
                             </a>
                         </div>
                         <div class="col-md-6">
                             <a asp-controller="Events" asp-action="Index" 
-                               class="text-decoration-none d-block p-4 rounded-modern border-modern hover-lift text-center"
+                               class="text-decoration-none d-block p-4 rounded border hover-lift text-center"
                                style="transition: all 0.3s;">
-                                <div style="font-size: 48px; margin-bottom: 0.5rem;">📋</div>
+                                <div style="font-size: 48px; margin-bottom: 0.5rem;"><i class="fa fa-list-alt"></i></div>
                                 <div class="fw-semibold">View All Events</div>
                                 <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Manage existing events</div>
                             </a>
@@ -80,9 +80,9 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="modern-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; color: white;">
-                <div class="modern-card-body text-center">
-                    <div style="font-size: 48px; margin-bottom: 1rem;">💡</div>
+            <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; color: white;">
+                <div class="card-body text-center">
+                    <div style="font-size: 48px; margin-bottom: 1rem;"><i class="fa fa-lightbulb-o"></i></div>
                     <h6 class="fw-semibold mb-2">Pro Tip</h6>
                     <p class="small mb-3 opacity-75">
                         Publish your draft events to make them visible to potential attendees!

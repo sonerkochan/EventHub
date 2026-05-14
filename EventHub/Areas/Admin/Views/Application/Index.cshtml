@@ -1,4 +1,4 @@
-﻿@using EventHub.Core.Models.ApplicationForm
+@using EventHub.Core.Models.ApplicationForm
 @model IEnumerable<ApplicationListViewModel>
 
 @{
@@ -13,7 +13,7 @@
 {
     <div class="alert alert-success alert-dismissible fade show small" role="alert">
         @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
 }
 
@@ -61,8 +61,8 @@
                                     </form>
 
                                     <button class="table-btn btn-reject"
-                                            data-bs-toggle="collapse"
-                                            data-bs-target="#reject-@app.Id">
+                                            data-toggle="collapse"
+                                            data-target="#reject-@app.Id">
                                         Reject
                                     </button>
 
@@ -102,7 +102,7 @@
 
                     <button type="button"
                             class="btn-close"
-                            data-bs-dismiss="modal">
+                            data-dismiss="modal">
                     </button>
                 </div>
 
@@ -114,7 +114,7 @@
 
                     <button type="button"
                             class="modal-button modal-cancel"
-                            data-bs-dismiss="modal">
+                            data-dismiss="modal">
                         Cancel
                     </button>
 
