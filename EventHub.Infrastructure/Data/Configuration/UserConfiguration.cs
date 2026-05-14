@@ -25,7 +25,8 @@ namespace EventHub.Infrastructure.Data.Configuration
                 NormalizedEmail = "ADMIN@EVENTHUB.COM",
                 EmailConfirmed = true,
                 SecurityStamp = "STATIC_SECURITY_STAMP_ADMIN_001",
-                ConcurrencyStamp = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                ConcurrencyStamp = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                IsActive = true
             };
 
             admin.PasswordHash = hasher.HashPassword(admin, "Admin123!");

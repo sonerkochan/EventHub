@@ -66,7 +66,12 @@ namespace EventHub.Controllers
                 return View(model);
             }
 
-            var user = new User() { Email = model.Email, UserName = model.UserName };
+            var user = new User()
+            {
+                Email = model.Email,
+                UserName = model.UserName,
+                IsActive = true
+            };
 
             var result = await userManager.CreateAsync(user, model.Password);
 
@@ -124,6 +129,13 @@ namespace EventHub.Controllers
 
             if (user != null)
             {
+
+                if (!user.IsActive)
+                {
+                    ModelState.AddModelError("", "Your account is deactivated!");
+                    return View(model);
+                }
+
                 var result = await signInManager.PasswordSignInAsync(
                     user,
                     model.Password,
