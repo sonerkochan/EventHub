@@ -1,4 +1,4 @@
-﻿@using EventHub.Infrastructure.Data.Models
+@using EventHub.Infrastructure.Data.Models
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
@@ -15,14 +15,14 @@
 {
     <div class="alert alert-success alert-dismissible fade show small" role="alert">
         @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
 }
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger alert-dismissible fade show small" role="alert">
         @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
 }
 

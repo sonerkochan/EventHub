@@ -1,4 +1,4 @@
-﻿@model EventHub.Core.Models.Dashboard.AdminDashboardViewModel
+@model EventHub.Core.Models.Dashboard.AdminDashboardViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -7,8 +7,8 @@
 <div class="animate-fade-in">
     <!-- Welcome Header -->
     <div class="mb-4">
-        <h4 class="fw-bold mb-1">Welcome back, @User.Identity?.Name! 👋</h4>
-        <p class="text-muted-modern mb-0">Here's what's happening with your platform today.</p>
+        <h4 class="fw-bold mb-1">Welcome back, @User.Identity?.Name!</h4>
+        <p class="text-muted mb-0">Here's what's happening with your platform today.</p>
     </div>
 
     <!-- Stat Cards Grid -->
@@ -25,7 +25,7 @@
                     }
                     else
                     {
-                        <span class="text-muted-modern">No new registrations today</span>
+                        <span class="text-muted">No new registrations today</span>
                     }
                 </div>
             </div>
@@ -37,7 +37,7 @@
                 <div class="stat-card-label">Total Events</div>
                 <div class="stat-card-value">@Model.TotalEvents</div>
                 <div class="stat-card-change">
-                    <span class="text-muted-modern">@Model.PublishedEvents published</span>
+                    <span class="text-muted">@Model.PublishedEvents published</span>
                 </div>
             </div>
         </div>
@@ -59,7 +59,7 @@
                 <div class="stat-card-label">Total Revenue</div>
                 <div class="stat-card-value">$@Model.TotalRevenue.ToString("N2")</div>
                 <div class="stat-card-change">
-                    <span class="text-muted-modern">@Model.ActiveVenues active venues</span>
+                    <span class="text-muted">@Model.ActiveVenues active venues</span>
                 </div>
             </div>
         </div>
@@ -69,35 +69,35 @@
     <div class="row g-4">
         <div class="col-lg-8">
             <!-- Quick Actions -->
-            <div class="modern-card mb-4">
-                <div class="modern-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h6 class="mb-0 fw-semibold">Quick Actions</h6>
                 </div>
-                <div class="modern-card-body">
+                <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <a asp-controller="Events" asp-action="Create" 
-                               class="text-decoration-none d-block p-3 rounded-modern border-modern hover-lift"
+                               class="text-decoration-none d-block p-3 rounded border hover-lift"
                                style="transition: all 0.3s;">
-                                <div style="font-size: 32px; margin-bottom: 0.5rem;">➕</div>
+                                <div style="font-size: 32px; margin-bottom: 0.5rem;"><i class="fa fa-plus"></i></div>
                                 <div class="fw-medium small">Create Event</div>
                                 <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Add new event</div>
                             </a>
                         </div>
                         <div class="col-md-4">
                             <a asp-controller="Venues" asp-action="Create" 
-                               class="text-decoration-none d-block p-3 rounded-modern border-modern hover-lift"
+                               class="text-decoration-none d-block p-3 rounded border hover-lift"
                                style="transition: all 0.3s;">
-                                <div style="font-size: 32px; margin-bottom: 0.5rem;">🏛️</div>
+                                <div style="font-size: 32px; margin-bottom: 0.5rem;"><i class="fa fa-building"></i></div>
                                 <div class="fw-medium small">Add Venue</div>
                                 <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">New location</div>
                             </a>
                         </div>
                         <div class="col-md-4">
                             <a asp-controller="Users" asp-action="Index" 
-                               class="text-decoration-none d-block p-3 rounded-modern border-modern hover-lift"
+                               class="text-decoration-none d-block p-3 rounded border hover-lift"
                                style="transition: all 0.3s;">
-                                <div style="font-size: 32px; margin-bottom: 0.5rem;">👥</div>
+                                <div style="font-size: 32px; margin-bottom: 0.5rem;"><i class="fa fa-users"></i></div>
                                 <div class="fw-medium small">Manage Users</div>
                                 <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">View all users</div>
                             </a>
@@ -109,31 +109,31 @@
 
         <div class="col-lg-4">
             <!-- Pending Items -->
-            <div class="modern-card">
-                <div class="modern-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h6 class="mb-0 fw-semibold">Pending Items</h6>
                 </div>
-                <div class="modern-card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded-modern" 
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" 
                          style="background: hsl(var(--muted));">
                         <div>
                             <div class="fw-medium small">Applications</div>
                             <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Awaiting review</div>
                         </div>
-                        <div class="badge-modern badge-modern-default" style="font-size: 1rem; padding: 0.5rem 0.75rem;">
+                        <div class="badge badge-primary" style="font-size: 1rem; padding: 0.5rem 0.75rem;">
                             @Model.PendingApplications
                         </div>
                     </div>
 
                     @if (Model.PendingApplications > 0)
                     {
-                        <a asp-controller="Application" asp-action="Index" class="btn-modern btn-modern-primary w-100">
-                            Review Applications →
+                        <a asp-controller="Application" asp-action="Index" class="btn btn-primary w-100">
+                            Review Applications
                         </a>
                     }
                     else
                     {
-                        <div class="text-center text-muted-modern small">All caught up! 🎉</div>
+                        <div class="text-center text-muted small">All caught up.</div>
                     }
                 </div>
             </div>

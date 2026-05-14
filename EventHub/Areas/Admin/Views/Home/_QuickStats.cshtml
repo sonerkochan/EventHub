@@ -11,8 +11,8 @@
     var applications = await ApplicationService.GetAllPendingAsync();
 }
 
-<div class="modern-card">
-    <div class="modern-card-body">
+<div class="card">
+    <div class="card-body">
         <h5>Admin Overview</h5>
         <p>Users: @users.Count() | Events: @events.Count() | Pending Apps: @applications.Count()</p>
     </div>
