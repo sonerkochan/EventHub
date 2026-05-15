@@ -1,7 +1,10 @@
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.Ticket;
+using EventHub.Infrastructure.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -11,11 +14,22 @@ namespace EventHub.Areas.Client.Controllers
     {
         private readonly IEventService eventService;
         private readonly ITicketService ticketService;
+        private readonly ISeatService seatService;
+        private readonly IZoneService zoneService;
+        private readonly IEventPricingTierService pricingTierService;
 
-        public EventsController(IEventService _eventService, ITicketService _ticketService)
+        public EventsController(
+            IEventService _eventService,
+            ITicketService _ticketService,
+            ISeatService _seatService,
+            IZoneService _zoneService,
+            IEventPricingTierService _pricingTierService)
         {
             eventService = _eventService;
             ticketService = _ticketService;
+            seatService = _seatService;
+            zoneService = _zoneService;
+            pricingTierService = _pricingTierService;
         }
 
         public async Task<IActionResult> Index()
@@ -38,15 +52,93 @@ namespace EventHub.Areas.Client.Controllers
             var ev = await eventService.GetPublishedEventByIdAsync(id);
             if (ev == null) return NotFound();
 
+            var basePrice = (float)ev.BasePrice;
             var model = new PurchaseTicketViewModel
             {
                 EventId = ev.Id,
                 EventName = ev.EventName,
                 EventStart = ev.StartDateTime,
                 RoomName = ev.RoomName ?? string.Empty,
-                Price = (float)ev.BasePrice,
-                AvailableTickets = ev.TotalTickets - ev.TicketsSold
+                Price = basePrice,
+                BasePrice = basePrice,
+                AvailableTickets = ev.TotalTickets - ev.TicketsSold,
+                RoomId = ev.RoomId
             };
+
+            var seats = (await seatService.GetByRoomAsync(ev.RoomId))
+                .Where(s => s.IsActive)
+                .ToList();
+
+            if (seats.Count == 0)
+            {
+                return View(model);
+            }
+
+            var zones = (await zoneService.GetByRoomAsync(ev.RoomId))
+                .Where(z => z.IsActive)
+                .ToList();
+            var zoneById = zones.ToDictionary(z => z.Id);
+
+            var tiers = (await pricingTierService.GetByEventAsync(id)).ToList();
+            var tierByZone = tiers.ToDictionary(t => t.ZoneId);
+
+            var allTickets = await ticketService.GetByEventForAdminAsync(id);
+            var takenSeatIds = allTickets
+                .Where(t => t.Status == TicketStatus.Reserved
+                            || t.Status == TicketStatus.Purchased
+                            || t.Status == TicketStatus.Used)
+                .Where(t => t.SeatId != Guid.Empty)
+                .Select(t => t.SeatId)
+                .ToHashSet();
+
+            model.GridRows = seats.Max(s => s.Row) + 1;
+            model.GridColumns = seats.Max(s => s.Column) + 1;
+
+            model.Seats = seats.Select(s =>
+            {
+                EventHub.Core.Models.EventPricingTier.PricingTierListViewModel? tier = null;
+                if (s.ZoneId.HasValue) tierByZone.TryGetValue(s.ZoneId.Value, out tier);
+                EventHub.Core.Models.Zone.ZoneListViewModel? zone = null;
+                if (s.ZoneId.HasValue) zoneById.TryGetValue(s.ZoneId.Value, out zone);
+
+                return new ClientSeatDto
+                {
+                    Id = s.Id,
+                    Row = s.Row,
+                    Column = s.Column,
+                    SeatNumber = s.SeatNumber,
+                    ZoneId = s.ZoneId,
+                    ZoneName = zone?.Name,
+                    ZoneType = zone?.ZoneType,
+                    Price = tier?.Price ?? basePrice,
+                    Currency = tier?.Currency ?? "EUR",
+                    UsesBasePrice = tier == null,
+                    IsTaken = takenSeatIds.Contains(s.Id)
+                };
+            }).ToList();
+
+            model.Zones = zones
+                .OrderBy(z => z.DisplayOrder).ThenBy(z => z.Name)
+                .Select(z =>
+                {
+                    tierByZone.TryGetValue(z.Id, out var tier);
+                    var seatCount = seats.Count(s => s.ZoneId == z.Id);
+                    var soldCount = model.Seats.Count(s => s.ZoneId == z.Id && s.IsTaken);
+                    return new ClientZoneDto
+                    {
+                        Id = z.Id,
+                        Name = z.Name ?? "Unnamed Zone",
+                        ZoneType = z.ZoneType,
+                        SeatCount = seatCount,
+                        AvailableCount = Math.Max(0, seatCount - soldCount),
+                        Price = tier?.Price ?? basePrice,
+                        Currency = tier?.Currency ?? "EUR",
+                        UsesBasePrice = tier == null
+                    };
+                })
+                .ToList();
+
+            model.Currency = tiers.FirstOrDefault()?.Currency ?? "EUR";
 
             return View(model);
         }
@@ -65,6 +157,29 @@ namespace EventHub.Areas.Client.Controllers
             }
 
             TempData["Success"] = $"{quantity} ticket(s) purchased successfully!";
+            return RedirectToAction("Index", "Tickets");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReserveSeats(Guid eventId, List<Guid> seatIds)
+        {
+            if (seatIds == null || seatIds.Count == 0)
+            {
+                TempData["Error"] = "Please pick at least one seat.";
+                return RedirectToAction(nameof(Buy), new { id = eventId });
+            }
+
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await ticketService.ReserveSeatsAsync(eventId, userId, seatIds);
+
+            if (!result.Success)
+            {
+                TempData["Error"] = result.ErrorMessage ?? "Unable to reserve seats.";
+                return RedirectToAction(nameof(Buy), new { id = eventId });
+            }
+
+            TempData["Success"] = $"{result.TicketIds.Count} seat(s) reserved. Complete payment within 15 minutes to confirm.";
             return RedirectToAction("Index", "Tickets");
         }
     }

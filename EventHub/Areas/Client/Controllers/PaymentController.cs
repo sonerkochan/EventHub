@@ -3,6 +3,8 @@ using EventHub.Core.Models.Payment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Client.Controllers
@@ -11,15 +13,18 @@ namespace EventHub.Areas.Client.Controllers
     {
         private readonly IPaymentService paymentService;
         private readonly IEventService eventService;
+        private readonly ITicketService ticketService;
         private readonly StripeOptions stripeOptions;
 
         public PaymentController(
             IPaymentService _paymentService,
             IEventService _eventService,
+            ITicketService _ticketService,
             IOptions<StripeOptions> _stripeOptions)
         {
             paymentService = _paymentService;
             eventService = _eventService;
+            ticketService = _ticketService;
             stripeOptions = _stripeOptions.Value;
         }
 
@@ -53,6 +58,51 @@ namespace EventHub.Areas.Client.Controllers
                 EventName = ev.EventName,
                 SuccessUrl = successUrl,
                 CancelUrl = cancelUrl
+            });
+
+            return Redirect(checkoutUrl);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckoutSeats(Guid eventId, List<Guid> seatIds)
+        {
+            if (seatIds == null || seatIds.Count == 0)
+            {
+                TempData["Error"] = "Please pick at least one seat.";
+                return RedirectToAction("Buy", "Events", new { id = eventId });
+            }
+
+            var ev = await eventService.GetPublishedEventByIdAsync(eventId);
+            if (ev == null) return NotFound();
+
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var reservation = await ticketService.ReserveSeatsAsync(eventId, userId, seatIds);
+            if (!reservation.Success)
+            {
+                TempData["Error"] = reservation.ErrorMessage ?? "Unable to reserve seats.";
+                return RedirectToAction("Buy", "Events", new { id = eventId });
+            }
+
+            var successUrl = Url.Action("Success", "Payment", new { area = "Client" }, Request.Scheme)!;
+            var cancelUrl = Url.Action("Cancel", "Payment", new { area = "Client", eventId }, Request.Scheme)!;
+
+            var checkoutUrl = await paymentService.CreateSeatCheckoutSessionAsync(new CreateSeatCheckoutRequest
+            {
+                EventId = eventId,
+                UserId = userId,
+                Currency = (reservation.Currency ?? "EUR").ToLowerInvariant(),
+                EventName = ev.EventName,
+                SuccessUrl = successUrl,
+                CancelUrl = cancelUrl,
+                Lines = reservation.Lines.Select(l => new CheckoutSeatLine
+                {
+                    TicketId = l.TicketId,
+                    SeatNumber = l.SeatNumber,
+                    ZoneName = l.ZoneName,
+                    UnitPrice = (decimal)l.Price
+                }).ToList()
             });
 
             return Redirect(checkoutUrl);

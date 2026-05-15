@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventHub.Core.Models.Ticket
@@ -15,5 +16,15 @@ namespace EventHub.Core.Models.Ticket
         [Required]
         [Range(1, 10, ErrorMessage = "You can purchase between 1 and 10 tickets.")]
         public int Quantity { get; set; } = 1;
+
+        public Guid RoomId { get; set; }
+        public int GridRows { get; set; }
+        public int GridColumns { get; set; }
+        public List<ClientSeatDto> Seats { get; set; } = new();
+        public List<ClientZoneDto> Zones { get; set; } = new();
+        public float BasePrice { get; set; }
+        public string Currency { get; set; } = "EUR";
+
+        public bool HasSeatLayout => Seats.Count > 0;
     }
 }

@@ -94,6 +94,82 @@ namespace EventHub.Core.Services
             return session.Url;
         }
 
+        public async Task<string> CreateSeatCheckoutSessionAsync(CreateSeatCheckoutRequest request)
+        {
+            if (request.Lines.Count == 0)
+                throw new InvalidOperationException("No seat lines in checkout request.");
+
+            var total = request.Lines.Sum(l => l.UnitPrice);
+
+            var payment = new Payment
+            {
+                Id = Guid.NewGuid(),
+                UserId = request.UserId,
+                TicketId = request.Lines[0].TicketId,
+                Amount = (float)total,
+                Currency = request.Currency.ToUpperInvariant(),
+                Status = Payment.PaymentStatus.Pending,
+                Method = Payment.PaymentMethod.Card,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await repo.AddAsync(payment);
+
+            foreach (var line in request.Lines)
+            {
+                await repo.AddAsync(new PaymentTicket
+                {
+                    PaymentId = payment.Id,
+                    TicketId = line.TicketId
+                });
+            }
+
+            await repo.SaveChangesAsync();
+
+            var lineItems = request.Lines.Select(l => new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    Currency = request.Currency,
+                    UnitAmountDecimal = l.UnitPrice * 100,
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = $"{request.EventName} — Seat {l.SeatNumber}",
+                        Description = string.IsNullOrWhiteSpace(l.ZoneName) ? "Seat ticket" : $"Zone: {l.ZoneName}"
+                    }
+                },
+                Quantity = 1
+            }).ToList();
+
+            var sessionOptions = new SessionCreateOptions
+            {
+                PaymentMethodTypes = ["card"],
+                LineItems = lineItems,
+                Mode = "payment",
+                SuccessUrl = request.SuccessUrl,
+                CancelUrl = request.CancelUrl,
+                Metadata = new Dictionary<string, string>
+                {
+                    ["internalPaymentId"] = payment.Id.ToString(),
+                    ["eventId"] = request.EventId.ToString(),
+                    ["userId"] = request.UserId.ToString(),
+                    ["ticketIds"] = string.Join(",", request.Lines.Select(l => l.TicketId.ToString())),
+                    ["mode"] = "seats"
+                }
+            };
+
+            var service = new SessionService();
+            var session = await service.CreateAsync(sessionOptions);
+
+            payment.StripeSessionId = session.Id;
+            payment.UpdatedAt = DateTime.UtcNow;
+            repo.Update(payment);
+            await repo.SaveChangesAsync();
+
+            return session.Url;
+        }
+
         public async Task HandleWebhookAsync(string payload, string stripeSignature)
         {
             var stripeEvent = EventUtility.ConstructEvent(
@@ -170,15 +246,44 @@ namespace EventHub.Core.Services
             if (payment == null || payment.Status != Payment.PaymentStatus.Pending)
                 return;
 
+            var isSeatMode = session.Metadata.TryGetValue("mode", out var mode) && mode == "seats";
+
+            if (isSeatMode)
+            {
+                if (!session.Metadata.TryGetValue("ticketIds", out var ticketIdsCsv)
+                    || string.IsNullOrWhiteSpace(ticketIdsCsv))
+                    return;
+
+                var ticketIds = ticketIdsCsv
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(s => Guid.TryParse(s, out var g) ? g : Guid.Empty)
+                    .Where(g => g != Guid.Empty)
+                    .ToList();
+
+                if (ticketIds.Count == 0) return;
+
+                var flipped = await ticketService.ConfirmReservedTicketsAsync(ticketIds);
+                if (!flipped) return;
+
+                payment.StripePaymentIntentId = session.PaymentIntentId;
+                payment.Status = Payment.PaymentStatus.Accepted;
+                payment.SucceededAt = DateTime.UtcNow;
+                payment.UpdatedAt = DateTime.UtcNow;
+
+                repo.Update(payment);
+                await repo.SaveChangesAsync();
+                return;
+            }
+
             if (!Guid.TryParse(session.Metadata["eventId"], out var eventId)
                 || !Guid.TryParse(session.Metadata["userId"], out var userId)
                 || !int.TryParse(session.Metadata["quantity"], out var quantity))
                 return;
 
-            var ticketIds = await ticketService.PurchaseAsync(eventId, userId, quantity);
-            if (ticketIds.Count == 0) return;
+            var newTicketIds = await ticketService.PurchaseAsync(eventId, userId, quantity);
+            if (newTicketIds.Count == 0) return;
 
-            foreach (var ticketId in ticketIds)
+            foreach (var ticketId in newTicketIds)
             {
                 await repo.AddAsync(new PaymentTicket
                 {
@@ -187,7 +292,7 @@ namespace EventHub.Core.Services
                 });
             }
 
-            payment.TicketId = ticketIds[0];
+            payment.TicketId = newTicketIds[0];
             payment.StripePaymentIntentId = session.PaymentIntentId;
             payment.Status = Payment.PaymentStatus.Accepted;
             payment.SucceededAt = DateTime.UtcNow;

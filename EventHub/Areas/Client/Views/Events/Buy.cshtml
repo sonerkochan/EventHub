@@ -1,94 +1,357 @@
+@using EventHub.Infrastructure.Data.Models
 @model EventHub.Core.Models.Ticket.PurchaseTicketViewModel
 
 @{
     ViewData["Title"] = "Get Tickets";
 }
 
-<div class="animate-fade-in" style="max-width: 520px; margin: 0 auto;">
-    <div class="mb-4">
-        <a asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-link mb-2" style="padding: 0.375rem 0.75rem;">
-            <i class="fa fa-arrow-left mr-1"></i> Back to Event
-        </a>
-        <h4 class="fw-bold mb-1">Get Tickets</h4>
-        <p class="text-muted mb-0">Reserve your spot for this event</p>
-    </div>
+@if (!Model.HasSeatLayout)
+{
+    <div class="animate-fade-in" style="max-width: 520px; margin: 0 auto;">
+        <div class="mb-4">
+            <a asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-link mb-2" style="padding: 0.375rem 0.75rem;">
+                <i class="fa fa-arrow-left mr-1"></i> Back to Event
+            </a>
+            <h4 class="fw-bold mb-1">Get Tickets</h4>
+            <p class="text-muted mb-0">Reserve your spot for this event</p>
+        </div>
 
-    <div class="card mb-3">
-        <div class="card-body" style="background: hsl(var(--muted)); border-radius: var(--radius);">
-            <h5 class="fw-semibold mb-2">@Model.EventName</h5>
-            <div class="d-flex flex-column gap-1">
-                <small class="text-muted"><i class="fa fa-calendar mr-1"></i> @Model.EventStart.ToString("dd MMM yyyy, HH:mm")</small>
-                <small class="text-muted"><i class="fa fa-map-marker mr-1"></i> @Model.RoomName</small>
-                <small class="text-muted"><i class="fa fa-ticket mr-1"></i> @Model.AvailableTickets tickets available</small>
-                @if (Model.Price > 0)
+        <div class="card mb-3">
+            <div class="card-body" style="background: hsl(var(--muted)); border-radius: var(--radius);">
+                <h5 class="fw-semibold mb-2">@Model.EventName</h5>
+                <div class="d-flex flex-column gap-1">
+                    <small class="text-muted"><i class="fa fa-calendar mr-1"></i> @Model.EventStart.ToString("dd MMM yyyy, HH:mm")</small>
+                    <small class="text-muted"><i class="fa fa-map-marker mr-1"></i> @Model.RoomName</small>
+                    <small class="text-muted"><i class="fa fa-ticket mr-1"></i> @Model.AvailableTickets tickets available</small>
+                    @if (Model.Price > 0)
+                    {
+                        <small class="fw-medium mt-2">Price: $@Model.Price.ToString("F2") per ticket</small>
+                    }
+                    else
+                    {
+                        <small class="fw-medium mt-2" style="color: #10b981;">Free Event</small>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                @if (TempData["Error"] != null)
                 {
-                    <small class="fw-medium mt-2">Price: $@Model.Price.ToString("F2") per ticket</small>
+                    <div class="alert alert-danger small mb-3">@TempData["Error"]</div>
                 }
-                else
-                {
-                    <small class="fw-medium mt-2" style="color: #10b981;">Free Event</small>
-                }
+
+                <form asp-action="BuyDirect" method="post" class="form-modern">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="eventId" value="@Model.EventId" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                    <div class="form-group">
+                        <label asp-for="Quantity" class="form-label">Number of Tickets</label>
+                        <input asp-for="Quantity" type="number" name="quantity" min="1"
+                               max="@Math.Min(10, Model.AvailableTickets)"
+                               class="form-control" value="1" style="max-width: 150px;" />
+                        <span asp-validation-for="Quantity" class="text-danger small"></span>
+                    </div>
+
+                    @if (Model.Price > 0)
+                    {
+                        <div class="card mb-3" style="background: hsl(var(--muted)); border: none; padding: 1rem;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-medium">Total:</span>
+                                <span class="fw-bold" style="font-size: 1.25rem;">$<span id="totalPriceQty">@Model.Price.ToString("F2")</span></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" formaction="@Url.Action("Checkout", "Payment", new { area = "Client" })"
+                                formmethod="post" class="btn btn-primary w-100 mb-2" style="padding: 0.75rem;">
+                            <input type="hidden" name="unitPrice" value="@Model.Price" />
+                            <i class="fa fa-credit-card mr-1"></i> Pay with Stripe
+                        </button>
+                    }
+
+                    <button type="submit" class="btn @(Model.Price > 0 ? "btn-secondary" : "btn-primary") w-100" style="padding: 0.75rem;">
+                        @(Model.Price > 0 ? "Reserve (Pay Later)" : "Get Free Tickets")
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="animate-fade-in" style="max-width: 1100px; margin: 0 auto;">
+        <div class="mb-4">
+            <a asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-link mb-2" style="padding: 0.375rem 0.75rem;">
+                <i class="fa fa-arrow-left mr-1"></i> Back to Event
+            </a>
+            <h4 class="fw-bold mb-1">Pick Your Seats</h4>
+            <p class="text-muted mb-0">Click seats on the map to add them to your order.</p>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body" style="background: hsl(var(--muted)); border-radius: var(--radius);">
+                <h5 class="fw-semibold mb-2">@Model.EventName</h5>
+                <div class="d-flex flex-wrap gap-3">
+                    <small class="text-muted"><i class="fa fa-calendar mr-1"></i> @Model.EventStart.ToString("dd MMM yyyy, HH:mm")</small>
+                    <small class="text-muted"><i class="fa fa-map-marker mr-1"></i> @Model.RoomName</small>
+                    <small class="text-muted"><i class="fa fa-ticket mr-1"></i> @Model.AvailableTickets tickets available</small>
+                </div>
+            </div>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger small mb-3">@TempData["Error"]</div>
+        }
+
+        <div class="card mb-3">
+            <div class="card-body seat-grid-wrap">
+                <div class="text-center small text-muted mb-2" style="letter-spacing: 0.15em;">STAGE / SCREEN</div>
+                <div id="ticketGrid" class="seat-grid"></div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-md-5">
+                <div class="card h-100">
+                    <div class="card-body py-2">
+                        <div class="small fw-semibold mb-2">Legend</div>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="legend-swatch" style="background:#e9ecef;border:1px solid #adb5bd"></div>
+                                <span class="small text-muted">Empty</span>
+                            </div>
+                            @if (Model.Zones.Any(z => z.UsesBasePrice) || Model.Seats.Any(s => !s.ZoneId.HasValue))
+                            {
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="legend-swatch" style="background:#212529"></div>
+                                    <span class="small text-muted">Base (@Model.BasePrice.ToString("0.00") @Model.Currency)</span>
+                                </div>
+                            }
+                            @foreach (var zoneType in Model.Zones.Select(z => z.ZoneType).Distinct().OrderBy(t => t))
+                            {
+                                var color = zoneType switch
+                                {
+                                    ZoneType.VIP => "#dc3545",
+                                    ZoneType.Regular => "#0d6efd",
+                                    ZoneType.Economy => "#198754",
+                                    _ => "#6c757d"
+                                };
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="legend-swatch" style="background:@color"></div>
+                                    <span class="small text-muted">@zoneType</span>
+                                </div>
+                            }
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="legend-swatch" style="background:#212529;opacity:.35"></div>
+                                <span class="small text-muted">Taken</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="legend-swatch" style="outline:3px solid #fd7e14;outline-offset:-3px"></div>
+                                <span class="small text-muted">Selected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-7">
+                <div class="card h-100">
+                    <div class="card-header bg-white py-2">
+                        <span class="small fw-semibold">Zones &amp; Pricing</span>
+                    </div>
+                    <div class="card-body p-0">
+                        @foreach (var z in Model.Zones)
+                        {
+                            <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+                                <div class="zone-color" data-zone-type="@((int)z.ZoneType)"></div>
+                                <div class="flex-grow-1">
+                                    <div class="small fw-medium">@z.Name</div>
+                                    <div class="small text-muted">@z.AvailableCount / @z.SeatCount available</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="small fw-medium">@z.Price.ToString("0.00") @z.Currency</div>
+                                    @if (z.UsesBasePrice)
+                                    {
+                                        <div class="text-muted" style="font-size:0.7rem">base price</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-7">
+                        <div class="small fw-semibold mb-2">Your Selection</div>
+                        <div id="selectionList" class="small text-muted">No seats selected.</div>
+                    </div>
+                    <div class="col-12 col-md-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-medium">Total:</span>
+                            <span class="fw-bold" style="font-size: 1.5rem;">
+                                <span id="totalPrice">0.00</span> <span id="totalCurrency">@Model.Currency</span>
+                            </span>
+                        </div>
+                        <form id="checkoutForm" method="post" class="d-flex flex-column gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="eventId" value="@Model.EventId" />
+                            <div id="hiddenSeats"></div>
+
+                            <button type="submit"
+                                    formaction="@Url.Action("CheckoutSeats", "Payment", new { area = "Client" })"
+                                    class="btn btn-primary w-100" style="padding: 0.75rem;" id="payBtn" disabled>
+                                <i class="fa fa-credit-card mr-1"></i> Pay with Stripe
+                            </button>
+                            <button type="submit"
+                                    formaction="@Url.Action("ReserveSeats", "Events", new { area = "Client" })"
+                                    class="btn btn-secondary w-100" style="padding: 0.75rem;" id="reserveBtn" disabled>
+                                Reserve (Pay Later)
+                            </button>
+                        </form>
+                        <p class="small text-muted mt-2 mb-0 text-end">Reservations are held for 15 minutes.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger small mb-3">@TempData["Error"]</div>
-            }
-
-            <form asp-action="BuyDirect" method="post" class="form-modern">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="eventId" value="@Model.EventId" />
-
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
-
-                <div class="form-group">
-                    <label asp-for="Quantity" class="form-label">Number of Tickets</label>
-                    <input asp-for="Quantity" type="number" name="quantity" min="1"
-                           max="@Math.Min(10, Model.AvailableTickets)"
-                           class="form-control" value="1" style="max-width: 150px;" />
-                    <span asp-validation-for="Quantity" class="text-danger small"></span>
-                </div>
-
-                @if (Model.Price > 0)
-                {
-                    <div class="card mb-3" style="background: hsl(var(--muted)); border: none; padding: 1rem;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-medium">Total:</span>
-                            <span class="fw-bold" style="font-size: 1.25rem;">$<span id="totalPrice">@Model.Price.ToString("F2")</span></span>
-                        </div>
-                    </div>
-
-                    <button type="submit" formaction="@Url.Action("Checkout", "Payment", new { area = "Client" })"
-                            formmethod="post" class="btn btn-primary w-100 mb-2" style="padding: 0.75rem;">
-                        <input type="hidden" name="unitPrice" value="@Model.Price" />
-                        <i class="fa fa-credit-card mr-1"></i> Pay with Stripe
-                    </button>
-                }
-
-                <button type="submit" class="btn @(Model.Price > 0 ? "btn-secondary" : "btn-primary") w-100" style="padding: 0.75rem;">
-                    @(Model.Price > 0 ? "Reserve (Pay Later)" : "Get Free Tickets")
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
+    <link rel="stylesheet" href="~/css/seat-layout.css" asp-append-version="true" />
+    <style>
+        .legend-swatch { width: 18px; height: 18px; border-radius: 3px; }
+        .seat-cell.seat-available { cursor: pointer; }
+        .seat-cell.seat-taken { cursor: not-allowed; opacity: 0.35; }
+        .seat-cell.seat-selected { cursor: pointer; }
+    </style>
+}
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    <script>
-        const quantityInput = document.querySelector('input[name="quantity"]');
-        const pricePerTicket = @Model.Price;
-        const totalPriceSpan = document.getElementById('totalPrice');
+    @if (!Model.HasSeatLayout)
+    {
+        <script>
+            const quantityInput = document.querySelector('input[name="quantity"]');
+            const pricePerTicket = @Model.Price;
+            const totalPriceSpan = document.getElementById('totalPriceQty');
 
-        if (totalPriceSpan) {
-            quantityInput.addEventListener('input', () => {
-                const total = (quantityInput.value * pricePerTicket).toFixed(2);
-                totalPriceSpan.textContent = total;
+            if (totalPriceSpan) {
+                quantityInput.addEventListener('input', () => {
+                    const total = (quantityInput.value * pricePerTicket).toFixed(2);
+                    totalPriceSpan.textContent = total;
+                });
+            }
+        </script>
+    }
+    else
+    {
+        <script>
+            const gridRows = @Model.GridRows;
+            const gridCols = @Model.GridColumns;
+            const seats = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Seats, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+            const zoneColors = { 0: '#dc3545', 1: '#0d6efd', 2: '#198754' };
+
+            const selected = new Map();
+            const seatMap = {};
+            seats.forEach(s => seatMap[`${s.row},${s.column}`] = s);
+
+            const grid = document.getElementById('ticketGrid');
+            grid.style.gridTemplateColumns = `repeat(${gridCols}, max-content)`;
+
+            function baseColorFor(seat) {
+                if (seat.zoneType !== null && seat.zoneType !== undefined) {
+                    return zoneColors[seat.zoneType] || '#212529';
+                }
+                return '#212529';
+            }
+
+            function renderCell(seat, cell) {
+                cell.textContent = seat.seatNumber;
+                const color = baseColorFor(seat);
+                if (seat.isTaken) {
+                    cell.classList.add('seat-placed', 'seat-taken');
+                    cell.style.background = color;
+                    cell.style.borderColor = color;
+                    cell.title = 'Taken';
+                } else {
+                    cell.classList.add('seat-placed', 'seat-available');
+                    cell.style.background = color;
+                    cell.style.borderColor = color;
+                    cell.title = `Seat ${seat.seatNumber} — ${seat.price.toFixed(2)} ${seat.currency}` +
+                                 (seat.zoneName ? ` (${seat.zoneName})` : '') +
+                                 (seat.usesBasePrice ? ' (base)' : '');
+                }
+            }
+
+            for (let r = 0; r < gridRows; r++) {
+                for (let c = 0; c < gridCols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'seat-cell';
+                    const seat = seatMap[`${r},${c}`];
+                    if (seat) {
+                        renderCell(seat, cell);
+                        if (!seat.isTaken) {
+                            cell.addEventListener('click', () => toggleSeat(seat, cell));
+                        }
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+
+            document.querySelectorAll('.zone-color[data-zone-type]').forEach(el => {
+                const t = parseInt(el.dataset.zoneType);
+                el.style.background = zoneColors[t] || '#6c757d';
             });
-        }
-    </script>
+
+            function toggleSeat(seat, cell) {
+                if (selected.has(seat.id)) {
+                    selected.delete(seat.id);
+                    cell.classList.remove('seat-selected');
+                } else {
+                    selected.set(seat.id, seat);
+                    cell.classList.add('seat-selected');
+                }
+                updateSummary();
+            }
+
+            function updateSummary() {
+                const list = document.getElementById('selectionList');
+                const totalSpan = document.getElementById('totalPrice');
+                const currencySpan = document.getElementById('totalCurrency');
+                const payBtn = document.getElementById('payBtn');
+                const reserveBtn = document.getElementById('reserveBtn');
+                const hidden = document.getElementById('hiddenSeats');
+
+                if (selected.size === 0) {
+                    list.textContent = 'No seats selected.';
+                    totalSpan.textContent = '0.00';
+                    payBtn.disabled = true;
+                    reserveBtn.disabled = true;
+                    hidden.innerHTML = '';
+                    return;
+                }
+
+                const items = Array.from(selected.values()).sort((a, b) => a.seatNumber - b.seatNumber);
+                let total = 0;
+                list.innerHTML = items.map(s => {
+                    total += s.price;
+                    const zone = s.zoneName ? ` · ${s.zoneName}` : '';
+                    return `<div class="d-flex justify-content-between"><span>Seat ${s.seatNumber}${zone}</span><span>${s.price.toFixed(2)} ${s.currency}</span></div>`;
+                }).join('');
+
+                totalSpan.textContent = total.toFixed(2);
+                currencySpan.textContent = items[0].currency;
+                payBtn.disabled = false;
+                reserveBtn.disabled = false;
+
+                hidden.innerHTML = items.map(s => `<input type="hidden" name="seatIds" value="${s.id}" />`).join('');
+            }
+        </script>
+    }
 }

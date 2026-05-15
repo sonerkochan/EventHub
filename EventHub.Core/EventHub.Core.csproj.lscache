@@ -102,6 +102,7 @@ Models/
   ModeratorListViewModel.cs
  Payment/
   CreateCheckoutRequest.cs
+  CreateSeatCheckoutRequest.cs
   PaymentListViewModel.cs
   StripeOptions.cs
  Refund/
@@ -127,7 +128,10 @@ Models/
   SupplierServiceCatalogItemViewModel.cs
   SupplierServiceSearchViewModel.cs
  Ticket/
+  ClientSeatDto.cs
+  ClientZoneDto.cs
   PurchaseTicketViewModel.cs
+  ReserveSeatsResult.cs
   TicketDetailViewModel.cs
   TicketListViewModel.cs
   TicketValidationResult.cs

@@ -95,6 +95,202 @@ namespace EventHub.Core.Services
             return createdIds;
         }
 
+        public async Task<ReserveSeatsResult> ReserveSeatsAsync(Guid eventId, Guid userId, IReadOnlyList<Guid> seatIds, TimeSpan? hold = null)
+        {
+            var result = new ReserveSeatsResult();
+
+            if (seatIds == null || seatIds.Count == 0)
+            {
+                result.ErrorMessage = "No seats selected.";
+                return result;
+            }
+
+            if (seatIds.Distinct().Count() != seatIds.Count)
+            {
+                result.ErrorMessage = "Duplicate seats in selection.";
+                return result;
+            }
+
+            var ev = await repo.All<DataEvent>()
+                .FirstOrDefaultAsync(e => e.Id == eventId && e.IsActive);
+            if (ev == null)
+            {
+                result.ErrorMessage = "Event not found.";
+                return result;
+            }
+
+            var seats = await repo.AllReadonly<Seat>()
+                .Where(s => seatIds.Contains(s.Id) && s.RoomId == ev.RoomId && s.IsActive)
+                .ToListAsync();
+
+            if (seats.Count != seatIds.Count)
+            {
+                result.ErrorMessage = "One or more seats are no longer available.";
+                return result;
+            }
+
+            var takenStatuses = new[] { TicketStatus.Reserved, TicketStatus.Purchased, TicketStatus.Used };
+            var nowUtc = DateTime.UtcNow;
+
+            var conflicting = await repo.AllReadonly<Ticket>()
+                .Where(t => t.EventId == eventId
+                    && seatIds.Contains(t.SeatId)
+                    && takenStatuses.Contains(t.Status)
+                    && (t.Status != TicketStatus.Reserved || t.ReservationExpiresAt > nowUtc))
+                .Select(t => t.SeatId)
+                .ToListAsync();
+
+            if (conflicting.Count > 0)
+            {
+                result.ErrorMessage = "Some of the seats you picked were just taken. Please choose different seats.";
+                return result;
+            }
+
+            var tiers = await repo.AllReadonly<EventPricingTier>()
+                .Where(t => t.EventId == eventId && t.IsActive)
+                .ToListAsync();
+            var tierByZone = tiers.ToDictionary(t => t.ZoneId);
+
+            var zoneIds = seats.Where(s => s.ZoneId.HasValue).Select(s => s.ZoneId!.Value).Distinct().ToList();
+            var zones = await repo.AllReadonly<Zone>()
+                .Where(z => zoneIds.Contains(z.Id))
+                .ToListAsync();
+            var zoneById = zones.ToDictionary(z => z.Id);
+
+            var lastTicket = await repo.AllReadonly<Ticket>()
+                .OrderByDescending(t => t.TicketNumber)
+                .FirstOrDefaultAsync();
+            long nextNumber = (lastTicket?.TicketNumber ?? 1_000_000) + 1;
+
+            var basePrice = (float)ev.BasePrice;
+            var holdSpan = hold ?? TimeSpan.FromMinutes(15);
+
+            for (int i = 0; i < seats.Count; i++)
+            {
+                var seat = seats[i];
+                EventPricingTier? tier = null;
+                if (seat.ZoneId.HasValue) tierByZone.TryGetValue(seat.ZoneId.Value, out tier);
+
+                var price = tier?.Price ?? basePrice;
+                var currency = tier?.Currency ?? "EUR";
+                Zone? zone = null;
+                if (seat.ZoneId.HasValue) zoneById.TryGetValue(seat.ZoneId.Value, out zone);
+
+                var ticket = new Ticket
+                {
+                    Id = Guid.NewGuid(),
+                    EventId = eventId,
+                    UserId = userId,
+                    SeatId = seat.Id,
+                    PricingTierId = tier?.Id ?? Guid.Empty,
+                    ValidatedBy = Guid.Empty,
+                    TicketNumber = nextNumber + i,
+                    Status = TicketStatus.Reserved,
+                    Price = price,
+                    Currency = currency,
+                    HashedCode = GenerateHashedCode(userId, eventId, nextNumber + i),
+                    IsUsed = false,
+                    ReservedAt = nowUtc,
+                    ReservationExpiresAt = nowUtc.Add(holdSpan),
+                    PurchasedAt = default,
+                    ValidatedAt = default
+                };
+
+                await repo.AddAsync(ticket);
+
+                result.TicketIds.Add(ticket.Id);
+                result.Lines.Add(new ReservedSeatLine
+                {
+                    TicketId = ticket.Id,
+                    SeatId = seat.Id,
+                    SeatNumber = seat.SeatNumber,
+                    ZoneName = zone?.Name,
+                    Price = price,
+                    Currency = currency
+                });
+                result.TotalPrice += price;
+                result.Currency = currency;
+            }
+
+            await repo.SaveChangesAsync();
+
+            result.Success = true;
+            return result;
+        }
+
+        public async Task<bool> ConfirmReservedTicketsAsync(IReadOnlyList<Guid> ticketIds)
+        {
+            if (ticketIds == null || ticketIds.Count == 0) return false;
+
+            var tickets = await repo.All<Ticket>()
+                .Where(t => ticketIds.Contains(t.Id))
+                .ToListAsync();
+
+            if (tickets.Count == 0) return false;
+
+            var nowUtc = DateTime.UtcNow;
+            var tierIds = tickets.Where(t => t.PricingTierId != Guid.Empty)
+                .Select(t => t.PricingTierId).Distinct().ToList();
+            var tiers = await repo.All<EventPricingTier>()
+                .Where(t => tierIds.Contains(t.Id))
+                .ToListAsync();
+            var tierById = tiers.ToDictionary(t => t.Id);
+
+            var eventIds = tickets.Select(t => t.EventId).Distinct().ToList();
+            var events = await repo.All<DataEvent>()
+                .Where(e => eventIds.Contains(e.Id))
+                .ToListAsync();
+            var eventById = events.ToDictionary(e => e.Id);
+
+            int flipped = 0;
+            foreach (var ticket in tickets)
+            {
+                if (ticket.Status != TicketStatus.Reserved) continue;
+
+                ticket.Status = TicketStatus.Purchased;
+                ticket.PurchasedAt = nowUtc;
+
+                try
+                {
+                    var request = _http.HttpContext?.Request;
+                    if (request != null)
+                    {
+                        var baseUrl = $"{request.Scheme}://{request.Host}";
+                        var validationUrl = $"{baseUrl}/validate/{ticket.HashedCode}";
+                        ticket.QRCodeImage = qrCodeService.GenerateQRCode(validationUrl);
+                    }
+                }
+                catch
+                {
+                    // QR generation is best-effort; ticket is still valid without it.
+                }
+
+                repo.Update(ticket);
+
+                if (ticket.PricingTierId != Guid.Empty
+                    && tierById.TryGetValue(ticket.PricingTierId, out var tier))
+                {
+                    tier.SoldQuantity += 1;
+                    tier.UpdatedAt = nowUtc;
+                    repo.Update(tier);
+                }
+
+                if (eventById.TryGetValue(ticket.EventId, out var ev))
+                {
+                    ev.TicketsSold += 1;
+                    ev.UpdatedAt = nowUtc;
+                    repo.Update(ev);
+                }
+
+                flipped++;
+            }
+
+            if (flipped == 0) return false;
+
+            await repo.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<TicketValidationResult?> ValidateTicketAsync(string hashedCode)
         {
             var ticket = await repo.All<Ticket>()
