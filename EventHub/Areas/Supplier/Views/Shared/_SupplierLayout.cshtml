@@ -1,121 +1,143 @@
-@using EventHub.Infrastructure.Data.Models
-@using Microsoft.AspNetCore.Identity
-@inject SignInManager<User> SignInManager
-@inject UserManager<User> UserManager
+﻿@{
+    Layout = "~/Areas/Client/Views/Shared/_ClientLayoutModern.cshtml";
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>@ViewData["Title"] - EventHub Supplier</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700&subset=latin-ext" />
-    <link rel="stylesheet" href="~/lib/tabler/assets/css/dashboard.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/tabler-eventhub.css" asp-append-version="true" />
+<style>
+    .card,
+    .btn,
+    .modal-content,
+    .form-control,
+    .form-select,
+    .input-group-text,
+    .alert,
+    .badge {
+        border-radius: 1rem !important;
+    }
 
-    <style>
-        .nav-link.active { color: #467fcf !important; border-bottom-color: #467fcf !important; }
-        .toast-area { position: fixed; top: 20px; right: 20px; z-index: 9999; }
-        .avatar { background: #467fcf; color: #fff; font-weight: 700; }
-    </style>
-</head>
-<body>
-    <div class="page">
-        <div class="page-main">
-            <div class="header py-4">
-                <div class="container-fluid">
-                    <div class="d-flex">
-                        <a class="header-brand" asp-area="Supplier" asp-controller="Home" asp-action="Index">
-                            <span style="font-size:22px; margin-right:8px;">EH</span>
-                            <strong>EventHub</strong>
-                            <small class="text-muted ml-1">Supplier</small>
-                        </a>
+    .card {
+        overflow: hidden;
+    }
 
-                        <div class="d-flex order-lg-2 ml-auto align-items-center">
-                            @if (SignInManager.IsSignedIn(User))
-                            {
-                                <div class="dropdown">
-                                    <a href="#" class="nav-link pr-0 leading-none" data-toggle="dropdown">
-                                        <span class="avatar">@GetInitial(User.Identity?.Name)</span>
-                                        <span class="ml-2 d-none d-lg-block">
-                                            <span class="text-default">@User.Identity?.Name</span>
-                                            <small class="text-muted d-block mt-1">Supplier</small>
-                                        </span>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                        <a asp-area="" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                            <i class="dropdown-icon fa fa-home"></i> Back to site
-                                        </a>
-                                        <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="dropdown-icon fa fa-sign-out"></i> Sign out
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            }
-                        </div>
+    .input-group > .form-control:not(:first-child),
+    .input-group > .form-select:not(:first-child) {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+    }
+    .input-group > .form-control:not(:last-child),
+    .input-group > .input-group-text:not(:last-child) {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
 
-                        <a href="#" class="header-toggler d-lg-none ml-3" data-toggle="collapse" data-target="#headerMenuCollapse">
-                            <span class="header-toggler-icon"></span>
-                        </a>
-                    </div>
-                </div>
+    /* Modern Pill Navigation for Tabs */
+    .modern-tabs {
+        background-color: #f1f5f9;
+        border-radius: 1rem;
+        padding: 0.375rem;
+        display: inline-flex;
+        border: 1px solid #e2e8f0;
+    }
+    .modern-tabs .nav-item {
+        margin: 0;
+    }
+    .modern-tabs .nav-link {
+        border-radius: 0.75rem !important;
+        color: #64748b;
+        font-weight: 500;
+        padding: 0.6rem 1.25rem;
+        transition: all 0.2s ease-in-out;
+        border: none;
+    }
+    .modern-tabs .nav-link:hover:not(.active) {
+        background-color: rgba(0,0,0,0.05);
+        color: #334155;
+    }
+    .modern-tabs .nav-link.active {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+        font-weight: 600;
+    }
+
+    .toast-popup {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1055;
+        min-width: 320px;
+        max-width: 450px;
+        border-radius: 1rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div class="mb-4">
+    <h2 class="fw-bold text-dark d-flex align-items-center">
+        <span>📦</span> <span class="ms-2">Supplier Panel</span>
+    </h2>
+    <p class="text-muted">Manage your services, create new offerings, and handle incoming requests.</p>
+</div>
+
+<ul class="nav modern-tabs mb-4 flex-column flex-sm-row gap-1">
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "Home" ? "active" : "")" 
+           asp-area="Supplier" asp-controller="Home" asp-action="Index">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "Services" && (currentAction == "Index" || currentAction == "Edit") ? "active" : "")" 
+           asp-area="Supplier" asp-controller="Services" asp-action="Index">
+            <i class="bi bi-list-ul me-2"></i>My Services
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "Requests" ? "active" : "")" 
+           asp-area="Supplier" asp-controller="Requests" asp-action="Index">
+            <i class="bi bi-envelope-paper me-2"></i>Service Requests
+        </a>
+    </li>
+</ul>
+
+<div class="supplier-content mt-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="toast-popup bg-white border overflow-hidden d-flex align-items-center p-3 gap-3">
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+            <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                <h6 class="fw-bold mb-1 text-dark">Success!</h6>
+                <p class="text-muted mb-0 small">@TempData["Success"]</p>
             </div>
-
-            <div class="header collapse d-lg-flex p-0" id="headerMenuCollapse">
-                <div class="container-fluid">
-                    <div class="row align-items-center">
-                        <div class="col-lg order-lg-first">
-                            <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
-                                <li class="nav-item">
-                                    <a asp-area="Supplier" asp-controller="Home" asp-action="Index" class="nav-link @(IsActive("Home"))">
-                                        <i class="fa fa-th-large mr-1"></i> Dashboard
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-area="Supplier" asp-controller="Services" asp-action="Index" class="nav-link @(IsActive("Services"))">
-                                        <i class="fa fa-briefcase mr-1"></i> My Services
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-area="Supplier" asp-controller="Services" asp-action="Create" class="nav-link">
-                                        <i class="fa fa-plus mr-1"></i> Create Service
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-area="Supplier" asp-controller="Requests" asp-action="Index" class="nav-link @(IsActive("Requests"))">
-                                        <i class="fa fa-list-alt mr-1"></i> Requests
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="my-3 my-md-5">
-                <div class="container-fluid">
-                    @RenderBody()
-                </div>
-            </div>
+            <button type="button" class="btn-close align-self-start mt-1" onclick="this.closest('.toast-popup').style.display='none';" aria-label="Close"></button>
         </div>
-    </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="toast-popup bg-white border overflow-hidden d-flex align-items-center p-3 gap-3">
+            <i class="bi bi-x-circle-fill text-danger" style="font-size: 2rem;"></i>
+            <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                <h6 class="fw-bold mb-1 text-dark">Error</h6>
+                <p class="text-muted mb-0 small">@TempData["Error"]</p>
+            </div>
+            <button type="button" class="btn-close align-self-start mt-1" onclick="this.closest('.toast-popup').style.display='none';" aria-label="Close"></button>
+        </div>
+    }
 
-    <div class="toast-area" id="toastArea"></div>
+    @RenderBody()
+</div>
 
-    <script src="~/lib/tabler/assets/js/vendors/jquery-3.2.1.min.js"></script>
-    <script src="~/lib/tabler/assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/tabler/assets/js/core.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+@section Scripts {
+    <script>
+        setTimeout(function() {
+            var toasts = document.querySelectorAll('.toast-popup');
+            toasts.forEach(function(toast) {
+                toast.style.display = 'none';
+            });
+        }, 5000);
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
-
-@functions {
-    string IsActive(string controller) => ViewContext.RouteData.Values["controller"]?.ToString() == controller ? "active" : "";
-    string GetInitial(string? name) => string.IsNullOrWhiteSpace(name) ? "U" : name.Trim()[0].ToString().ToUpperInvariant();
 }

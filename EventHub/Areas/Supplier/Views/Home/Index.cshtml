@@ -1,40 +1,111 @@
-@{
+﻿@{
     ViewData["Title"] = "Supplier Dashboard";
 }
 
-<div class="page-header">
-    <h1 class="page-title">Supplier Dashboard</h1>
-    <div class="page-options">
-        <a asp-area="Supplier" asp-controller="Services" asp-action="Create" class="btn btn-primary">
-            <i class="fa fa-plus mr-1"></i> Create Service
-        </a>
+<style>
+    .hover-lift {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.12) !important;
+    }
+    .arrow-link {
+        transition: color 0.2s ease;
+    }
+    .arrow-icon {
+        transition: transform 0.2s ease;
+        display: inline-block;
+    }
+    .arrow-link:hover .arrow-icon {
+        transform: translateX(4px);
+    }
+</style>
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-speedometer2 text-primary me-2"></i> Dashboard Overview</h3>
+        <p class="text-muted mb-0">At a glance view of your services and performance.</p>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6 col-xl-4">
-        <div class="card">
-            <div class="card-status bg-primary"></div>
-            <div class="card-body">
-                <h3 class="card-title">My Services</h3>
-                <p class="text-muted">Manage the services you offer to event organizers.</p>
-                <a asp-area="Supplier" asp-controller="Services" asp-action="Index" class="btn btn-secondary">
-                    View Services
-                </a>
+<div class="row g-4 mb-4">
+    <!-- Active Services Card -->
+    <div class="col-md-4">
+        <div class="card hover-lift border border-primary border-opacity-25 shadow-sm rounded-3 h-100 position-relative overflow-hidden">
+            <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                <i class="bi bi-list-ul display-1 text-primary"></i>
+            </div>
+            <div class="card-body p-4 d-flex flex-column">
+                <p class="text-muted text-uppercase fw-semibold mb-1 small">My Services</p>
+                <div class="d-flex align-items-center mb-3">
+                    <h2 class="display-5 fw-bold mb-0 text-dark">@(ViewBag.ServicesCount ?? 0)</h2>
+                </div>
+                <div class="mt-auto">
+                    <a asp-controller="Services" asp-action="Index" class="arrow-link text-primary fw-semibold text-decoration-none px-3 py-2 rounded-4 bg-primary bg-opacity-10 d-inline-block w-auto">
+                        Manage Services <i class="bi bi-arrow-right arrow-icon ms-1"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-6 col-xl-4">
-        <div class="card">
-            <div class="card-status bg-success"></div>
-            <div class="card-body">
-                <h3 class="card-title">Service Requests</h3>
-                <p class="text-muted">Review organizer requests and rental activity.</p>
-                <a asp-area="Supplier" asp-controller="Requests" asp-action="Index" class="btn btn-secondary">
-                    View Requests
-                </a>
+    <!-- Pending Requests Card -->
+    <div class="col-md-4">
+        <div class="card hover-lift border border-warning border-opacity-25 shadow-sm rounded-3 h-100 position-relative overflow-hidden">
+            <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                <i class="bi bi-hourglass-split display-1 text-warning"></i>
             </div>
+            <div class="card-body p-4 d-flex flex-column">
+                <p class="text-muted text-uppercase fw-semibold mb-1 small">Pending Requests</p>
+                <div class="d-flex align-items-center mb-3">
+                    <h2 class="display-5 fw-bold mb-0 text-dark">@(ViewBag.PendingRequests ?? 0)</h2>
+                    @if ((ViewBag.PendingRequests ?? 0) > 0)
+                    {
+                        <span class="badge bg-warning text-dark ms-3 rounded-pill px-2 py-1 shadow-sm">Requires Action</span>
+                    }
+                </div>
+                <div class="mt-auto">
+                    <a asp-controller="Requests" asp-action="Index" class="arrow-link text-warning fw-semibold text-decoration-none px-3 py-2 rounded-4 bg-warning bg-opacity-10 d-inline-block w-auto" style="color: #c98800 !important;">
+                        Review Requests <i class="bi bi-arrow-right arrow-icon ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Handled Requests Card -->
+    <div class="col-md-4">
+        <div class="card hover-lift border border-success border-opacity-25 shadow-sm rounded-3 h-100 position-relative overflow-hidden">
+            <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                <i class="bi bi-check2-all display-1 text-success"></i>
+            </div>
+            <div class="card-body p-4 d-flex flex-column">
+                <p class="text-muted text-uppercase fw-semibold mb-1 small">Handled Requests</p>
+                <div class="d-flex align-items-center mb-3">
+                    <h2 class="display-5 fw-bold mb-0 text-dark">@(ViewBag.CompletedRequests ?? 0)</h2>
+                </div>
+                <div class="mt-auto">
+                    <a asp-controller="Requests" asp-action="Index" class="arrow-link text-success fw-semibold text-decoration-none px-3 py-2 rounded-4 bg-success bg-opacity-10 d-inline-block w-auto">
+                        View History <i class="bi bi-arrow-right arrow-icon ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card hover-lift border border-primary border-opacity-25 shadow-sm rounded-3 mt-4 text-center bg-white" style="background: linear-gradient(145deg, #ffffff 0%, #f4f8fc 100%);">
+    <div class="card-body p-5">
+        <i class="bi bi-rocket-takeoff display-4 text-primary mb-3 opacity-75"></i>
+        <h4 class="fw-bold">Ready to grow your business?</h4>
+        <p class="text-muted mx-auto mt-2" style="max-width: 600px;">
+            Add more offerings to your catalog so organizers can find exactly what they need for their events.
+        </p>
+        <div class="mt-4">
+            <a asp-action="Index" asp-controller="Services" class="btn btn-primary d-inline-flex align-items-center px-4 py-2" onclick="setTimeout(() => { if(document.querySelector('.nav-tabs a[href*=\'/Supplier/Services\']')) document.querySelector('.nav-tabs a[href*=\'/Supplier/Services\']').click(); }, 100);">
+                <i class="bi bi-plus-lg me-2"></i> Add New Service
+            </a>
         </div>
     </div>
 </div>

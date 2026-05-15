@@ -57,6 +57,7 @@ namespace EventHub.Areas.Supplier.Controllers
             _db.SupplierServices.Add(entity);
             await _db.SaveChangesAsync();
 
+            TempData["Success"] = "Your service was created successfully!";
             return RedirectToAction("Index");
         }
 
@@ -101,6 +102,7 @@ namespace EventHub.Areas.Supplier.Controllers
             _db.SupplierServices.Update(entity);
             await _db.SaveChangesAsync();
 
+            TempData["Success"] = "The service was updated successfully!";
             return RedirectToAction("Index");
         }
 
@@ -132,6 +134,7 @@ namespace EventHub.Areas.Supplier.Controllers
             _db.SupplierServices.Update(entity);
             await _db.SaveChangesAsync();
 
+            TempData["Success"] = "The service was deleted successfully.";
             return RedirectToAction("Index");
         }
     }
