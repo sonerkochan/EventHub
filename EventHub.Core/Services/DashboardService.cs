@@ -34,7 +34,8 @@ namespace EventHub.Core.Services
                     .CountAsync(e => e.IsActive && e.EventStatus == EventStatus.Published),
 
                 TotalTicketsSold = await repo.AllReadonly<Ticket>()
-                    .CountAsync(),
+                    .CountAsync(t => t.Status == TicketStatus.Purchased
+                                  || t.Status == TicketStatus.Used),
 
                 PendingApplications = await repo.AllReadonly<ApplicationForm>()
                     .CountAsync(a => a.Status == ApplicationStatus.Pending),
