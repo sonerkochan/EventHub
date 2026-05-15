@@ -54,6 +54,12 @@ namespace EventHub.Core.Services
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<EventListViewModel>> GetOrganizersEventsAsync(Guid userId)
+        {
+            return await BuildEventListQuery(repo.AllReadonly<Event>().Where(e => e.IsActive && e.OrganizerId==userId))
+                .ToListAsync();
+        }
+        
         public async Task<IEnumerable<EventListViewModel>> GetPublishedEventsAsync()
         {
             return await BuildEventListQuery(

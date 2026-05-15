@@ -9,6 +9,7 @@ namespace EventHub.Core.Contracts
     {
         Task<Guid> CreateAsync(CreateEventViewModel model, Guid createdBy);
         Task<IEnumerable<EventListViewModel>> GetAllEventsAsync();
+        Task<IEnumerable<EventListViewModel>> GetOrganizersEventsAsync(Guid userId);
         Task<IEnumerable<EventListViewModel>> GetPublishedEventsAsync();
         Task<EventDetailViewModel?> GetEventByIdAsync(Guid id);
         Task<EventDetailViewModel?> GetPublishedEventByIdAsync(Guid id);

@@ -1,6 +1,8 @@
 ﻿using EventHub.Core.Contracts;
 using EventHub.Core.Models.Event;
 using EventHub.Core.Services;
+using EventHub.Infrastructure.Data.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
@@ -9,17 +11,27 @@ namespace EventHub.Areas.Organizer.Controllers
 {
     public class EventsController : BaseController
     {
+        private readonly UserManager<User> userManager;
         private readonly IEventService eventService;
         private readonly IRoomService roomService;
-        public EventsController(IEventService _eventService, IRoomService _roomService)
+
+        public EventsController(
+            UserManager<User> _userManager,
+            IEventService _eventService,
+            IRoomService _roomService)
         {
+            userManager = _userManager;
             eventService = _eventService;
             roomService = _roomService;
         }
-
         public async Task<IActionResult> Index()
         {
-            var model = await eventService.GetAllEventsAsync();
+            var user = await userManager.GetUserAsync(User);
+
+            Guid userId = Guid.Parse(user.Id);
+
+            var model = await eventService.GetOrganizersEventsAsync(userId);
+
             return View(model);
         }
 
