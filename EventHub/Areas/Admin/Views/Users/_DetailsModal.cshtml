@@ -1,0 +1,117 @@
+@model EventHub.Core.Models.User.UserDetailViewModel
+
+<div class="modal-header">
+    <div>
+        <h6 class="modal-title fw-semibold mb-1">@Model.UserName</h6>
+        <span class="badge bg-@(Model.IsActive ? "success" : "secondary") fw-normal">
+            @(Model.IsActive ? "Active" : "Inactive")
+        </span>
+        @if (Model.IsDeleted)
+        {
+            <span class="badge bg-danger fw-normal ms-1">Deleted</span>
+        }
+    </div>
+    <button type="button" class="btn-close" data-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+    <div class="row g-3">
+        <div class="col-md-7">
+            <div class="card border">
+                <div class="card-header bg-light py-2">
+                    <span class="small fw-semibold">Account Information</span>
+                </div>
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Email</span>
+                        <span>
+                            <strong>@Model.Email</strong>
+                            @if (Model.EmailConfirmed)
+                            {
+                                <span class="badge bg-success ms-1">Verified</span>
+                            }
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Name</span>
+                        <strong>@(string.IsNullOrWhiteSpace($"{Model.FirstName}{Model.LastName}") ? "—" : $"{Model.FirstName} {Model.LastName}")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Phone</span>
+                        <span>
+                            <strong>@(Model.PhoneNumber ?? "—")</strong>
+                            @if (Model.PhoneNumberConfirmed)
+                            {
+                                <span class="badge bg-success ms-1">Verified</span>
+                            }
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Created</span>
+                        <strong>@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Last login</span>
+                        <strong>@(Model.LastLoginAt?.ToString("dd MMM yyyy HH:mm") ?? "Never")</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card border mb-3">
+                <div class="card-header bg-light py-2">
+                    <span class="small fw-semibold">Roles</span>
+                </div>
+                <div class="card-body py-2">
+                    <div id="rolesList" class="mb-2">
+                        @if (Model.Roles.Any())
+                        {
+                            foreach (var role in Model.Roles)
+                            {
+                                <span class="badge bg-primary me-1 mb-1">
+                                    @role
+                                    <button type="button" class="btn-close btn-close-white ms-1"
+                                            style="font-size: 0.55rem; vertical-align: middle;"
+                                            onclick="removeRole('@Model.Id', '@role')"></button>
+                                </span>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted small mb-0">No roles assigned</p>
+                        }
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <select id="addRoleSelect" class="form-select form-select-sm">
+                            <option value="Client">Client</option>
+                            <option value="Organizer">Organizer</option>
+                            <option value="Supplier">Supplier</option>
+                            <option value="Moderator">Moderator</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                        <button type="button" class="btn btn-dark btn-sm"
+                                onclick="addRole('@Model.Id')">Add</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border">
+                <div class="card-header bg-light py-2">
+                    <span class="small fw-semibold">Danger zone</span>
+                </div>
+                <div class="card-body py-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                            onclick="postAction('@Url.Action("Delete", new { id = Model.Id })', 'Permanently delete this user? This cannot be undone.')">
+                        Delete User
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal">Close</button>
+</div>
