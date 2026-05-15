@@ -196,6 +196,10 @@
                             <td class="small text-end">@t.Price.ToString("0.00") @t.Currency</td>
                             <td class="small text-muted">@(bestDate.HasValue ? bestDate.Value.ToString("dd MMM yyyy HH:mm") : "—")</td>
                             <td class="text-end">
+                                <button class="btn btn-outline-secondary btn-sm"
+                                        onclick="openEditTicket('@t.Id')">
+                                    Edit
+                                </button>
                                 @if (t.Status == TicketStatus.Purchased || t.Status == TicketStatus.Reserved)
                                 {
                                     <button class="btn btn-outline-danger btn-sm"
@@ -214,6 +218,14 @@
 
 <link rel="stylesheet" href="~/css/seat-layout.css" asp-append-version="true" />
 
+<div class="modal fade" id="ticketEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="ticketEditModalContent"></div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
 @functions {
     string StatusBadge(TicketStatus s) => s switch
     {
@@ -230,6 +242,54 @@
 @section Scripts {
     <script>
         const refundTicketUrl = '@Url.Action("RefundTicket")';
+        const editPartialUrl = '@Url.Action("EditPartial", "Tickets", new { area = "Admin" })';
+        const editUrl = '@Url.Action("Edit", "Tickets", new { area = "Admin" })';
+        const editModalEl = document.getElementById('ticketEditModal');
+        const editModal = new bootstrap.Modal(editModalEl);
+
+        function openEditTicket(ticketId) {
+            fetch(`${editPartialUrl}?id=${encodeURIComponent(ticketId)}`)
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById('ticketEditModalContent').innerHTML = html;
+                    editModal.show();
+                });
+        }
+
+        function submitTicketEdit() {
+            const ticketId = document.getElementById('editTicketId').value;
+            const status = document.getElementById('editTicketStatus').value;
+            const seatEl = document.getElementById('editTicketSeat');
+            const seatId = seatEl ? seatEl.value : '00000000-0000-0000-0000-000000000000';
+
+            const errEl = document.getElementById('editTicketError');
+            const saveBtn = document.getElementById('editTicketSaveBtn');
+            errEl.hidden = true;
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            fetch(editUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ ticketId, status, seatId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    editModal.hide();
+                    location.reload();
+                } else {
+                    errEl.textContent = data.message || 'Failed to save changes.';
+                    errEl.hidden = false;
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save changes';
+                }
+            });
+        }
 
         const gridRows = @Model.GridRows;
         const gridCols = @Model.GridColumns;

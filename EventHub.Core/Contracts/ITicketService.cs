@@ -15,8 +15,11 @@ namespace EventHub.Core.Contracts
         Task<TicketDetailViewModel?> GetTicketByIdAsync(Guid ticketId, Guid userId);
         Task<TicketValidationResult?> ValidateTicketAsync(string hashedCode);
         Task<IEnumerable<AdminTicketRow>> GetByEventForAdminAsync(Guid eventId);
+        Task<IEnumerable<AdminTicketRow>> GetAllForAdminAsync(EventHub.Infrastructure.Data.Models.TicketStatus? statusFilter = null);
         Task<AdminTicketLookupDto?> LookupByNumberAsync(long ticketNumber);
         Task<AdminTicketLookupDto?> LookupAsync(string query);
         Task<bool> AdminRefundTicketAsync(Guid ticketId, Guid processedBy);
+        Task<AdminTicketEditViewModel?> GetForAdminEditAsync(Guid ticketId);
+        Task<(bool Success, string? Error)> AdminUpdateTicketAsync(AdminTicketEditRequest request);
     }
 }

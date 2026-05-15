@@ -8,6 +8,9 @@ namespace EventHub.Core.Models.Admin
         public Guid Id { get; set; }
         public long TicketNumber { get; set; }
         public string? HashedCode { get; set; }
+        public Guid EventId { get; set; }
+        public string? EventName { get; set; }
+        public DateTime EventStart { get; set; }
         public Guid SeatId { get; set; }
         public int SeatNumber { get; set; }
         public Guid? ZoneId { get; set; }

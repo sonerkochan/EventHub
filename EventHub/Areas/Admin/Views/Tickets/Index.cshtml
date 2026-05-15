@@ -1,11 +1,62 @@
 @using EventHub.Infrastructure.Data.Models
-@model IEnumerable<EventHub.Core.Models.Admin.TicketsOverviewRow>
+@model IEnumerable<EventHub.Core.Models.Admin.AdminTicketRow>
 @{
     ViewData["Title"] = "Tickets";
+    var statusFilter = ViewBag.StatusFilter as string;
+    var statusChips = new[] { "Purchased", "Used", "Reserved", "Refunded", "Cancelled", "Expired" };
+
+    var sort = (ViewBag.Sort as string) ?? "event";
+    var dir = (ViewBag.Dir as string) ?? "desc";
+    var page = (int)(ViewBag.Page ?? 1);
+    var pageSize = (int)(ViewBag.PageSize ?? 50);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var totalCount = (int)(ViewBag.TotalCount ?? 0);
+    var pageSizeOptions = ViewBag.PageSizeOptions as int[] ?? new[] { 10, 25, 50, 100, 200 };
+
+    string BuildUrl(string? statusOverride, string? sortOverride, string? dirOverride, int? pageOverride, int? sizeOverride)
+    {
+        var parts = new List<string>();
+        parts.Add($"sort={sortOverride ?? sort}");
+        parts.Add($"dir={dirOverride ?? dir}");
+        parts.Add($"size={sizeOverride ?? pageSize}");
+        parts.Add($"page={pageOverride ?? page}");
+        var effectiveStatus = statusOverride ?? statusFilter;
+        if (!string.IsNullOrEmpty(effectiveStatus))
+        {
+            parts.Add($"status={Uri.EscapeDataString(effectiveStatus)}");
+        }
+        return "/Admin/Tickets/Index?" + string.Join("&", parts);
+    }
+
+    var allRows = ViewBag.AllRows as List<EventHub.Core.Models.Admin.AdminTicketRow>
+                  ?? Model.ToList();
+    var totalRevenue = allRows.Where(t => t.Status == TicketStatus.Purchased || t.Status == TicketStatus.Used)
+        .Sum(t => (decimal)t.Price);
+
+    string SortHref(string column)
+    {
+        var newDir = sort == column ? (dir == "asc" ? "desc" : "asc") : "asc";
+        return BuildUrl(null, column, newDir, 1, null);
+    }
+
+    string SortArrow(string column)
+    {
+        if (sort != column) return "";
+        return dir == "asc" ? " <i class=\"fa fa-caret-up\"></i>" : " <i class=\"fa fa-caret-down\"></i>";
+    }
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="fw-semibold mb-0">Tickets</h5>
+    <div class="d-flex align-items-center gap-2">
+        <h5 class="fw-semibold mb-0">Tickets</h5>
+        @if (!string.IsNullOrEmpty(statusFilter))
+        {
+            <span class="badge bg-dark fw-normal d-flex align-items-center gap-1">
+                Status: @statusFilter
+                <a href="@BuildUrl("", null, null, 1, null)" class="text-white text-decoration-none" title="Clear filter" style="line-height:1">&times;</a>
+            </span>
+        }
+    </div>
 </div>
 
 <div class="card border mb-3">
@@ -22,55 +73,104 @@
     </div>
 </div>
 
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2">
+        <div class="small text-muted">Total tickets</div>
+        <div class="fw-semibold fs-5">@totalCount</div>
+    </div></div></div>
+    <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2">
+        <div class="small text-muted">Purchased / Used</div>
+        <div class="fw-semibold fs-5 text-success">@allRows.Count(t => t.Status == TicketStatus.Purchased || t.Status == TicketStatus.Used)</div>
+    </div></div></div>
+    <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2">
+        <div class="small text-muted">Reserved</div>
+        <div class="fw-semibold fs-5 text-warning">@allRows.Count(t => t.Status == TicketStatus.Reserved)</div>
+    </div></div></div>
+    <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2">
+        <div class="small text-muted">Revenue</div>
+        <div class="fw-semibold fs-5">@totalRevenue.ToString("0.00")</div>
+    </div></div></div>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a href="@BuildUrl("", null, null, 1, null)"
+       class="btn btn-sm @(string.IsNullOrEmpty(statusFilter) ? "btn-dark" : "btn-outline-secondary")">
+        All
+    </a>
+    @foreach (var s in statusChips)
+    {
+        <a href="@BuildUrl(s, null, null, 1, null)"
+           class="btn btn-sm @(string.Equals(statusFilter, s, StringComparison.OrdinalIgnoreCase) ? "btn-dark" : "btn-outline-secondary")">
+            @s
+        </a>
+    }
+</div>
+
 <div class="card border">
     <div class="card-body p-0">
         <table class="table table-sm table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th class="small">Event</th>
-                    <th class="small">Room</th>
-                    <th class="small">Start</th>
-                    <th class="small">Status</th>
-                    <th class="small">Pricing</th>
-                    <th class="small text-end">Sold</th>
+                    <th class="small"><a class="text-reset text-decoration-none" href="@SortHref("event")">Event @Html.Raw(SortArrow("event"))</a></th>
+                    <th class="small"><a class="text-reset text-decoration-none" href="@SortHref("number")">Ticket # @Html.Raw(SortArrow("number"))</a></th>
+                    <th class="small"><a class="text-reset text-decoration-none" href="@SortHref("seat")">Seat @Html.Raw(SortArrow("seat"))</a></th>
+                    <th class="small">Zone</th>
+                    <th class="small"><a class="text-reset text-decoration-none" href="@SortHref("buyer")">Buyer @Html.Raw(SortArrow("buyer"))</a></th>
+                    <th class="small"><a class="text-reset text-decoration-none" href="@SortHref("status")">Status @Html.Raw(SortArrow("status"))</a></th>
+                    <th class="small text-end"><a class="text-reset text-decoration-none" href="@SortHref("price")">Price @Html.Raw(SortArrow("price"))</a></th>
+                    <th class="small"><a class="text-reset text-decoration-none" href="@SortHref("created")">Created @Html.Raw(SortArrow("created"))</a></th>
                     <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var r in Model)
+                @{
+                    Guid? lastEventId = null;
+                    var groupByEvent = sort == "event";
+                }
+                @foreach (var t in Model)
                 {
-                    var pct = r.TotalTickets > 0 ? (r.TicketsSold * 100 / r.TotalTickets) : 0;
-                    <tr>
-                        <td class="small fw-medium">@r.EventName</td>
-                        <td class="small text-muted">@r.RoomName</td>
-                        <td class="small">@r.StartDateTime.ToString("dd MMM yyyy HH:mm")</td>
-                        <td>
-                            <span class="badge bg-@StatusBadge(r.EventStatus) fw-normal">@r.EventStatus</span>
-                        </td>
-                        <td>
-                            @if (r.HasPricing)
+                    var newGroup = groupByEvent && lastEventId != t.EventId;
+                    lastEventId = t.EventId;
+                    var bestDate = t.PurchasedAt > DateTime.MinValue ? t.PurchasedAt
+                                 : t.ReservedAt > DateTime.MinValue ? t.ReservedAt
+                                 : (DateTime?)null;
+
+                    <tr class="@(newGroup ? "table-light border-top" : "")">
+                        <td class="small @(groupByEvent && !newGroup ? "text-muted" : "fw-medium")">
+                            @if (!groupByEvent || newGroup)
                             {
-                                <span class="badge bg-success fw-normal">Configured</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark fw-normal">Not set</span>
+                                <div>@t.EventName</div>
+                                <div class="text-muted" style="font-size:0.7rem;">@t.EventStart.ToString("dd MMM yyyy HH:mm")</div>
                             }
                         </td>
-                        <td class="small text-end">
-                            @r.TicketsSold / @r.TotalTickets
-                            <span class="text-muted">(@pct%)</span>
+                        <td class="small">
+                            <div class="fw-semibold">@t.TicketNumber</div>
+                            @if (!string.IsNullOrWhiteSpace(t.HashedCode))
+                            {
+                                <div class="text-muted" style="font-size:0.7rem; font-family: monospace;">@t.HashedCode</div>
+                            }
                         </td>
+                        <td class="small">@(t.SeatNumber == 0 ? "—" : t.SeatNumber.ToString())</td>
+                        <td class="small text-muted">@(t.ZoneName ?? "—")</td>
+                        <td class="small">@t.BuyerDisplay</td>
+                        <td><span class="badge bg-@StatusBadge(t.Status) fw-normal">@t.Status</span></td>
+                        <td class="small text-end">@t.Price.ToString("0.00") @t.Currency</td>
+                        <td class="small text-muted">@(bestDate.HasValue ? bestDate.Value.ToString("dd MMM yyyy HH:mm") : "—")</td>
                         <td class="text-end">
-                            @if (r.HasPricing)
+                            <a asp-controller="EventTickets" asp-action="Manage" asp-route-id="@t.EventId"
+                               class="btn btn-outline-secondary btn-sm" title="Open event manager">
+                                <i class="fa fa-external-link"></i>
+                            </a>
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    onclick="openEditTicket('@t.Id')">
+                                Edit
+                            </button>
+                            @if (t.Status == TicketStatus.Purchased || t.Status == TicketStatus.Reserved)
                             {
-                                <a asp-controller="EventTickets" asp-action="Manage" asp-route-id="@r.EventId"
-                                   class="btn btn-outline-info btn-sm">Manage</a>
-                            }
-                            else
-                            {
-                                <a asp-controller="EventTickets" asp-action="Pricing" asp-route-id="@r.EventId"
-                                   class="btn btn-outline-info btn-sm">Set pricing</a>
+                                <button class="btn btn-outline-danger btn-sm"
+                                        onclick="refundFromList('@t.Id', '@t.TicketNumber')">
+                                    Refund
+                                </button>
                             }
                         </td>
                     </tr>
@@ -78,7 +178,7 @@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="7" class="text-center text-muted small py-4">No events yet.</td>
+                        <td colspan="9" class="text-center text-muted small py-4">No tickets found.</td>
                     </tr>
                 }
             </tbody>
@@ -86,14 +186,81 @@
     </div>
 </div>
 
+@if (totalCount > 0)
+{
+    var firstShown = (page - 1) * pageSize + 1;
+    var lastShown = Math.Min(page * pageSize, totalCount);
+    <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 gap-2">
+        <div class="small text-muted">
+            Showing <strong>@firstShown</strong>–<strong>@lastShown</strong> of <strong>@totalCount</strong>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(page <= 1 ? "disabled" : "")">
+                        <a class="page-link" href="@BuildUrl(null, null, null, page - 1, null)">«</a>
+                    </li>
+                    @{
+                        var windowStart = Math.Max(1, page - 2);
+                        var windowEnd = Math.Min(totalPages, page + 2);
+                        if (windowStart > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@BuildUrl(null, null, null, 1, null)">1</a>
+                            </li>
+                            if (windowStart > 2)
+                            {
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            }
+                        }
+                    }
+                    @for (int p = windowStart; p <= windowEnd; p++)
+                    {
+                        <li class="page-item @(p == page ? "active" : "")">
+                            <a class="page-link" href="@BuildUrl(null, null, null, p, null)">@p</a>
+                        </li>
+                    }
+                    @if (windowEnd < totalPages)
+                    {
+                        if (windowEnd < totalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" href="@BuildUrl(null, null, null, totalPages, null)">@totalPages</a>
+                        </li>
+                    }
+                    <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@BuildUrl(null, null, null, page + 1, null)">»</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted">Per page:</span>
+            @foreach (var sizeOpt in pageSizeOptions)
+            {
+                <a href="@BuildUrl(null, null, null, 1, sizeOpt)"
+                   class="btn btn-sm @(sizeOpt == pageSize ? "btn-dark" : "btn-outline-secondary")">
+                    @sizeOpt
+                </a>
+            }
+        </div>
+    </div>
+}
+
 @functions {
-    string StatusBadge(EventStatus s) => s switch
+    string StatusBadge(TicketStatus s) => s switch
     {
-        EventStatus.Active => "success",
-        EventStatus.Published => "info",
-        EventStatus.Draft => "secondary",
-        EventStatus.Cancelled => "danger",
-        EventStatus.Finished => "dark",
+        TicketStatus.Purchased => "success",
+        TicketStatus.Used => "dark",
+        TicketStatus.Reserved => "warning",
+        TicketStatus.Refunded => "danger",
+        TicketStatus.Cancelled => "secondary",
+        TicketStatus.Expired => "secondary",
         _ => "secondary"
     };
 }
@@ -104,14 +271,74 @@
     </div>
 </div>
 
+<div class="modal fade" id="ticketEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="ticketEditModalContent"></div>
+    </div>
+</div>
+
 @Html.AntiForgeryToken()
 
 @section Scripts {
     <script>
         const lookupUrl = '@Url.Action("LookupPartial")';
         const refundUrl = '@Url.Action("Refund")';
+        const editPartialUrl = '@Url.Action("EditPartial")';
+        const editUrl = '@Url.Action("Edit")';
         const lookupModalEl = document.getElementById('ticketLookupModal');
         const lookupModal = new bootstrap.Modal(lookupModalEl);
+        const editModalEl = document.getElementById('ticketEditModal');
+        const editModal = new bootstrap.Modal(editModalEl);
+
+        function openEditTicket(ticketId) {
+            fetch(`${editPartialUrl}?id=${encodeURIComponent(ticketId)}`)
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById('ticketEditModalContent').innerHTML = html;
+                    editModal.show();
+                });
+        }
+
+        function submitTicketEdit() {
+            const ticketId = document.getElementById('editTicketId').value;
+            const status = document.getElementById('editTicketStatus').value;
+            const seatEl = document.getElementById('editTicketSeat');
+            const seatId = seatEl ? seatEl.value : '00000000-0000-0000-0000-000000000000';
+
+            const errEl = document.getElementById('editTicketError');
+            const saveBtn = document.getElementById('editTicketSaveBtn');
+            errEl.hidden = true;
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            fetch(editUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ ticketId, status, seatId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    editModal.hide();
+                    location.reload();
+                } else {
+                    errEl.textContent = data.message || 'Failed to save changes.';
+                    errEl.hidden = false;
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save changes';
+                }
+            })
+            .catch(() => {
+                errEl.textContent = 'Failed to save changes.';
+                errEl.hidden = false;
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save changes';
+            });
+        }
 
         function lookupTicket(e) {
             e.preventDefault();
@@ -143,7 +370,6 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    // refresh modal with updated state
                     fetch(`${lookupUrl}?q=${encodeURIComponent(ticketNumber)}`)
                         .then(r => r.text())
                         .then(html => {
@@ -152,6 +378,26 @@
                 } else {
                     alert('Refund failed.');
                 }
+            });
+        }
+
+        function refundFromList(ticketId, ticketNumber) {
+            if (!confirm(`Refund ticket #${ticketNumber}? This marks the ticket and payment as Refunded.`)) return;
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const body = new URLSearchParams();
+            body.append('ticketId', ticketId);
+            body.append('__RequestVerificationToken', token);
+
+            fetch(refundUrl, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token },
+                body
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) location.reload();
+                else alert('Refund failed.');
             });
         }
     </script>

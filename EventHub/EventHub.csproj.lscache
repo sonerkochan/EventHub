@@ -585,6 +585,7 @@ Areas/Admin/Views/
  SupplierServices/Index.cshtml
  Tickets/
   Index.cshtml
+  _EditModal.cshtml
   _LookupModal.cshtml
  Users/
   Index.cshtml
@@ -694,6 +695,7 @@ Areas/Admin/Views/
  SupplierServices/Index.cshtml
  Tickets/
   Index.cshtml
+  _EditModal.cshtml
   _LookupModal.cshtml
  Users/
   Index.cshtml
