@@ -37,6 +37,7 @@
                         <div class="d-flex order-lg-2 ml-auto align-items-center">
                             @if (SignInManager.IsSignedIn(User))
                             {
+                                var currentUser = await UserManager.GetUserAsync(User);
                                 <div class="dropdown">
                                     <a href="#" class="nav-link pr-0 leading-none" data-toggle="dropdown">
                                         <span class="avatar">@GetInitial(User.Identity?.Name)</span>
@@ -48,6 +49,15 @@
                                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
                                         <a asp-area="Client" asp-controller="Home" asp-action="Index" class="dropdown-item">
                                             <i class="dropdown-icon fa fa-user"></i> Client area
+                                        </a>
+                                        @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Supplier"))
+                                        {
+                                            <a asp-area="Supplier" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                                <i class="dropdown-icon fa fa-briefcase"></i> Supplier panel
+                                            </a>
+                                        }
+                                        <a asp-area="" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                            <i class="dropdown-icon fa fa-home"></i> Back to site
                                         </a>
                                         <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
                                             <button type="submit" class="dropdown-item text-danger">
