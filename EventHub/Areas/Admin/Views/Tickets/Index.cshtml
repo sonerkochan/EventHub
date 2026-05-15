@@ -1,0 +1,85 @@
+@using EventHub.Infrastructure.Data.Models
+@model IEnumerable<EventHub.Core.Models.Admin.TicketsOverviewRow>
+@{
+    ViewData["Title"] = "Tickets";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-semibold mb-0">Tickets</h5>
+</div>
+
+<div class="card border">
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="small">Event</th>
+                    <th class="small">Room</th>
+                    <th class="small">Start</th>
+                    <th class="small">Status</th>
+                    <th class="small">Pricing</th>
+                    <th class="small text-end">Sold</th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    var pct = r.TotalTickets > 0 ? (r.TicketsSold * 100 / r.TotalTickets) : 0;
+                    <tr>
+                        <td class="small fw-medium">@r.EventName</td>
+                        <td class="small text-muted">@r.RoomName</td>
+                        <td class="small">@r.StartDateTime.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>
+                            <span class="badge bg-@StatusBadge(r.EventStatus) fw-normal">@r.EventStatus</span>
+                        </td>
+                        <td>
+                            @if (r.HasPricing)
+                            {
+                                <span class="badge bg-success fw-normal">Configured</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark fw-normal">Not set</span>
+                            }
+                        </td>
+                        <td class="small text-end">
+                            @r.TicketsSold / @r.TotalTickets
+                            <span class="text-muted">(@pct%)</span>
+                        </td>
+                        <td class="text-end">
+                            @if (r.HasPricing)
+                            {
+                                <a asp-controller="EventTickets" asp-action="Manage" asp-route-id="@r.EventId"
+                                   class="btn btn-outline-info btn-sm">Manage</a>
+                            }
+                            else
+                            {
+                                <a asp-controller="EventTickets" asp-action="Pricing" asp-route-id="@r.EventId"
+                                   class="btn btn-outline-info btn-sm">Set pricing</a>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted small py-4">No events yet.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@functions {
+    string StatusBadge(EventStatus s) => s switch
+    {
+        EventStatus.Active => "success",
+        EventStatus.Published => "info",
+        EventStatus.Draft => "secondary",
+        EventStatus.Cancelled => "danger",
+        EventStatus.Finished => "dark",
+        _ => "secondary"
+    };
+}

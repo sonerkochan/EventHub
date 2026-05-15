@@ -1,3 +1,4 @@
+using EventHub.Core.Models.Admin;
 using EventHub.Core.Models.Ticket;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,7 @@ namespace EventHub.Core.Contracts
         Task<IEnumerable<TicketListViewModel>> GetUserTicketsAsync(Guid userId);
         Task<TicketDetailViewModel?> GetTicketByIdAsync(Guid ticketId, Guid userId);
         Task<TicketValidationResult?> ValidateTicketAsync(string hashedCode);
+        Task<IEnumerable<AdminTicketRow>> GetByEventForAdminAsync(Guid eventId);
+        Task<bool> AdminRefundTicketAsync(Guid ticketId, Guid processedBy);
     }
 }

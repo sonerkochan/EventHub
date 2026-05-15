@@ -1,4 +1,5 @@
 using EventHub.Core.Contracts;
+using EventHub.Core.Models.Admin;
 using EventHub.Core.Models.Ticket;
 using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
@@ -208,6 +209,105 @@ namespace EventHub.Core.Services
                 IsUsed = ticket.IsUsed,
                 PurchasedAt = ticket.PurchasedAt
             };
+        }
+
+        public async Task<IEnumerable<AdminTicketRow>> GetByEventForAdminAsync(Guid eventId)
+        {
+            var tickets = await repo.AllReadonly<Ticket>()
+                .Where(t => t.EventId == eventId)
+                .OrderByDescending(t => t.ReservedAt)
+                .ToListAsync();
+
+            if (tickets.Count == 0) return new List<AdminTicketRow>();
+
+            var seatIds = tickets.Select(t => t.SeatId).Where(id => id != Guid.Empty).Distinct().ToList();
+            var seats = await repo.AllReadonly<Seat>()
+                .Where(s => seatIds.Contains(s.Id))
+                .ToListAsync();
+            var seatById = seats.ToDictionary(s => s.Id);
+
+            var zoneIds = seats.Where(s => s.ZoneId.HasValue).Select(s => s.ZoneId!.Value).Distinct().ToList();
+            var zones = await repo.AllReadonly<Zone>()
+                .Where(z => zoneIds.Contains(z.Id))
+                .ToListAsync();
+            var zoneById = zones.ToDictionary(z => z.Id);
+
+            var userIdStrings = tickets.Select(t => t.UserId.ToString()).Distinct().ToList();
+            var users = await repo.AllReadonly<User>()
+                .Where(u => userIdStrings.Contains(u.Id))
+                .ToListAsync();
+            var userById = users.ToDictionary(u => u.Id);
+
+            return tickets.Select(t =>
+            {
+                seatById.TryGetValue(t.SeatId, out var seat);
+                Zone? zone = null;
+                if (seat?.ZoneId.HasValue == true) zoneById.TryGetValue(seat.ZoneId.Value, out zone);
+                userById.TryGetValue(t.UserId.ToString(), out var user);
+
+                var buyerDisplay = user == null
+                    ? t.UserId.ToString()
+                    : (!string.IsNullOrWhiteSpace(user.FirstName) || !string.IsNullOrWhiteSpace(user.LastName))
+                        ? $"{user.FirstName} {user.LastName}".Trim()
+                        : (user.UserName ?? user.Email ?? t.UserId.ToString());
+
+                return new AdminTicketRow
+                {
+                    Id = t.Id,
+                    TicketNumber = t.TicketNumber,
+                    SeatId = t.SeatId,
+                    SeatNumber = seat?.SeatNumber ?? 0,
+                    ZoneId = seat?.ZoneId,
+                    ZoneName = zone?.Name,
+                    Status = t.Status,
+                    Price = t.Price,
+                    Currency = t.Currency,
+                    BuyerUserId = t.UserId,
+                    BuyerDisplay = buyerDisplay!,
+                    ReservedAt = t.ReservedAt,
+                    PurchasedAt = t.PurchasedAt
+                };
+            }).ToList();
+        }
+
+        public async Task<bool> AdminRefundTicketAsync(Guid ticketId, Guid processedBy)
+        {
+            var ticket = await repo.All<Ticket>().FirstOrDefaultAsync(t => t.Id == ticketId);
+            if (ticket == null) return false;
+
+            if (ticket.Status == TicketStatus.Refunded || ticket.Status == TicketStatus.Cancelled)
+                return false;
+
+            ticket.Status = TicketStatus.Refunded;
+
+            var payments = await repo.AllReadonly<PaymentTicket>()
+                .Where(pt => pt.TicketId == ticketId)
+                .Join(repo.All<Payment>(), pt => pt.PaymentId, p => p.Id, (pt, p) => p)
+                .ToListAsync();
+
+            foreach (var p in payments)
+            {
+                if (p.Status != Payment.PaymentStatus.Refunded)
+                {
+                    p.Status = Payment.PaymentStatus.Refunded;
+                    p.RefundedAt = DateTime.UtcNow;
+                    p.UpdatedAt = DateTime.UtcNow;
+                    repo.Update(p);
+                }
+            }
+
+            repo.Update(ticket);
+
+            var tier = await repo.All<EventPricingTier>().FirstOrDefaultAsync(t => t.Id == ticket.PricingTierId);
+            if (tier != null && tier.SoldQuantity > 0)
+            {
+                tier.SoldQuantity -= 1;
+                tier.UpdatedAt = DateTime.UtcNow;
+                repo.Update(tier);
+            }
+
+            await repo.SaveChangesAsync();
+            return true;
         }
 
         private static string GenerateHashedCode(Guid userId, Guid eventId, long ticketNumber)
