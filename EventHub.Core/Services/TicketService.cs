@@ -123,6 +123,7 @@ namespace EventHub.Core.Services
 
             var seats = await repo.AllReadonly<Seat>()
                 .Where(s => seatIds.Contains(s.Id) && s.RoomId == ev.RoomId && s.IsActive)
+                .Select(s => new { s.Id, s.SeatNumber, s.ZoneId })
                 .ToListAsync();
 
             if (seats.Count != seatIds.Count)
@@ -150,19 +151,15 @@ namespace EventHub.Core.Services
 
             var tiers = await repo.AllReadonly<EventPricingTier>()
                 .Where(t => t.EventId == eventId && t.IsActive)
+                .Select(t => new { t.Id, t.ZoneId, t.Price, t.Currency })
                 .ToListAsync();
             var tierByZone = tiers.ToDictionary(t => t.ZoneId);
 
-            var zoneIds = seats.Where(s => s.ZoneId.HasValue).Select(s => s.ZoneId!.Value).Distinct().ToList();
-            var zones = await repo.AllReadonly<Zone>()
-                .Where(z => zoneIds.Contains(z.Id))
-                .ToListAsync();
-            var zoneById = zones.ToDictionary(z => z.Id);
-
-            var lastTicket = await repo.AllReadonly<Ticket>()
+            var lastTicketNumber = await repo.AllReadonly<Ticket>()
                 .OrderByDescending(t => t.TicketNumber)
+                .Select(t => (long?)t.TicketNumber)
                 .FirstOrDefaultAsync();
-            long nextNumber = (lastTicket?.TicketNumber ?? 1_000_000) + 1;
+            long nextNumber = (lastTicketNumber ?? 1_000_000) + 1;
 
             var basePrice = (float)ev.BasePrice;
             var holdSpan = hold ?? TimeSpan.FromMinutes(15);
@@ -170,13 +167,10 @@ namespace EventHub.Core.Services
             for (int i = 0; i < seats.Count; i++)
             {
                 var seat = seats[i];
-                EventPricingTier? tier = null;
-                if (seat.ZoneId.HasValue) tierByZone.TryGetValue(seat.ZoneId.Value, out tier);
+                var tier = seat.ZoneId.HasValue && tierByZone.TryGetValue(seat.ZoneId.Value, out var t) ? t : null;
 
                 var price = tier?.Price ?? basePrice;
                 var currency = tier?.Currency ?? "EUR";
-                Zone? zone = null;
-                if (seat.ZoneId.HasValue) zoneById.TryGetValue(seat.ZoneId.Value, out zone);
 
                 var ticket = new Ticket
                 {
@@ -206,7 +200,7 @@ namespace EventHub.Core.Services
                     TicketId = ticket.Id,
                     SeatId = seat.Id,
                     SeatNumber = seat.SeatNumber,
-                    ZoneName = zone?.Name,
+                    ZoneName = null,
                     Price = price,
                     Currency = currency
                 });
@@ -347,6 +341,7 @@ namespace EventHub.Core.Services
             var eventIds = tickets.Select(t => t.EventId).Distinct().ToList();
             var events = await repo.AllReadonly<Event>()
                 .Where(e => eventIds.Contains(e.Id))
+                .Select(e => new { e.Id, e.EventName, e.StartDateTime, e.RoomId })
                 .ToListAsync();
 
             var roomIds = events.Select(e => e.RoomId).Distinct().ToList();
@@ -485,6 +480,7 @@ namespace EventHub.Core.Services
             var eventIds = tickets.Select(t => t.EventId).Distinct().ToList();
             var events = await repo.AllReadonly<DataEvent>()
                 .Where(e => eventIds.Contains(e.Id))
+                .Select(e => new { e.Id, e.EventName, e.StartDateTime })
                 .ToListAsync();
             var eventById = events.ToDictionary(e => e.Id);
 
@@ -574,22 +570,34 @@ namespace EventHub.Core.Services
             if (ticket == null) return null;
 
             var ev = await repo.AllReadonly<DataEvent>()
-                .FirstOrDefaultAsync(e => e.Id == ticket.EventId);
+                .Where(e => e.Id == ticket.EventId)
+                .Select(e => new { e.Id, e.EventName, e.StartDateTime, e.RoomId })
+                .FirstOrDefaultAsync();
             if (ev == null) return null;
 
             var room = await repo.AllReadonly<Room>()
-                .FirstOrDefaultAsync(r => r.RoomId == ev.RoomId);
+                .Where(r => r.RoomId == ev.RoomId)
+                .Select(r => new { r.Name })
+                .FirstOrDefaultAsync();
 
-            Seat? seat = null;
-            Zone? zone = null;
+            int seatNumber = 0;
+            string? zoneName = null;
             if (ticket.SeatId != Guid.Empty)
             {
-                seat = await repo.AllReadonly<Seat>()
-                    .FirstOrDefaultAsync(s => s.Id == ticket.SeatId);
-                if (seat?.ZoneId != null)
+                var seat = await repo.AllReadonly<Seat>()
+                    .Where(s => s.Id == ticket.SeatId)
+                    .Select(s => new { s.SeatNumber, s.ZoneId })
+                    .FirstOrDefaultAsync();
+                if (seat != null)
                 {
-                    zone = await repo.AllReadonly<Zone>()
-                        .FirstOrDefaultAsync(z => z.Id == seat.ZoneId);
+                    seatNumber = seat.SeatNumber;
+                    if (seat.ZoneId.HasValue)
+                    {
+                        zoneName = await repo.AllReadonly<Zone>()
+                            .Where(z => z.Id == seat.ZoneId.Value)
+                            .Select(z => z.Name)
+                            .FirstOrDefaultAsync();
+                    }
                 }
             }
 
@@ -611,8 +619,8 @@ namespace EventHub.Core.Services
                 EventName = ev.EventName!,
                 EventStart = ev.StartDateTime,
                 RoomName = room?.Name,
-                SeatNumber = seat?.SeatNumber ?? 0,
-                ZoneName = zone?.Name,
+                SeatNumber = seatNumber,
+                ZoneName = zoneName,
                 BuyerDisplay = buyerDisplay!,
                 BuyerEmail = user?.Email,
                 Status = ticket.Status,
@@ -631,19 +639,29 @@ namespace EventHub.Core.Services
             if (ticket == null) return null;
 
             var ev = await repo.AllReadonly<DataEvent>()
-                .FirstOrDefaultAsync(e => e.Id == ticket.EventId);
+                .Where(e => e.Id == ticket.EventId)
+                .Select(e => new { e.Id, e.EventName, e.RoomId })
+                .FirstOrDefaultAsync();
             if (ev == null) return null;
 
-            Seat? currentSeat = null;
-            Zone? currentZone = null;
+            int currentSeatNumber = 0;
+            string? currentZoneName = null;
             if (ticket.SeatId != Guid.Empty)
             {
-                currentSeat = await repo.AllReadonly<Seat>()
-                    .FirstOrDefaultAsync(s => s.Id == ticket.SeatId);
-                if (currentSeat?.ZoneId != null)
+                var currentSeat = await repo.AllReadonly<Seat>()
+                    .Where(s => s.Id == ticket.SeatId)
+                    .Select(s => new { s.SeatNumber, s.ZoneId })
+                    .FirstOrDefaultAsync();
+                if (currentSeat != null)
                 {
-                    currentZone = await repo.AllReadonly<Zone>()
-                        .FirstOrDefaultAsync(z => z.Id == currentSeat.ZoneId);
+                    currentSeatNumber = currentSeat.SeatNumber;
+                    if (currentSeat.ZoneId.HasValue)
+                    {
+                        currentZoneName = await repo.AllReadonly<Zone>()
+                            .Where(z => z.Id == currentSeat.ZoneId.Value)
+                            .Select(z => z.Name)
+                            .FirstOrDefaultAsync();
+                    }
                 }
             }
 
@@ -706,8 +724,8 @@ namespace EventHub.Core.Services
                 EventName = ev.EventName!,
                 BuyerDisplay = buyerDisplay,
                 CurrentSeatId = ticket.SeatId,
-                CurrentSeatNumber = currentSeat?.SeatNumber ?? 0,
-                CurrentZoneName = currentZone?.Name,
+                CurrentSeatNumber = currentSeatNumber,
+                CurrentZoneName = currentZoneName,
                 CurrentStatus = ticket.Status,
                 Price = ticket.Price,
                 Currency = ticket.Currency,
