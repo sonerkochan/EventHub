@@ -15,9 +15,10 @@ namespace EventHub.Areas.Admin.Controllers
             userService = _userService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? role = null)
         {
-            var users = await userService.GetAllUsersAsync();
+            var users = await userService.GetAllUsersAsync(role);
+            ViewBag.RoleFilter = role;
             return View(users);
         }
 

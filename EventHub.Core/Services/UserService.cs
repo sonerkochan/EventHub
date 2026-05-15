@@ -1,5 +1,6 @@
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.User;
+using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,22 +15,39 @@ namespace EventHub.Core.Services
     {
         private readonly UserManager<User> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IRepository repo;
 
-        public UserService(UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager)
+        public UserService(
+            UserManager<User> _userManager,
+            RoleManager<IdentityRole> _roleManager,
+            IRepository _repo)
         {
             userManager = _userManager;
             roleManager = _roleManager;
+            repo = _repo;
         }
 
-        public async Task<IEnumerable<UserListViewModel>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserListViewModel>> GetAllUsersAsync(string? roleFilter = null)
         {
-            var users = await userManager.Users
-                .Where(u => !u.IsDeleted)
+            IEnumerable<User> filteredUsers;
+
+            if (!string.IsNullOrWhiteSpace(roleFilter))
+            {
+                var inRole = await userManager.GetUsersInRoleAsync(roleFilter);
+                filteredUsers = inRole.Where(u => !u.IsDeleted);
+            }
+            else
+            {
+                filteredUsers = await userManager.Users
+                    .Where(u => !u.IsDeleted)
+                    .ToListAsync();
+            }
+
+            var users = filteredUsers
                 .OrderByDescending(u => u.CreatedAt)
-                .ToListAsync();
+                .ToList();
 
             var result = new List<UserListViewModel>();
-
             foreach (var user in users)
             {
                 var roles = await userManager.GetRolesAsync(user);
@@ -47,7 +65,114 @@ namespace EventHub.Core.Services
                 });
             }
 
+            await AttachRoleStatsAsync(result);
+
             return result;
+        }
+
+        private async Task AttachRoleStatsAsync(List<UserListViewModel> users)
+        {
+            if (users.Count == 0) return;
+
+            var organizerIdStrings = users.Where(u => u.Roles.Contains("Organizer")).Select(u => u.Id).ToList();
+            var supplierIdStrings = users.Where(u => u.Roles.Contains("Supplier")).Select(u => u.Id).ToList();
+            var clientIdStrings = users.Where(u => u.Roles.Contains("Client")).Select(u => u.Id).ToList();
+
+            if (organizerIdStrings.Count > 0)
+            {
+                var organizerGuids = organizerIdStrings
+                    .Select(s => Guid.TryParse(s, out var g) ? g : Guid.Empty)
+                    .Where(g => g != Guid.Empty)
+                    .ToList();
+
+                var eventStats = await repo.AllReadonly<Event>()
+                    .Where(e => organizerGuids.Contains(e.OrganizerId) && e.IsActive)
+                    .GroupBy(e => e.OrganizerId)
+                    .Select(g => new
+                    {
+                        OrganizerId = g.Key,
+                        EventCount = g.Count(),
+                        TicketsSold = g.Sum(e => e.TicketsSold)
+                    })
+                    .ToListAsync();
+                var eventStatsById = eventStats.ToDictionary(s => s.OrganizerId);
+
+                var revenueByOrganizer = await repo.AllReadonly<Ticket>()
+                    .Where(t => t.Status == TicketStatus.Purchased || t.Status == TicketStatus.Used)
+                    .Join(repo.AllReadonly<Event>(),
+                        t => t.EventId,
+                        e => e.Id,
+                        (t, e) => new { e.OrganizerId, t.Price })
+                    .Where(x => organizerGuids.Contains(x.OrganizerId))
+                    .GroupBy(x => x.OrganizerId)
+                    .Select(g => new { OrganizerId = g.Key, Revenue = g.Sum(x => (decimal)x.Price) })
+                    .ToListAsync();
+                var revenueById = revenueByOrganizer.ToDictionary(r => r.OrganizerId, r => r.Revenue);
+
+                foreach (var u in users.Where(u => u.Roles.Contains("Organizer")))
+                {
+                    if (!Guid.TryParse(u.Id, out var gid)) continue;
+                    if (eventStatsById.TryGetValue(gid, out var stats))
+                    {
+                        u.OrganizerEventCount = stats.EventCount;
+                        u.OrganizerTicketsSold = stats.TicketsSold;
+                    }
+                    if (revenueById.TryGetValue(gid, out var rev))
+                    {
+                        u.OrganizerRevenue = rev;
+                    }
+                }
+            }
+
+            if (supplierIdStrings.Count > 0)
+            {
+                var serviceCounts = await repo.AllReadonly<SupplierService>()
+                    .Where(s => !s.IsDeleted && s.SupplierId != null && supplierIdStrings.Contains(s.SupplierId))
+                    .GroupBy(s => s.SupplierId!)
+                    .Select(g => new { SupplierId = g.Key, Count = g.Count() })
+                    .ToListAsync();
+                var serviceCountById = serviceCounts.ToDictionary(s => s.SupplierId, s => s.Count);
+
+                var pendingRequests = await repo.AllReadonly<ServiceRentalRequest>()
+                    .Where(r => r.Status == ServiceRentalRequestStatus.Pending)
+                    .Join(repo.AllReadonly<SupplierService>(),
+                        r => r.SupplierServiceId,
+                        s => s.Id,
+                        (r, s) => new { s.SupplierId })
+                    .Where(x => x.SupplierId != null && supplierIdStrings.Contains(x.SupplierId))
+                    .GroupBy(x => x.SupplierId!)
+                    .Select(g => new { SupplierId = g.Key, Count = g.Count() })
+                    .ToListAsync();
+                var pendingById = pendingRequests.ToDictionary(p => p.SupplierId, p => p.Count);
+
+                foreach (var u in users.Where(u => u.Roles.Contains("Supplier")))
+                {
+                    if (serviceCountById.TryGetValue(u.Id, out var cnt)) u.SupplierServiceCount = cnt;
+                    if (pendingById.TryGetValue(u.Id, out var pending)) u.SupplierPendingRequests = pending;
+                }
+            }
+
+            if (clientIdStrings.Count > 0)
+            {
+                var clientGuids = clientIdStrings
+                    .Select(s => Guid.TryParse(s, out var g) ? g : Guid.Empty)
+                    .Where(g => g != Guid.Empty)
+                    .ToList();
+
+                var ticketCounts = await repo.AllReadonly<Ticket>()
+                    .Where(t => clientGuids.Contains(t.UserId)
+                             && (t.Status == TicketStatus.Purchased || t.Status == TicketStatus.Used))
+                    .GroupBy(t => t.UserId)
+                    .Select(g => new { UserId = g.Key, Count = g.Count() })
+                    .ToListAsync();
+                var ticketCountById = ticketCounts.ToDictionary(t => t.UserId, t => t.Count);
+
+                foreach (var u in users.Where(u => u.Roles.Contains("Client")))
+                {
+                    if (!Guid.TryParse(u.Id, out var gid)) continue;
+                    if (ticketCountById.TryGetValue(gid, out var cnt)) u.ClientTicketsBought = cnt;
+                }
+            }
         }
 
         public async Task<UserDetailViewModel?> GetUserByIdAsync(string userId)

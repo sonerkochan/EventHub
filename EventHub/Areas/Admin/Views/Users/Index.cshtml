@@ -1,12 +1,54 @@
 @model IEnumerable<EventHub.Core.Models.User.UserListViewModel>
 @{
     ViewData["Title"] = "Users";
+    var roleFilter = ViewBag.RoleFilter as string;
+    var roleChips = new[] { "Client", "Organizer", "Supplier", "Moderator", "Admin" };
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="fw-semibold mb-0">Users</h5>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <h5 class="fw-semibold mb-0">Users</h5>
+        @if (!string.IsNullOrEmpty(roleFilter))
+        {
+            <span class="badge bg-dark fw-normal d-flex align-items-center gap-1">
+                Role: @roleFilter
+                <a asp-action="Index" class="text-white text-decoration-none" title="Clear filter" style="line-height:1">&times;</a>
+            </span>
+        }
+    </div>
     <button class="btn btn-dark btn-sm" onclick="openModal('@Url.Action("CreatePartial")')">+ New User</button>
 </div>
+
+@if (roleFilter == "Organizer" && Model.Any())
+{
+    var totalEvents = Model.Sum(u => u.OrganizerEventCount);
+    var totalTickets = Model.Sum(u => u.OrganizerTicketsSold);
+    var totalRevenue = Model.Sum(u => u.OrganizerRevenue);
+    <div class="row g-2 mb-3">
+        <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Organizers</div><div class="fw-semibold fs-5">@Model.Count()</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Active events</div><div class="fw-semibold fs-5">@totalEvents</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Tickets sold</div><div class="fw-semibold fs-5">@totalTickets</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Revenue</div><div class="fw-semibold fs-5">@totalRevenue.ToString("0.00")</div></div></div></div>
+    </div>
+}
+else if (roleFilter == "Supplier" && Model.Any())
+{
+    var totalServices = Model.Sum(u => u.SupplierServiceCount);
+    var totalPending = Model.Sum(u => u.SupplierPendingRequests);
+    <div class="row g-2 mb-3">
+        <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Suppliers</div><div class="fw-semibold fs-5">@Model.Count()</div></div></div></div>
+        <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Services listed</div><div class="fw-semibold fs-5">@totalServices</div></div></div></div>
+        <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Pending requests</div><div class="fw-semibold fs-5 text-warning">@totalPending</div></div></div></div>
+    </div>
+}
+else if (roleFilter == "Client" && Model.Any())
+{
+    var totalBought = Model.Sum(u => u.ClientTicketsBought);
+    <div class="row g-2 mb-3">
+        <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Clients</div><div class="fw-semibold fs-5">@Model.Count()</div></div></div></div>
+        <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Tickets bought</div><div class="fw-semibold fs-5">@totalBought</div></div></div></div>
+    </div>
+}
 
 <div class="card border">
     <div class="card-body p-0">
@@ -16,7 +58,39 @@
                     <th class="small">Username</th>
                     <th class="small">Email</th>
                     <th class="small">Name</th>
-                    <th class="small">Roles</th>
+                    <th class="small">
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn btn-link btn-sm p-0 text-uppercase small text-reset text-decoration-none fw-bold d-inline-flex align-items-center gap-1"
+                                    data-toggle="dropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                    style="letter-spacing: inherit;">
+                                Roles
+                                @if (!string.IsNullOrEmpty(roleFilter))
+                                {
+                                    <span class="badge bg-dark fw-normal ms-1">@roleFilter</span>
+                                }
+                                <i class="fa fa-caret-down ms-1"></i>
+                            </button>
+                            <div class="dropdown-menu shadow-sm" style="min-width: 200px;">
+                                <h6 class="dropdown-header small text-muted">Filter by role</h6>
+                                <a asp-action="Index"
+                                   class="dropdown-item small d-flex justify-content-between align-items-center @(string.IsNullOrEmpty(roleFilter) ? "active" : "")">
+                                    All users
+                                    @if (string.IsNullOrEmpty(roleFilter)) { <i class="fa fa-check"></i> }
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                @foreach (var r in roleChips)
+                                {
+                                    <a asp-action="Index" asp-route-role="@r"
+                                       class="dropdown-item small d-flex justify-content-between align-items-center @(roleFilter == r ? "active" : "")">
+                                        @r
+                                        @if (roleFilter == r) { <i class="fa fa-check"></i> }
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </th>
+                    <th class="small">Activity</th>
                     <th class="small">Status</th>
                     <th class="small">Created</th>
                     <th class="text-end"></th>
@@ -33,6 +107,32 @@
                             @foreach (var role in user.Roles)
                             {
                                 <span class="badge bg-secondary me-1">@role</span>
+                            }
+                        </td>
+                        <td class="small text-muted">
+                            @if (user.Roles.Contains("Organizer"))
+                            {
+                                <div>@user.OrganizerEventCount events &middot; @user.OrganizerTicketsSold sold</div>
+                                @if (user.OrganizerRevenue > 0)
+                                {
+                                    <div class="text-success">@user.OrganizerRevenue.ToString("0.00") revenue</div>
+                                }
+                            }
+                            @if (user.Roles.Contains("Supplier"))
+                            {
+                                <div>@user.SupplierServiceCount services</div>
+                                @if (user.SupplierPendingRequests > 0)
+                                {
+                                    <div class="text-warning">@user.SupplierPendingRequests pending</div>
+                                }
+                            }
+                            @if (user.Roles.Contains("Client") && !user.Roles.Contains("Organizer") && !user.Roles.Contains("Supplier"))
+                            {
+                                <div>@user.ClientTicketsBought tickets bought</div>
+                            }
+                            @if (!user.Roles.Contains("Organizer") && !user.Roles.Contains("Supplier") && !user.Roles.Contains("Client"))
+                            {
+                                <span>—</span>
                             }
                         </td>
                         <td>
@@ -70,7 +170,7 @@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="7" class="text-center text-muted small py-4">No users found.</td>
+                        <td colspan="8" class="text-center text-muted small py-4">No users found.</td>
                     </tr>
                 }
             </tbody>

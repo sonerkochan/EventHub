@@ -7,7 +7,7 @@ namespace EventHub.Core.Contracts
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserListViewModel>> GetAllUsersAsync();
+        Task<IEnumerable<UserListViewModel>> GetAllUsersAsync(string? roleFilter = null);
         Task<UserDetailViewModel?> GetUserByIdAsync(string userId);
         Task<EditUserViewModel?> GetForEditAsync(string userId);
         Task<(bool Success, string? Error)> CreateUserAsync(CreateUserViewModel model);
