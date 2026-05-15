@@ -74,6 +74,7 @@ Contracts/
  IZoneService.cs
 Models/Admin/
  AdminSupplierServiceListItem.cs
+ AdminTicketLookupDto.cs
  AdminTicketRow.cs
  EventPricingPageViewModel.cs
  EventTicketsManageViewModel.cs

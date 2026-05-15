@@ -1,0 +1,118 @@
+@using EventHub.Infrastructure.Data.Models
+@model EventHub.Core.Models.Admin.AdminTicketLookupDto
+
+@{
+    var searchedQuery = ViewBag.SearchedQuery as string;
+}
+
+<div class="modal-header">
+    <h5 class="modal-title">Ticket Lookup</h5>
+    <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    @if (Model == null)
+    {
+        @if (!string.IsNullOrEmpty(searchedQuery))
+        {
+            <div class="alert alert-warning small mb-0">
+                No ticket found matching <strong>@searchedQuery</strong>.
+            </div>
+        }
+        else
+        {
+            <div class="text-muted small">Enter a ticket number or ticket code above to look up a ticket.</div>
+        }
+    }
+    else
+    {
+        <div class="d-flex justify-content-between align-items-start mb-3 pb-2 border-bottom">
+            <div>
+                <div class="text-muted small text-uppercase">Ticket Number</div>
+                <div class="fw-bold" style="font-size: 1.5rem;">@Model.TicketNumber</div>
+                @if (!string.IsNullOrWhiteSpace(Model.HashedCode))
+                {
+                    <div class="text-muted small mt-1">Code: <code>@Model.HashedCode</code></div>
+                }
+            </div>
+            <span class="badge bg-@StatusBadge(Model.Status) fw-normal" style="font-size: 0.9rem;">@Model.Status</span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="small text-muted">Event</div>
+                <div class="fw-medium">@Model.EventName</div>
+                <div class="small text-muted">@Model.EventStart.ToString("dd MMM yyyy HH:mm")</div>
+                @if (!string.IsNullOrWhiteSpace(Model.RoomName))
+                {
+                    <div class="small text-muted">@Model.RoomName</div>
+                }
+            </div>
+            <div class="col-md-6">
+                <div class="small text-muted">Seat</div>
+                <div class="fw-medium">
+                    @(Model.SeatNumber == 0 ? "—" : $"Seat {Model.SeatNumber}")
+                    @if (!string.IsNullOrWhiteSpace(Model.ZoneName))
+                    {
+                        <span class="text-muted">&middot; @Model.ZoneName</span>
+                    }
+                </div>
+                <div class="small text-muted mt-2">Price</div>
+                <div class="fw-medium">@Model.Price.ToString("0.00") @Model.Currency</div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="small text-muted">Buyer</div>
+                <div class="fw-medium">@Model.BuyerDisplay</div>
+                @if (!string.IsNullOrWhiteSpace(Model.BuyerEmail))
+                {
+                    <div class="small text-muted">@Model.BuyerEmail</div>
+                }
+            </div>
+            <div class="col-md-6">
+                <div class="small text-muted">Timeline</div>
+                @if (Model.ReservedAt > DateTime.MinValue)
+                {
+                    <div class="small">Reserved: @Model.ReservedAt.ToString("dd MMM yyyy HH:mm")</div>
+                }
+                @if (Model.PurchasedAt > DateTime.MinValue)
+                {
+                    <div class="small">Purchased: @Model.PurchasedAt.ToString("dd MMM yyyy HH:mm")</div>
+                }
+                @if (Model.ValidatedAt > DateTime.MinValue)
+                {
+                    <div class="small">Validated: @Model.ValidatedAt.ToString("dd MMM yyyy HH:mm")</div>
+                }
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    @if (Model != null)
+    {
+        <a asp-controller="EventTickets" asp-action="Manage" asp-route-id="@Model.EventId"
+           class="btn btn-outline-secondary btn-sm">Open event manager</a>
+        @if (Model.CanRefund)
+        {
+            <button type="button" class="btn btn-outline-danger btn-sm"
+                    onclick="refundLookupTicket('@Model.Id', '@Model.TicketNumber')">
+                Refund ticket
+            </button>
+        }
+    }
+    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" data-bs-dismiss="modal">Close</button>
+</div>
+
+@functions {
+    string StatusBadge(TicketStatus s) => s switch
+    {
+        TicketStatus.Purchased => "success",
+        TicketStatus.Used => "dark",
+        TicketStatus.Reserved => "warning",
+        TicketStatus.Refunded => "danger",
+        TicketStatus.Cancelled => "secondary",
+        TicketStatus.Expired => "secondary",
+        _ => "secondary"
+    };
+}

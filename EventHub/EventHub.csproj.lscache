@@ -583,7 +583,9 @@ Areas/Admin/Views/
   _AdminLayout.cshtml
   _AdminLayoutModern.cshtml
  SupplierServices/Index.cshtml
- Tickets/Index.cshtml
+ Tickets/
+  Index.cshtml
+  _LookupModal.cshtml
  Users/
   Index.cshtml
   _CreateModal.cshtml
@@ -690,7 +692,9 @@ Areas/Admin/Views/
   _AdminLayout.cshtml
   _AdminLayoutModern.cshtml
  SupplierServices/Index.cshtml
- Tickets/Index.cshtml
+ Tickets/
+  Index.cshtml
+  _LookupModal.cshtml
  Users/
   Index.cshtml
   _CreateModal.cshtml

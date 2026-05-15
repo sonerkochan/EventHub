@@ -451,6 +451,7 @@ namespace EventHub.Core.Services
                 {
                     Id = t.Id,
                     TicketNumber = t.TicketNumber,
+                    HashedCode = t.HashedCode,
                     SeatId = t.SeatId,
                     SeatNumber = seat?.SeatNumber ?? 0,
                     ZoneId = seat?.ZoneId,
@@ -464,6 +465,81 @@ namespace EventHub.Core.Services
                     PurchasedAt = t.PurchasedAt
                 };
             }).ToList();
+        }
+
+        public Task<AdminTicketLookupDto?> LookupByNumberAsync(long ticketNumber)
+            => BuildLookupAsync(t => t.TicketNumber == ticketNumber);
+
+        public Task<AdminTicketLookupDto?> LookupAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query)) return Task.FromResult<AdminTicketLookupDto?>(null);
+
+            var trimmed = query.Trim();
+            if (long.TryParse(trimmed, out var number))
+            {
+                return BuildLookupAsync(t => t.TicketNumber == number);
+            }
+
+            var code = trimmed.ToUpperInvariant();
+            return BuildLookupAsync(t => t.HashedCode != null && t.HashedCode.ToUpper() == code);
+        }
+
+        private async Task<AdminTicketLookupDto?> BuildLookupAsync(System.Linq.Expressions.Expression<Func<Ticket, bool>> predicate)
+        {
+            var ticket = await repo.AllReadonly<Ticket>()
+                .FirstOrDefaultAsync(predicate);
+
+            if (ticket == null) return null;
+
+            var ev = await repo.AllReadonly<DataEvent>()
+                .FirstOrDefaultAsync(e => e.Id == ticket.EventId);
+            if (ev == null) return null;
+
+            var room = await repo.AllReadonly<Room>()
+                .FirstOrDefaultAsync(r => r.RoomId == ev.RoomId);
+
+            Seat? seat = null;
+            Zone? zone = null;
+            if (ticket.SeatId != Guid.Empty)
+            {
+                seat = await repo.AllReadonly<Seat>()
+                    .FirstOrDefaultAsync(s => s.Id == ticket.SeatId);
+                if (seat?.ZoneId != null)
+                {
+                    zone = await repo.AllReadonly<Zone>()
+                        .FirstOrDefaultAsync(z => z.Id == seat.ZoneId);
+                }
+            }
+
+            var user = await repo.AllReadonly<User>()
+                .FirstOrDefaultAsync(u => u.Id == ticket.UserId.ToString());
+
+            var buyerDisplay = user == null
+                ? ticket.UserId.ToString()
+                : (!string.IsNullOrWhiteSpace(user.FirstName) || !string.IsNullOrWhiteSpace(user.LastName))
+                    ? $"{user.FirstName} {user.LastName}".Trim()
+                    : (user.UserName ?? user.Email ?? ticket.UserId.ToString());
+
+            return new AdminTicketLookupDto
+            {
+                Id = ticket.Id,
+                TicketNumber = ticket.TicketNumber,
+                HashedCode = ticket.HashedCode,
+                EventId = ev.Id,
+                EventName = ev.EventName!,
+                EventStart = ev.StartDateTime,
+                RoomName = room?.Name,
+                SeatNumber = seat?.SeatNumber ?? 0,
+                ZoneName = zone?.Name,
+                BuyerDisplay = buyerDisplay!,
+                BuyerEmail = user?.Email,
+                Status = ticket.Status,
+                Price = ticket.Price,
+                Currency = ticket.Currency,
+                ReservedAt = ticket.ReservedAt,
+                PurchasedAt = ticket.PurchasedAt,
+                ValidatedAt = ticket.ValidatedAt
+            };
         }
 
         public async Task<bool> AdminRefundTicketAsync(Guid ticketId, Guid processedBy)

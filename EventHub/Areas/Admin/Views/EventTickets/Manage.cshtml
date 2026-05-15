@@ -165,7 +165,7 @@
             <table class="table table-sm mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="small">#</th>
+                        <th class="small">Ticket #</th>
                         <th class="small">Seat</th>
                         <th class="small">Zone</th>
                         <th class="small">Buyer</th>
@@ -182,7 +182,13 @@
                                      : t.ReservedAt  > DateTime.MinValue ? t.ReservedAt
                                      : (DateTime?)null;
                         <tr>
-                            <td class="small text-muted">@t.TicketNumber</td>
+                            <td class="small">
+                                <div class="fw-semibold">@t.TicketNumber</div>
+                                @if (!string.IsNullOrWhiteSpace(t.HashedCode))
+                                {
+                                    <div class="text-muted" style="font-size:0.7rem; font-family: monospace;">@t.HashedCode</div>
+                                }
+                            </td>
                             <td class="small">@(t.SeatNumber == 0 ? "—" : t.SeatNumber.ToString())</td>
                             <td class="small text-muted">@(t.ZoneName ?? "—")</td>
                             <td class="small">@t.BuyerDisplay</td>
