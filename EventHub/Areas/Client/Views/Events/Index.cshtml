@@ -20,46 +20,48 @@
 }
 else
 {
-    <div class="row g-4">
+    <div class="cvei-main-row row g-4 p-6">
         @foreach (var e in Model)
         {
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 hover-lift" style="transition: all 0.3s;">
+            <div class="cvei-col-card col-md-6 col-lg-4">
+                <div class="card cvei-card border-0 shadow-sm h-100 hover-lift" style="transition: all 0.3s;">
                     @if (!string.IsNullOrEmpty(e.CoverImageUrl))
                     {
-                        <img src="@e.CoverImageUrl" class="card-img-top" alt="@e.EventName" style="height: 200px; object-fit: cover;">
+                        <img src="@e.CoverImageUrl" class="cvei-card-image card-img-top" alt="@e.EventName" style="height: 200px; object-fit: cover;">
                     }
                     else
                     {
-                        <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center" 
+                        <div class="cvei-card-image card-img-top bg-gradient d-flex align-items-center justify-content-center"
                              style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                             <span style="font-size: 64px;">@GetEventIcon(e.EventType)</span>
                         </div>
                     }
-                    <div class="card-body d-flex flex-column">
+                    <div class="cvei-card-body card-body d-flex flex-column">
+
                         <div class="mb-2">
-                            <span class="badge bg-@GetTypeBadgeColor(e.EventType) fw-normal small">@e.EventType</span>
-                            <span class="badge bg-secondary fw-normal small ms-1">@e.RoomName</span>
+                            <span class="cvei-badge badge bg-@GetTypeBadgeColor(e.EventType) fw-normal small">@e.EventType</span>
+                            <span class="cvei-badge badge bg-secondary fw-normal small ms-1">@e.RoomName</span>
                         </div>
-                        <h5 class="card-title fw-semibold mb-2">@e.EventName</h5>
-                        <p class="text-muted small mb-2">
-                            📅 @e.StartDateTime.ToString("ddd, MMM dd, yyyy")
+
+                        <h5 class="cvei-card-title card-title fw-semibold mt-3 mb-3">@e.EventName</h5>
+                        <p class="cvei-p mb-1">
+                            <i class="cvei-bi bi bi-calendar"></i> @e.StartDateTime.ToString("ddd, MMM dd, yyyy")
                         </p>
-                        <p class="text-muted small mb-3">
-                            🕐 @e.StartDateTime.ToString("h:mm tt")
+                        <p class="cvei-p mb-2">
+                            <i class="cvei-bi bi bi-clock"></i> @e.StartDateTime.ToString("h:mm tt")
                         </p>
                         <div class="mt-auto">
                             @if (e.BasePrice > 0)
                             {
-                                <div class="mb-2">
-                                    <span class="fw-bold" style="font-size: 1.25rem; color: #667eea;">$@e.BasePrice.ToString("F2")</span>
+                                <div class="mb-2 cvei-price-box-soft">
+                                    <span class="cvei-price-box-soft cvei-amount">$@e.BasePrice.ToString("F2")</span>
                                     <small class="text-muted"> per ticket</small>
                                 </div>
                             }
                             else
                             {
                                 <div class="mb-2">
-                                    <span class="badge fw-normal" style="background: #10b981; color: white; padding: 0.25rem 0.75rem;">FREE</span>
+                                    <span class="cvei-badge-free">FREE</span>
                                 </div>
                             }
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -70,7 +72,7 @@ else
                                          style="width: @((e.TotalTickets - e.TicketsSold) * 100.0 / e.TotalTickets)%"></div>
                                 </div>
                             </div>
-                            <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-dark btn-sm w-100">
+                            <a asp-action="Details" asp-route-id="@e.Id" class="cvei-form-button">
                                 View Details
                             </a>
                         </div>
