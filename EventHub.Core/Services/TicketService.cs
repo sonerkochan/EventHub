@@ -111,8 +111,10 @@ namespace EventHub.Core.Services
                 return result;
             }
 
-            var ev = await repo.All<DataEvent>()
-                .FirstOrDefaultAsync(e => e.Id == eventId && e.IsActive);
+            var ev = await repo.AllReadonly<DataEvent>()
+                .Where(e => e.Id == eventId && e.IsActive)
+                .Select(e => new { e.Id, e.RoomId, e.BasePrice })
+                .FirstOrDefaultAsync();
             if (ev == null)
             {
                 result.ErrorMessage = "Event not found.";
@@ -236,11 +238,7 @@ namespace EventHub.Core.Services
                 .ToListAsync();
             var tierById = tiers.ToDictionary(t => t.Id);
 
-            var eventIds = tickets.Select(t => t.EventId).Distinct().ToList();
-            var events = await repo.All<DataEvent>()
-                .Where(e => eventIds.Contains(e.Id))
-                .ToListAsync();
-            var eventById = events.ToDictionary(e => e.Id);
+            var ticketsPerEvent = new Dictionary<Guid, int>();
 
             int flipped = 0;
             foreach (var ticket in tickets)
@@ -275,12 +273,7 @@ namespace EventHub.Core.Services
                     repo.Update(tier);
                 }
 
-                if (eventById.TryGetValue(ticket.EventId, out var ev))
-                {
-                    ev.TicketsSold += 1;
-                    ev.UpdatedAt = nowUtc;
-                    repo.Update(ev);
-                }
+                ticketsPerEvent[ticket.EventId] = ticketsPerEvent.GetValueOrDefault(ticket.EventId) + 1;
 
                 flipped++;
             }
@@ -288,6 +281,17 @@ namespace EventHub.Core.Services
             if (flipped == 0) return false;
 
             await repo.SaveChangesAsync();
+
+            // Bump Event.TicketsSold without loading the row
+            foreach (var (eventId, increment) in ticketsPerEvent)
+            {
+                await repo.All<DataEvent>()
+                    .Where(e => e.Id == eventId)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(e => e.TicketsSold, e => e.TicketsSold + increment)
+                        .SetProperty(e => e.UpdatedAt, nowUtc));
+            }
+
             return true;
         }
 
