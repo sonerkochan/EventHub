@@ -71,6 +71,17 @@ Contracts/
  IUserService.cs
  IVenueService.cs
  IZoneService.cs
+Models/Admin/
+ AdminTicketRow.cs
+ EventPricingPageViewModel.cs
+ EventTicketsManageViewModel.cs
+ ManagedSeatDto.cs
+ ManagedZoneDto.cs
+ RefundTicketRequest.cs
+ RemoveZonePriceRequest.cs
+ SetZonePriceRequest.cs
+ TicketsOverviewRow.cs
+ ZonePricingRow.cs
 Models/ApplicationForm/
  ApplicationFormViewModel - Copy.cs
  ApplicationFormViewModel.cs
@@ -122,6 +133,8 @@ Models/
   TicketValidationResult.cs
  User/
   ClientRegisterViewModel.cs
+  CreateUserViewModel.cs
+  EditUserViewModel.cs
   LoginViewModel.cs
   UserDetailViewModel.cs
   UserListViewModel.cs

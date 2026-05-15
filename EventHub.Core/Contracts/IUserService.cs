@@ -9,6 +9,9 @@ namespace EventHub.Core.Contracts
     {
         Task<IEnumerable<UserListViewModel>> GetAllUsersAsync();
         Task<UserDetailViewModel?> GetUserByIdAsync(string userId);
+        Task<EditUserViewModel?> GetForEditAsync(string userId);
+        Task<(bool Success, string? Error)> CreateUserAsync(CreateUserViewModel model);
+        Task<(bool Success, string? Error)> UpdateUserAsync(EditUserViewModel model);
         Task<bool> DeactivateUserAsync(string userId);
         Task<bool> ReactivateUserAsync(string userId);
         Task<bool> DeleteUserAsync(string userId);

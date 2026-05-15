@@ -19,7 +19,6 @@ namespace EventHub.Core.Services
         {
             userManager = _userManager;
             roleManager = _roleManager;
-            Console.WriteLine("Hell Yuhhhh Boy");
         }
 
         public async Task<IEnumerable<UserListViewModel>> GetAllUsersAsync()
@@ -141,6 +140,84 @@ namespace EventHub.Core.Services
 
             var result = await userManager.RemoveFromRoleAsync(user, role);
             return result.Succeeded;
+        }
+
+        public async Task<EditUserViewModel?> GetForEditAsync(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            return new EditUserViewModel
+            {
+                Id = user.Id,
+                Email = user.Email!,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                IsActive = user.IsActive
+            };
+        }
+
+        public async Task<(bool Success, string? Error)> CreateUserAsync(CreateUserViewModel model)
+        {
+            if (await userManager.FindByNameAsync(model.UserName) != null)
+                return (false, "A user with that username already exists.");
+
+            if (await userManager.FindByEmailAsync(model.Email) != null)
+                return (false, "A user with that email already exists.");
+
+            var user = new User
+            {
+                UserName = model.UserName,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                PhoneNumber = model.PhoneNumber,
+                IsActive = true,
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var result = await userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+                return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
+
+            if (!string.IsNullOrWhiteSpace(model.Role) && await roleManager.RoleExistsAsync(model.Role))
+            {
+                await userManager.AddToRoleAsync(user, model.Role);
+            }
+
+            return (true, null);
+        }
+
+        public async Task<(bool Success, string? Error)> UpdateUserAsync(EditUserViewModel model)
+        {
+            var user = await userManager.FindByIdAsync(model.Id);
+            if (user == null) return (false, "User not found.");
+
+            if (!string.Equals(user.Email, model.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                var other = await userManager.FindByEmailAsync(model.Email);
+                if (other != null && other.Id != model.Id)
+                    return (false, "Another user already uses that email.");
+
+                user.Email = model.Email;
+                user.NormalizedEmail = userManager.NormalizeEmail(model.Email);
+                user.EmailConfirmed = false;
+            }
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.PhoneNumber = model.PhoneNumber;
+            user.IsActive = model.IsActive;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var result = await userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
+
+            return (true, null);
         }
     }
 }

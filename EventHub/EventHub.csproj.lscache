@@ -59,9 +59,11 @@ Areas/Admin/Controllers/
  ApplicationController.cs
  BaseController.cs
  EventsController.cs
+ EventTicketsController.cs
  HomeController.cs
  ModeratorController.cs
  RoomsController.cs
+ TicketsController.cs
  UsersController.cs
  VenuesController.cs
 Areas/Client/Controllers/
@@ -561,6 +563,9 @@ Areas/Admin/Views/
   _CreateModal.cshtml
   _DetailsModal.cshtml
   _EditModal.cshtml
+ EventTickets/
+  Manage.cshtml
+  Pricing.cshtml
  Home/
   Index.cshtml
   _QuickStats.cshtml
@@ -576,9 +581,12 @@ Areas/Admin/Views/
  Shared/
   _AdminLayout.cshtml
   _AdminLayoutModern.cshtml
+ Tickets/Index.cshtml
  Users/
-  Details.cshtml
   Index.cshtml
+  _CreateModal.cshtml
+  _DetailsModal.cshtml
+  _EditModal.cshtml
  Venues/
   Index.cshtml
   _CreateModal.cshtml
@@ -661,6 +669,9 @@ Areas/Admin/Views/
   _CreateModal.cshtml
   _DetailsModal.cshtml
   _EditModal.cshtml
+ EventTickets/
+  Manage.cshtml
+  Pricing.cshtml
  Home/
   Index.cshtml
   _QuickStats.cshtml
@@ -676,9 +687,12 @@ Areas/Admin/Views/
  Shared/
   _AdminLayout.cshtml
   _AdminLayoutModern.cshtml
+ Tickets/Index.cshtml
  Users/
-  Details.cshtml
   Index.cshtml
+  _CreateModal.cshtml
+  _DetailsModal.cshtml
+  _EditModal.cshtml
  Venues/
   Index.cshtml
   _CreateModal.cshtml

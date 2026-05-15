@@ -40,6 +40,10 @@
                                     onclick="openModal('@Url.Action("DetailsPartial", new { id = e.Id })')">
                                 View
                             </button>
+                            <a asp-controller="EventTickets" asp-action="Pricing" asp-route-id="@e.Id"
+                               class="btn btn-outline-info btn-sm">Pricing</a>
+                            <a asp-controller="EventTickets" asp-action="Manage" asp-route-id="@e.Id"
+                               class="btn btn-outline-info btn-sm">Sell</a>
                             <button class="btn btn-outline-secondary btn-sm"
                                     onclick="openModal('@Url.Action("EditPartial", new { id = e.Id })')">
                                 Edit

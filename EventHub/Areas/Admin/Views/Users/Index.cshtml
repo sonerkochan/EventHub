@@ -5,6 +5,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h5 class="fw-semibold mb-0">Users</h5>
+    <button class="btn btn-dark btn-sm" onclick="openModal('@Url.Action("CreatePartial")')">+ New User</button>
 </div>
 
 <div class="card border">
@@ -18,7 +19,7 @@
                     <th class="small">Roles</th>
                     <th class="small">Status</th>
                     <th class="small">Created</th>
-                    <th></th>
+                    <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
@@ -41,23 +42,27 @@
                         </td>
                         <td class="small">@user.CreatedAt.ToString("dd MMM yyyy")</td>
                         <td class="text-end">
-                            <a asp-action="Details" asp-route-id="@user.Id"
-                               class="btn btn-outline-secondary btn-sm">View</a>
+                            <button class="btn btn-outline-primary btn-sm"
+                                    onclick="openModal('@Url.Action("DetailsPartial", new { id = user.Id })')">
+                                View
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    onclick="openModal('@Url.Action("EditPartial", new { id = user.Id })')">
+                                Edit
+                            </button>
                             @if (user.IsActive)
                             {
-                                <form asp-action="Deactivate" asp-route-id="@user.Id" method="post"
-                                      class="d-inline"
-                                      onsubmit="return confirm('Deactivate this user?')">
-                                    @Html.AntiForgeryToken()
-                                    <button class="btn btn-outline-warning btn-sm">Deactivate</button>
-                                </form>
+                                <button class="btn btn-outline-warning btn-sm"
+                                        onclick="postAction('@Url.Action("Deactivate", new { id = user.Id })', 'Deactivate this user?')">
+                                    Deactivate
+                                </button>
                             }
                             else
                             {
-                                <form asp-action="Reactivate" asp-route-id="@user.Id" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button class="btn btn-outline-success btn-sm">Reactivate</button>
-                                </form>
+                                <button class="btn btn-outline-success btn-sm"
+                                        onclick="postAction('@Url.Action("Reactivate", new { id = user.Id })', 'Reactivate this user?')">
+                                    Reactivate
+                                </button>
                             }
                         </td>
                     </tr>
@@ -72,3 +77,133 @@
         </table>
     </div>
 </div>
+
+<!-- Modal container -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="userModalContent">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const modalEl = document.getElementById('userModal');
+        const modal = new bootstrap.Modal(modalEl);
+
+        function openModal(url) {
+            fetch(url)
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById('userModalContent').innerHTML = html;
+                    modal.show();
+                });
+        }
+
+        function postAction(url, confirmText) {
+            if (confirmText && !confirm(confirmText)) return;
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                || '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1];
+
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: '__RequestVerificationToken=' + encodeURIComponent(token)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) location.reload();
+                else alert('Action failed.');
+            });
+        }
+
+        const addRoleUrl = '@Url.Action("AddRole")';
+        const removeRoleUrl = '@Url.Action("RemoveRole")';
+        const detailsPartialUrl = '@Url.Action("DetailsPartial")';
+
+        let detailsDirty = false;
+        modalEl.addEventListener('hidden.bs.modal', () => {
+            if (detailsDirty) {
+                detailsDirty = false;
+                location.reload();
+            }
+        });
+
+        function postNoReload(url) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                || '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1];
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: '__RequestVerificationToken=' + encodeURIComponent(token)
+            }).then(r => r.json());
+        }
+
+        function refreshDetailsModal(userId) {
+            fetch(`${detailsPartialUrl}?id=${encodeURIComponent(userId)}`)
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById('userModalContent').innerHTML = html;
+                });
+        }
+
+        function addRole(userId) {
+            const role = document.getElementById('addRoleSelect').value;
+            postNoReload(`${addRoleUrl}?userId=${encodeURIComponent(userId)}&role=${encodeURIComponent(role)}`)
+                .then(data => {
+                    if (data.success) {
+                        detailsDirty = true;
+                        refreshDetailsModal(userId);
+                    } else {
+                        alert('Failed to add role.');
+                    }
+                });
+        }
+
+        function removeRole(userId, role) {
+            if (!confirm(`Remove ${role} role?`)) return;
+            postNoReload(`${removeRoleUrl}?userId=${encodeURIComponent(userId)}&role=${encodeURIComponent(role)}`)
+                .then(data => {
+                    if (data.success) {
+                        detailsDirty = true;
+                        refreshDetailsModal(userId);
+                    } else {
+                        alert('Failed to remove role.');
+                    }
+                });
+        }
+
+        function submitModalForm(form) {
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => {
+                const ct = r.headers.get('content-type') || '';
+                if (ct.includes('application/json')) return r.json();
+                return r.text().then(html => ({ html }));
+            })
+            .then(result => {
+                if (result.success) {
+                    modal.hide();
+                    location.reload();
+                } else if (result.html) {
+                    document.getElementById('userModalContent').innerHTML = result.html;
+                }
+            });
+
+            return false;
+        }
+    </script>
+}
+
+@Html.AntiForgeryToken()
