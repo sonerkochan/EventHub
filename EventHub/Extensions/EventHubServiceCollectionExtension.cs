@@ -27,6 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IEventPricingTierService, EventPricingTierService>();
             services.AddScoped<IQRCodeService, QRCodeService>();
             services.AddScoped<ISupplierServiceCatalogService, SupplierServiceCatalogService>();
+            services.AddScoped<IAdminSupplierServiceService, AdminSupplierServiceService>();
 
             return services;
         }

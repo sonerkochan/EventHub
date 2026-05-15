@@ -1,0 +1,178 @@
+@model IEnumerable<EventHub.Core.Models.Admin.AdminSupplierServiceListItem>
+@{
+    ViewData["Title"] = "Supplier Services";
+    var status = (ViewBag.StatusFilter as string)?.ToLowerInvariant();
+    var q = ViewBag.SearchTerm as string;
+    var visibleCount = Model.Count(s => !s.IsHidden);
+    var hiddenCount = Model.Count(s => s.IsHidden);
+    var totalPending = Model.Sum(s => s.PendingRequestCount);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <h5 class="fw-semibold mb-0">Supplier Services</h5>
+        @if (!string.IsNullOrEmpty(status))
+        {
+            <span class="badge bg-dark fw-normal d-flex align-items-center gap-1">
+                Filter: @status
+                <a asp-action="Index" class="text-white text-decoration-none" title="Clear filter" style="line-height:1">&times;</a>
+            </span>
+        }
+    </div>
+</div>
+
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="card border"><div class="card-body py-2">
+            <div class="small text-muted">Total services</div>
+            <div class="fw-semibold fs-5">@Model.Count()</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border"><div class="card-body py-2">
+            <div class="small text-muted">Visible</div>
+            <div class="fw-semibold fs-5 text-success">@visibleCount</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border"><div class="card-body py-2">
+            <div class="small text-muted">Hidden</div>
+            <div class="fw-semibold fs-5 text-secondary">@hiddenCount</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border"><div class="card-body py-2">
+            <div class="small text-muted">Pending requests</div>
+            <div class="fw-semibold fs-5 @(totalPending > 0 ? "text-warning" : "")">@totalPending</div>
+        </div></div>
+    </div>
+</div>
+
+<form asp-action="Index" method="get" class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+    <div class="btn-group btn-group-sm" role="group">
+        <a asp-action="Index" asp-route-q="@q"
+           class="btn @(string.IsNullOrEmpty(status) ? "btn-dark" : "btn-outline-secondary")">All</a>
+        <a asp-action="Index" asp-route-status="visible" asp-route-q="@q"
+           class="btn @(status == "visible" ? "btn-dark" : "btn-outline-secondary")">Visible</a>
+        <a asp-action="Index" asp-route-status="hidden" asp-route-q="@q"
+           class="btn @(status == "hidden" ? "btn-dark" : "btn-outline-secondary")">Hidden</a>
+    </div>
+    <input type="hidden" name="status" value="@status" />
+    <input type="text" name="q" value="@q" placeholder="Search name or description..."
+           class="form-control form-control-sm" style="max-width: 280px;" />
+    <button type="submit" class="btn btn-sm btn-outline-dark">Search</button>
+    @if (!string.IsNullOrEmpty(q))
+    {
+        <a asp-action="Index" asp-route-status="@status" class="btn btn-sm btn-outline-secondary">Clear</a>
+    }
+</form>
+
+<div class="card border">
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="small">Service</th>
+                    <th class="small">Supplier</th>
+                    <th class="small text-end">Price</th>
+                    <th class="small text-end">Requests</th>
+                    <th class="small">Status</th>
+                    <th class="small">Created</th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr class="@(s.IsHidden ? "table-secondary text-muted" : "")">
+                        <td class="small">
+                            <div class="fw-medium">@s.Name</div>
+                            @if (!string.IsNullOrWhiteSpace(s.Description))
+                            {
+                                <div class="text-muted" style="font-size:0.75rem; max-width: 420px;">
+                                    @(s.Description.Length > 120 ? s.Description.Substring(0, 120) + "…" : s.Description)
+                                </div>
+                            }
+                        </td>
+                        <td class="small">
+                            <div>@s.SupplierName</div>
+                            @if (!string.IsNullOrWhiteSpace(s.SupplierEmail))
+                            {
+                                <div class="text-muted" style="font-size:0.75rem;">@s.SupplierEmail</div>
+                            }
+                        </td>
+                        <td class="small text-end">
+                            @(s.Price.HasValue ? s.Price.Value.ToString("0.00") : "—")
+                        </td>
+                        <td class="small text-end">
+                            @s.TotalRequestCount total
+                            @if (s.PendingRequestCount > 0)
+                            {
+                                <div class="text-warning" style="font-size:0.75rem;">@s.PendingRequestCount pending</div>
+                            }
+                        </td>
+                        <td>
+                            @if (s.IsHidden)
+                            {
+                                <span class="badge bg-secondary fw-normal" title="Hidden at @s.HiddenAt?.ToString("dd MMM yyyy HH:mm")">Hidden</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success fw-normal">Visible</span>
+                            }
+                        </td>
+                        <td class="small">@s.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td class="text-end">
+                            @if (s.IsHidden)
+                            {
+                                <button class="btn btn-outline-success btn-sm"
+                                        onclick="postAction('@Url.Action("Unhide", new { id = s.Id })', 'Unhide this service? It will appear in the supplier catalog again.')">
+                                    Unhide
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-outline-warning btn-sm"
+                                        onclick="postAction('@Url.Action("Hide", new { id = s.Id })', 'Hide this service from the catalog? Existing rental requests are preserved.')">
+                                    Hide
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted small py-4">No supplier services found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        function postAction(url, confirmText) {
+            if (confirmText && !confirm(confirmText)) return;
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: '__RequestVerificationToken=' + encodeURIComponent(token)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) location.reload();
+                else alert('Action failed.');
+            });
+        }
+    </script>
+}

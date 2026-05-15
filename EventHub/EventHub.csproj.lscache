@@ -63,6 +63,7 @@ Areas/Admin/Controllers/
  HomeController.cs
  ModeratorController.cs
  RoomsController.cs
+ SupplierServicesController.cs
  TicketsController.cs
  UsersController.cs
  VenuesController.cs
@@ -581,6 +582,7 @@ Areas/Admin/Views/
  Shared/
   _AdminLayout.cshtml
   _AdminLayoutModern.cshtml
+ SupplierServices/Index.cshtml
  Tickets/Index.cshtml
  Users/
   Index.cshtml
@@ -687,6 +689,7 @@ Areas/Admin/Views/
  Shared/
   _AdminLayout.cshtml
   _AdminLayoutModern.cshtml
+ SupplierServices/Index.cshtml
  Tickets/Index.cshtml
  Users/
   Index.cshtml
