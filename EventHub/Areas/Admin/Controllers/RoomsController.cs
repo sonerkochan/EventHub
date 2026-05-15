@@ -99,7 +99,15 @@ namespace EventHub.Areas.Admin.Controllers
         public async Task<IActionResult> SaveLayout([FromBody] SaveSeatLayoutRequest request)
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            await seatLayoutService.SaveLayoutAsync(request, userId);
+
+            try
+            {
+                await seatLayoutService.SaveLayoutAsync(request, userId);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
 
             var data = await seatLayoutService.GetLayoutEditorDataAsync(request.RoomId);
             return Json(new { success = true, seats = data.Seats, zones = data.Zones });

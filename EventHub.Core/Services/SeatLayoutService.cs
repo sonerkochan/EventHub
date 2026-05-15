@@ -90,6 +90,15 @@ namespace EventHub.Core.Services
 
         public async Task SaveLayoutAsync(SaveSeatLayoutRequest request, Guid userId)
         {
+            var room = await _repo.GetByIdAsync<Room>(request.RoomId)
+                ?? throw new InvalidOperationException($"Room {request.RoomId} not found.");
+
+            if (request.Seats.Count > room.Capacity)
+            {
+                throw new InvalidOperationException(
+                    $"Seat count ({request.Seats.Count}) exceeds room capacity ({room.Capacity}).");
+            }
+
             var existingSeats = await _repo.All<Seat>()
                 .Where(s => s.RoomId == request.RoomId && s.IsActive)
                 .ToListAsync();
