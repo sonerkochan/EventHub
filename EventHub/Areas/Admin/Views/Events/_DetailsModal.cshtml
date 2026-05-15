@@ -1,0 +1,85 @@
+@using EventHub.Infrastructure.Data.Models
+@model EventHub.Core.Models.Event.EventDetailViewModel
+
+<div class="modal-header">
+    <div>
+        <h6 class="modal-title fw-semibold mb-1">@Model.EventName</h6>
+        <div>
+            <span class="badge bg-secondary fw-normal">@Model.EventType</span>
+            <span class="badge bg-@StatusBadge(Model.EventStatus) fw-normal ms-1">@Model.EventStatus</span>
+            <span class="badge bg-warning text-dark fw-normal ms-1">@Model.EventPriority</span>
+        </div>
+    </div>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+    {
+        <img src="@Model.CoverImageUrl" class="rounded mb-3"
+             style="max-height:220px;object-fit:cover;width:100%;" alt="Cover" />
+    }
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card border">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Room</span>
+                        <strong>@Model.RoomName</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Start</span>
+                        <strong>@Model.StartDateTime.ToString("dd MMM yyyy HH:mm")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">End</span>
+                        <strong>@Model.EndDateTime.ToString("dd MMM yyyy HH:mm")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Tickets</span>
+                        <strong>@Model.TicketsSold / @Model.TotalTickets</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Refunds</span>
+                        <strong>
+                            @if (Model.AllowRefunds)
+                            {
+                                @($"Until {Model.RefundDeadline?.ToString("dd MMM yyyy") ?? "N/A"}")
+                            }
+                            else
+                            {
+                                <text>No</text>
+                            }
+                        </strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-2">
+                        <span class="text-muted">Created</span>
+                        <strong>@Model.CreatedAt.ToString("dd MMM yyyy")</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <p class="small text-muted mb-1 fw-medium">Description</p>
+            <p class="small mb-0">@(Model.Description ?? "No description provided.")</p>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal">Close</button>
+</div>
+
+@functions {
+    string StatusBadge(EventStatus s) => s switch
+    {
+        EventStatus.Active => "success",
+        EventStatus.Published => "primary",
+        EventStatus.Draft => "secondary",
+        EventStatus.Cancelled => "danger",
+        EventStatus.Finished => "dark",
+        _ => "secondary"
+    };
+}

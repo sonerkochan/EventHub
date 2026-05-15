@@ -1,13 +1,7 @@
-﻿using EventHub.Core.Contracts;
+using EventHub.Core.Contracts;
 using EventHub.Core.Models.Venue;
-using EventHub.Infrastructure.Data;
-using EventHub.Infrastructure.Data.Common;
-using EventHub.Infrastructure.Data.Models;
-using EventHub.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
+using System.Security.Claims;
 
 namespace EventHub.Areas.Admin.Controllers
 {
@@ -27,9 +21,9 @@ namespace EventHub.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult CreatePartial()
         {
-            return View(new AddVenueViewModel());
+            return PartialView("_CreateModal", new AddVenueViewModel());
         }
 
         [HttpPost]
@@ -38,20 +32,45 @@ namespace EventHub.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return PartialView("_CreateModal", model);
             }
 
-            Guid userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
-
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             await venueService.AddVenueAsync(model, userId);
 
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = true });
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpGet]
+        public async Task<IActionResult> EditPartial(Guid id)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var model = await venueService.GetForEditAsync(id);
+            if (model == null) return NotFound();
+
+            return PartialView("_EditModal", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(EditVenueViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return PartialView("_EditModal", model);
+            }
+
+            var success = await venueService.UpdateAsync(model);
+            if (!success) return NotFound();
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deactivate(Guid id)
+        {
+            await venueService.DeactivateAsync(id);
+            return Json(new { success = true });
         }
     }
 }

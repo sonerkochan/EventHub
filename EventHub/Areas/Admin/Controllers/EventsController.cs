@@ -1,6 +1,5 @@
-﻿using EventHub.Core.Contracts;
+using EventHub.Core.Contracts;
 using EventHub.Core.Models.Event;
-using EventHub.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
@@ -11,6 +10,7 @@ namespace EventHub.Areas.Admin.Controllers
     {
         private readonly IEventService eventService;
         private readonly IRoomService roomService;
+
         public EventsController(IEventService _eventService, IRoomService _roomService)
         {
             eventService = _eventService;
@@ -24,13 +24,13 @@ namespace EventHub.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> CreatePartial()
         {
             var model = new CreateEventViewModel
             {
                 AvailableRooms = await BuildRoomSelectList()
             };
-            return View(model);
+            return PartialView("_CreateModal", model);
         }
 
         [HttpPost]
@@ -40,22 +40,22 @@ namespace EventHub.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 model.AvailableRooms = await BuildRoomSelectList();
-                return View(model);
+                return PartialView("_CreateModal", model);
             }
 
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             await eventService.CreateAsync(model, userId);
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = true });
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> EditPartial(Guid id)
         {
             var model = await eventService.GetEventForEditAsync(id);
             if (model == null) return NotFound();
 
             model.AvailableRooms = await BuildRoomSelectList();
-            return View(model);
+            return PartialView("_EditModal", model);
         }
 
         [HttpPost]
@@ -65,21 +65,21 @@ namespace EventHub.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 model.AvailableRooms = await BuildRoomSelectList();
-                return View(model);
+                return PartialView("_EditModal", model);
             }
 
             var success = await eventService.UpdateAsync(model);
             if (!success) return NotFound();
 
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = true });
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(Guid id)
+        public async Task<IActionResult> DetailsPartial(Guid id)
         {
             var model = await eventService.GetEventByIdAsync(id);
             if (model == null) return NotFound();
-            return View(model);
+            return PartialView("_DetailsModal", model);
         }
 
         [HttpPost]
@@ -87,7 +87,7 @@ namespace EventHub.Areas.Admin.Controllers
         public async Task<IActionResult> Deactivate(Guid id)
         {
             await eventService.DeactivateAsync(id);
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = true });
         }
 
         [HttpPost]
@@ -95,8 +95,7 @@ namespace EventHub.Areas.Admin.Controllers
         public async Task<IActionResult> Publish(Guid id)
         {
             await eventService.PublishAsync(id);
-            TempData["Success"] = "Event published successfully!";
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = true });
         }
 
         private async Task<IEnumerable<SelectListItem>> BuildRoomSelectList()
