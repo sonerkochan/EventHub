@@ -1,6 +1,20 @@
 @using EventHub.Infrastructure.Data.Models
 @model EventHub.Core.Models.Ticket.PurchaseTicketViewModel
 
+<style>
+    .btn-primary   { background: #55a5d2 !important; border-color: #55a5d2 !important; font-family: 'Poppins',sans-serif; font-weight: 600; }
+    .btn-primary:hover { background: #1a1a2e !important; border-color: #1a1a2e !important; }
+    .btn-secondary { background: #1a1a2e !important; border-color: #1a1a2e !important; font-family: 'Poppins',sans-serif; font-weight: 600; }
+    .btn-secondary:hover { background: #55a5d2 !important; border-color: #55a5d2 !important; }
+    .btn-link      { color: #55a5d2 !important; font-family: 'Poppins',sans-serif; }
+    .btn-link:hover { color: #1a1a2e !important; }
+    .card          { border: 1px solid #e8ecf0 !important; border-radius: 8px !important; }
+    .card-header   { font-family: 'Poppins',sans-serif; font-weight: 600; }
+    .form-control  { font-family: 'Poppins',sans-serif; font-size: 0.88rem; }
+    .fw-bold, .fw-semibold, .fw-medium { font-family: 'Poppins',sans-serif !important; }
+    h4, h5, h6    { font-family: 'Poppins',sans-serif !important; color: #1a1a2e !important; }
+</style>
+
 @{
     ViewData["Title"] = "Get Tickets";
 }

@@ -5,75 +5,209 @@
     ViewData["Title"] = "Browse Events";
 }
 
-<div class="mb-4">
-    <h5 class="fw-semibold">Upcoming Events</h5>
-    <p class="text-muted small mb-0">@Model.Count() events available</p>
+<style>
+    .eh-page-header {
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e8ecf0;
+    }
+    .eh-page-header h4 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.4rem;
+        color: #1a1a2e;
+        margin-bottom: 4px;
+    }
+    .eh-page-header p {
+        color: #aaa;
+        font-size: 0.85rem;
+        margin: 0;
+    }
+    .eh-event-listing-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 100%;
+        transition: box-shadow 0.25s, transform 0.25s;
+        display: flex;
+        flex-direction: column;
+    }
+    .eh-event-listing-card:hover {
+        box-shadow: 0 10px 28px rgba(0,0,0,0.10);
+        transform: translateY(-4px);
+    }
+    .eh-event-listing-card .card-img-top {
+        height: 190px;
+        object-fit: cover;
+        width: 100%;
+    }
+    .eh-event-listing-card .card-img-placeholder {
+        height: 190px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 64px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    }
+    .eh-event-listing-card .card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .eh-type-badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 10px;
+        margin-right: 5px;
+    }
+    .badge-conference { background: #e8f4fd; color: #2196f3; }
+    .badge-workshop   { background: #fff8e1; color: #ff9800; }
+    .badge-seminar    { background: #e8f5e9; color: #4caf50; }
+    .badge-concert    { background: #fce4ec; color: #e91e63; }
+    .badge-sports     { background: #e8f5e9; color: #43a047; }
+    .badge-other      { background: #f3e5f5; color: #9c27b0; }
+    .badge-venue      { background: #f1f3f4; color: #777; }
+    .eh-event-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #1a1a2e;
+        margin-bottom: 8px;
+    }
+    .eh-event-meta {
+        font-size: 0.8rem;
+        color: #888;
+        margin-bottom: 4px;
+    }
+    .eh-event-meta i { color: #55a5d2; margin-right: 5px; }
+    .eh-price {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #55a5d2;
+    }
+    .eh-free-badge {
+        display: inline-block;
+        background: #e8f8f0;
+        color: #27ae60;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 3px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .eh-avail-progress {
+        height: 5px;
+        border-radius: 10px;
+        background: #e8ecf0;
+        overflow: hidden;
+        margin-bottom: 14px;
+    }
+    .eh-avail-progress .fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.4s;
+    }
+    .fill-good { background: #27ae60; }
+    .fill-low  { background: #e74c3c; }
+    .eh-detail-btn {
+        display: block;
+        text-align: center;
+        background: #1a1a2e;
+        color: #fff;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.2s;
+        margin-top: auto;
+    }
+    .eh-detail-btn:hover {
+        background: #55a5d2;
+        color: #fff;
+        text-decoration: none;
+    }
+    .eh-empty {
+        text-align: center;
+        padding: 80px 20px;
+    }
+    .eh-empty .empty-icon { font-size: 72px; color: #e0e0e0; margin-bottom: 20px; }
+    .eh-empty h5 { font-family: 'Poppins',sans-serif; font-weight:600; color:#bbb; margin-bottom:8px; }
+    .eh-empty p { color:#ccc; font-size:0.85rem; }
+</style>
+
+<div class="eh-page-header">
+    <h4><i class="fa fa-calendar mr-2" style="color:#55a5d2;"></i>Browse Events</h4>
+    <p>@Model.Count() events available for booking</p>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="text-center py-5">
-        <div style="font-size: 80px; opacity: 0.3; margin-bottom: 20px;">🎭</div>
-        <h5 class="text-muted">No published events available right now</h5>
-        <p class="text-muted small">Check back soon for upcoming events!</p>
+    <div class="eh-empty">
+        <div class="empty-icon"><i class="fa fa-calendar-o"></i></div>
+        <h5>No events published yet</h5>
+        <p>Check back soon for upcoming events!</p>
     </div>
 }
 else
 {
-    <div class="row g-4">
+    <div class="row">
         @foreach (var e in Model)
         {
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 hover-lift" style="transition: all 0.3s;">
+            var pct = e.TotalTickets > 0 ? (e.TotalTickets - e.TicketsSold) * 100.0 / e.TotalTickets : 0;
+            var isLow = pct < 20;
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="eh-event-listing-card">
                     @if (!string.IsNullOrEmpty(e.CoverImageUrl))
                     {
-                        <img src="@e.CoverImageUrl" class="card-img-top" alt="@e.EventName" style="height: 200px; object-fit: cover;">
+                        <img src="@e.CoverImageUrl" class="card-img-top" alt="@e.EventName" />
                     }
                     else
                     {
-                        <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center" 
-                             style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <span style="font-size: 64px;">@GetEventIcon(e.EventType)</span>
-                        </div>
+                        <div class="card-img-placeholder">@GetEventIcon(e.EventType)</div>
                     }
-                    <div class="card-body d-flex flex-column">
-                        <div class="mb-2">
-                            <span class="badge bg-@GetTypeBadgeColor(e.EventType) fw-normal small">@e.EventType</span>
-                            <span class="badge bg-secondary fw-normal small ms-1">@e.RoomName</span>
+                    <div class="card-body">
+                        <div>
+                            <span class="eh-type-badge badge-@e.EventType.ToString().ToLower()">@e.EventType</span>
+                            <span class="eh-type-badge badge-venue">@e.RoomName</span>
                         </div>
-                        <h5 class="card-title fw-semibold mb-2">@e.EventName</h5>
-                        <p class="text-muted small mb-2">
-                            📅 @e.StartDateTime.ToString("ddd, MMM dd, yyyy")
-                        </p>
-                        <p class="text-muted small mb-3">
-                            🕐 @e.StartDateTime.ToString("h:mm tt")
-                        </p>
-                        <div class="mt-auto">
+                        <div class="eh-event-title">@e.EventName</div>
+                        <p class="eh-event-meta"><i class="fa fa-calendar"></i> @e.StartDateTime.ToString("ddd, MMM dd, yyyy")</p>
+                        <p class="eh-event-meta mb-3"><i class="fa fa-clock-o"></i> @e.StartDateTime.ToString("h:mm tt")</p>
+
+                        <div class="mb-2">
                             @if (e.BasePrice > 0)
                             {
-                                <div class="mb-2">
-                                    <span class="fw-bold" style="font-size: 1.25rem; color: #667eea;">$@e.BasePrice.ToString("F2")</span>
-                                    <small class="text-muted"> per ticket</small>
-                                </div>
+                                <span class="eh-price">$@e.BasePrice.ToString("F2")</span>
+                                <small style="color:#aaa;"> / ticket</small>
                             }
                             else
                             {
-                                <div class="mb-2">
-                                    <span class="badge fw-normal" style="background: #10b981; color: white; padding: 0.25rem 0.75rem;">FREE</span>
-                                </div>
+                                <span class="eh-free-badge">Free</span>
                             }
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <small class="text-muted">@(e.TotalTickets - e.TicketsSold) / @e.TotalTickets left</small>
-                                <div class="progress" style="width: 100px; height: 6px;">
-                                    <div class="progress-bar @(e.TotalTickets - e.TicketsSold < e.TotalTickets * 0.2 ? "bg-danger" : "bg-success")" 
-                                         role="progressbar" 
-                                         style="width: @((e.TotalTickets - e.TicketsSold) * 100.0 / e.TotalTickets)%"></div>
-                                </div>
-                            </div>
-                            <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-dark btn-sm w-100">
-                                View Details
-                            </a>
                         </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:0.78rem;color:#aaa;">
+                            <span>@(e.TotalTickets - e.TicketsSold) / @e.TotalTickets left</span>
+                            <span style="color:@(isLow ? "#e74c3c" : "#27ae60");">@(isLow ? "Low stock" : "Available")</span>
+                        </div>
+                        <div class="eh-avail-progress mb-3">
+                            <div class="fill @(isLow ? "fill-low" : "fill-good")" style="width:@pct%;"></div>
+                        </div>
+
+                        <a asp-action="Details" asp-route-id="@e.Id" class="eh-detail-btn">View Details</a>
                     </div>
                 </div>
             </div>
@@ -82,31 +216,14 @@ else
 }
 
 @functions {
-    string GetEventIcon(EventType type) => type switch
+    string GetEventIcon(EventHub.Infrastructure.Data.Models.EventType type) => type switch
     {
-        EventType.Conference => "💼",
-        EventType.Workshop => "🛠️",
-        EventType.Seminar => "🎓",
-        EventType.Concert => "🎵",
-        EventType.Sports => "⚽",
-        EventType.Other => "🎭",
+        EventHub.Infrastructure.Data.Models.EventType.Conference => "💼",
+        EventHub.Infrastructure.Data.Models.EventType.Workshop   => "🛠️",
+        EventHub.Infrastructure.Data.Models.EventType.Seminar    => "🎓",
+        EventHub.Infrastructure.Data.Models.EventType.Concert    => "🎵",
+        EventHub.Infrastructure.Data.Models.EventType.Sports     => "⚽",
+        EventHub.Infrastructure.Data.Models.EventType.Other      => "🎭",
         _ => "🎫"
     };
-
-    string GetTypeBadgeColor(EventType type) => type switch
-    {
-        EventType.Conference => "primary",
-        EventType.Workshop => "warning",
-        EventType.Seminar => "info",
-        EventType.Concert => "danger",
-        EventType.Sports => "success",
-        _ => "secondary"
-    };
 }
-
-<style>
-    .hover-lift:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    }
-</style>

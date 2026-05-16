@@ -4,38 +4,94 @@
     ViewData["Title"] = "Payment History";
 }
 
-<div class="card border">
-    <div class="card-body p-0">
-        <table class="table table-sm table-hover mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th class="small">Event</th>
-                    <th class="small">Amount</th>
-                    <th class="small">Status</th>
-                    <th class="small">Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var p in Model)
-                {
-                    <tr>
-                        <td class="small fw-medium">@p.EventName</td>
-                        <td class="small">@p.Currency @p.Amount.ToString("F2")</td>
-                        <td>
-                            <span class="badge fw-normal bg-@(p.Status == "Accepted" ? "success" : p.Status == "Refunded" ? "warning" : "danger")">
-                                @p.Status
-                            </span>
-                        </td>
-                        <td class="small">@p.CreatedAt.ToString("dd MMM yyyy")</td>
-                    </tr>
-                }
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="4" class="text-center text-muted small py-4">No payment history yet.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+<style>
+    .eh-page-header { margin-bottom:28px; padding-bottom:18px; border-bottom:1px solid #e8ecf0; }
+    .eh-page-header h4 { font-family:'Poppins',sans-serif; font-weight:700; font-size:1.4rem; color:#1a1a2e; margin-bottom:4px; }
+    .eh-page-header p  { color:#aaa; font-size:0.85rem; margin:0; }
+    .eh-table-card { background:#fff; border:1px solid #e8ecf0; border-radius:8px; overflow:hidden; }
+    .eh-table { width:100%; border-collapse:collapse; font-family:'Poppins',sans-serif; }
+    .eh-table thead th { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:#999; padding:14px 16px; border-bottom:1px solid #e8ecf0; background:#fafbfc; white-space:nowrap; }
+    .eh-table tbody td { padding:14px 16px; border-bottom:1px solid #f4f4f4; vertical-align:middle; font-size:0.85rem; color:#555; }
+    .eh-table tbody tr:last-child td { border-bottom:none; }
+    .eh-table tbody tr:hover { background:#fafbfc; }
+    .eh-pill { display:inline-block; padding:3px 11px; border-radius:20px; font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; }
+    .pill-accepted { background:#e8f8f0; color:#27ae60; }
+    .pill-refunded { background:#fff8e1; color:#ff9800; }
+    .pill-failed   { background:#fce8e8; color:#e74c3c; }
+    .eh-amount { font-family:'Poppins',sans-serif; font-weight:600; color:#1a1a2e; }
+    .eh-empty { text-align:center; padding:60px 20px; }
+    .eh-empty i { font-size:52px; color:#e0e0e0; display:block; margin-bottom:16px; }
+    .eh-empty p { color:#bbb; font-size:0.85rem; }
+    .eh-summary-bar {
+        display:flex; gap:20px; margin-bottom:20px; flex-wrap:wrap;
+    }
+    .eh-summary-pill {
+        background:#fff; border:1px solid #e8ecf0; border-radius:8px; padding:14px 20px;
+        font-family:'Poppins',sans-serif; min-width:130px;
+    }
+    .eh-summary-pill .s-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.7px; color:#bbb; font-weight:600; margin-bottom:5px; }
+    .eh-summary-pill .s-value { font-size:1.2rem; font-weight:700; color:#1a1a2e; }
+</style>
+
+<div class="eh-page-header">
+    <h4><i class="fa fa-credit-card mr-2" style="color:#55a5d2;"></i>Payment History</h4>
+    <p>@Model.Count() transaction(s)</p>
+</div>
+
+@if (Model.Any())
+{
+    <div class="eh-summary-bar">
+        <div class="eh-summary-pill">
+            <div class="s-label">Total Paid</div>
+            <div class="s-value">$@Model.Where(p => p.Status == "Accepted").Sum(p => p.Amount).ToString("F2")</div>
+        </div>
+        <div class="eh-summary-pill">
+            <div class="s-label">Accepted</div>
+            <div class="s-value" style="color:#27ae60;">@Model.Count(p => p.Status == "Accepted")</div>
+        </div>
+        <div class="eh-summary-pill">
+            <div class="s-label">Refunded</div>
+            <div class="s-value" style="color:#ff9800;">@Model.Count(p => p.Status == "Refunded")</div>
+        </div>
     </div>
+}
+
+<div class="eh-table-card">
+    @if (!Model.Any())
+    {
+        <div class="eh-empty">
+            <i class="fa fa-credit-card"></i>
+            <p>No payment history yet. Purchase tickets to see transactions here.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="eh-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td style="font-weight:600;color:#1a1a2e;">@p.EventName</td>
+                            <td class="eh-amount">@p.Currency @p.Amount.ToString("F2")</td>
+                            <td>
+                                <span class="eh-pill @(p.Status == "Accepted" ? "pill-accepted" : p.Status == "Refunded" ? "pill-refunded" : "pill-failed")">
+                                    @p.Status
+                                </span>
+                            </td>
+                            <td>@p.CreatedAt.ToString("dd MMM yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

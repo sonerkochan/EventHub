@@ -1,50 +1,132 @@
-﻿@using EventHub.Core.Models.ApplicationForm
+@using EventHub.Core.Models.ApplicationForm
 @model ApplicationFormViewModel
 
 @{
-   ViewData["Title"] = $"Apply as {Model.Type}";
+    ViewData["Title"] = $"Apply as {Model.Type}";
 }
 
-<link rel="stylesheet" href="~/css/applicationForms.css" asp-append-version="true">
-<link rel="stylesheet" href="~/css/forms.css" asd-append-version="true" />
+<style>
+    .eh-back-link { display:inline-flex;align-items:center;font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:500;color:#55a5d2;text-decoration:none;margin-bottom:24px;transition:color 0.2s; }
+    .eh-back-link:hover { color:#1a1a2e;text-decoration:none; }
+    .eh-back-link i { margin-right:6px; }
+    .eh-apply-wrapper { max-width: 560px; }
+    .eh-apply-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .eh-apply-header {
+        background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+        padding: 28px 28px 24px;
+    }
+    .eh-apply-header h4 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #fff;
+        margin: 0 0 6px;
+    }
+    .eh-apply-header p {
+        font-size: 0.82rem;
+        color: rgba(255,255,255,0.6);
+        margin: 0;
+    }
+    .eh-apply-body {
+        padding: 28px;
+    }
+    .eh-form-group { margin-bottom: 20px; }
+    .eh-form-label {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #888;
+        margin-bottom: 7px;
+        display: block;
+    }
+    .eh-form-control {
+        width: 100%;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 11px 14px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.88rem;
+        color: #333;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: #fff;
+    }
+    .eh-form-control:focus {
+        border-color: #55a5d2;
+        box-shadow: 0 0 0 3px rgba(85,165,210,0.12);
+        outline: none;
+    }
+    textarea.eh-form-control { resize: vertical; min-height: 110px; }
+    .text-danger.small { font-family:'Poppins',sans-serif; font-size:0.75rem; margin-top:4px; display:block; }
+    .eh-submit-btn {
+        width: 100%;
+        padding: 13px;
+        background: #55a5d2;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 6px;
+    }
+    .eh-submit-btn:hover { background: #1a1a2e; }
+</style>
 
-<div class="form-wrapper">
-    <div class="form-box">
-        <div class="heading">Apply as @Model.Type</div>
-        
-        <form asp-action="Apply" method="post" class="form">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Type" />
+<a asp-action="Index" class="eh-back-link">
+    <i class="fa fa-arrow-left"></i> Back to Applications
+</a>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+<div class="eh-apply-wrapper">
+    <div class="eh-apply-card">
+        <div class="eh-apply-header">
+            <h4>Apply as @Model.Type</h4>
+            <p>Fill in the details below to submit your application.</p>
+        </div>
+        <div class="eh-apply-body">
+            <form asp-action="Apply" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Type" />
 
-            <div class="input-group">
-                <label asp-for="Name" class="form-label">Organization Name</label>
-                <input asp-for="Name" class="input" placeholder="Enter Name" />
-                <span asp-validation-for="Name" class="text-danger small"></span>
-            </div>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
 
-            <div class="input-group">
-                <label asp-for="PhoneNumber" class="form-label">Contact Phone</label>
-                <input asp-for="PhoneNumber" class="input" placeholder="Phone Number" />
-                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
-            </div>
+                <div class="eh-form-group">
+                    <label asp-for="Name" class="eh-form-label">Organization Name</label>
+                    <input asp-for="Name" class="eh-form-control" placeholder="Enter your organization name" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
 
-            <div class="input-group">
-                <label asp-for="Description" class="form-label">Tell us about yourself</label>
-                    <textarea asp-for="Description" class="input input-textarea" rows="4" placeholder="Your description..."></textarea>
-                <span asp-validation-for="Description" class="text-danger small"></span>
-            </div>
+                <div class="eh-form-group">
+                    <label asp-for="PhoneNumber" class="eh-form-label">Contact Phone</label>
+                    <input asp-for="PhoneNumber" class="eh-form-control" placeholder="Your phone number" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
 
-            <button type="submit" class="form-button">Submit Application</button>
-            
-            <div class="agreement">
-                <a asp-action="Index">Go Back</a>
-            </div>
-        </form>
+                <div class="eh-form-group">
+                    <label asp-for="Description" class="eh-form-label">Tell us about yourself</label>
+                    <textarea asp-for="Description" class="eh-form-control" rows="4" placeholder="Describe your experience and what you'd like to do..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="eh-submit-btn">
+                    <i class="fa fa-paper-plane mr-1"></i> Submit Application
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
-    @section Scripts {
-        @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    }
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

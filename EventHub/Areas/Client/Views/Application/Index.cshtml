@@ -7,85 +7,136 @@
     ViewData["Title"] = "Applications";
 }
 
-<link rel="stylesheet" href="~/css/applicationForms.css" asp-append-version="true">
-<link rel="stylesheet" href="~/css/forms.css" asp-append-version="true"/>
-
+<style>
+    .eh-page-header { margin-bottom:28px; padding-bottom:18px; border-bottom:1px solid #e8ecf0; }
+    .eh-page-header h4 { font-family:'Poppins',sans-serif; font-weight:700; font-size:1.4rem; color:#1a1a2e; margin-bottom:4px; }
+    .eh-page-header p  { color:#aaa; font-size:0.85rem; margin:0; }
+    .eh-app-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 10px;
+        padding: 28px 24px;
+        height: 100%;
+        transition: box-shadow 0.25s, transform 0.25s;
+        position: relative;
+        overflow: hidden;
+    }
+    .eh-app-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #55a5d2, #1a1a2e);
+        opacity: 0;
+        transition: opacity 0.25s;
+    }
+    .eh-app-card:hover::before { opacity: 1; }
+    .eh-app-card-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        height: 100%;
+    }
+    .eh-app-card-link:hover { text-decoration: none; color: inherit; }
+    .eh-app-card-link:hover .eh-app-card { box-shadow: 0 10px 28px rgba(0,0,0,0.10); transform: translateY(-4px); }
+    .eh-app-icon {
+        width: 52px; height: 52px;
+        background: linear-gradient(135deg, #55a5d2, #1a1a2e);
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px;
+        color: #fff;
+        margin-bottom: 18px;
+    }
+    .eh-app-title { font-family:'Poppins',sans-serif; font-weight:700; font-size:1.05rem; color:#1a1a2e; margin-bottom:8px; }
+    .eh-app-desc  { font-size:0.85rem; color:#888; line-height:1.6; margin-bottom:16px; }
+    .eh-app-cta   { font-family:'Poppins',sans-serif; font-size:0.8rem; font-weight:700; color:#55a5d2; text-transform:uppercase; letter-spacing:0.5px; }
+    .eh-app-cta i { margin-left:5px; }
+    .eh-active-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #e8f8f0; color: #27ae60;
+        font-family: 'Poppins',sans-serif; font-size:0.78rem; font-weight:700;
+        padding: 5px 14px; border-radius: 20px; text-transform:uppercase; letter-spacing:0.4px;
+    }
+    .eh-active-badge i { font-size:0.7rem; }
+    .eh-active-note { font-family:'Poppins',sans-serif; font-size:0.82rem; color:#27ae60; font-weight:600; margin-top:10px; }
+</style>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show small" role="alert">
+    <div class="alert alert-success alert-dismissible fade show small" role="alert" style="font-family:'Poppins',sans-serif;border-radius:6px;">
         @TempData["Success"]
         <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show small" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show small" role="alert" style="font-family:'Poppins',sans-serif;border-radius:6px;">
         @TempData["Error"]
         <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
 }
 
+<div class="eh-page-header">
+    <h4><i class="fa fa-file-text-o mr-2" style="color:#55a5d2;"></i>Applications</h4>
+    <p>Apply to become an Organizer or Supplier on the platform.</p>
+</div>
+
 @if (SignInManager.IsSignedIn(User))
 {
     var currentUser = await UserManager.GetUserAsync(User);
 
-    <div class="row g-3">
-            <div class="col-md-6">
-                @if (!(await UserManager.IsInRoleAsync(currentUser!, "Organizer")))
-                {
-                    <a asp-action="Apply" asp-route-type="1" class="text-decoration-none">
-                        <div class="form-box hover-lift selection-card">
-                            <div class="card-body">
-                                <h6 class="heading-sm">Organizer</h6>
-                                <p class="text-muted small">Create and manage events, venues, and ticket sales.</p>
-                                <div class="apply-text">Apply As Organizer Now &rarr;</div>
-                            </div>
-                        </div>
-                    </a>
-                
-                }
-                else
-                {
-                    <div class="form-box hover-lift selection-card">
-                        <div class="card-body">
-                            <h6 class="heading-sm">Organizer</h6>
-                            <p class="text-muted small">Create and manage events, venues, and ticket sales.</p>
-                            <span class="badge bg-success">Active</span>
-
-                            <div class="text-success small fw-bold">You are already registered as Organizer</div>
-                        </div>
-                       
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            @if (!(await UserManager.IsInRoleAsync(currentUser!, "Organizer")))
+            {
+                <a asp-action="Apply" asp-route-type="1" class="eh-app-card-link">
+                    <div class="eh-app-card">
+                        <div class="eh-app-icon"><i class="fa fa-calendar"></i></div>
+                        <div class="eh-app-title">Organizer</div>
+                        <p class="eh-app-desc">Create and manage events, venues, and ticket sales on the EventHub platform.</p>
+                        <div class="eh-app-cta">Apply as Organizer <i class="fa fa-arrow-right"></i></div>
                     </div>
-                }
-            </div>
-
-        <div class="col-md-6">                   
-                @if (!(await UserManager.IsInRoleAsync(currentUser!, "Supplier")))
-                {
-                    <a asp-action="Apply" asp-route-type="2" class="text-decoration-none">
-                        <div class="form-box hover-lift selection-card">
-                            <div class="card-body">
-                                <h6 class="heading-sm">Supplier</h6>
-                                <p class="text-muted small">Provide goods and services to event organizers on the platform.</p>
-                                <div class="apply-text">Apply As Supplier Now &rarr;</div>
-                            </div>
-                        </div>
-                    </a>
-                    
-                }
-                else
-                {                  
-                    <div class="form-box hover-lift selection-card">
-                        <div class="card-body">
-                            <h6 class="heading-sm">Supplier</h6>
-                            <p class="text-muted small">Provide goods and services to event organizers on the platform.</p>
-                            <span class="badge bg-success">Active</span>
-                            <div class="text-success small fw-bold">You are already registered as Supplier</div>
-                        </div>
-                        
+                </a>
+            }
+            else
+            {
+                <div class="eh-app-card">
+                    <div class="eh-app-icon"><i class="fa fa-calendar"></i></div>
+                    <div class="eh-app-title">Organizer</div>
+                    <p class="eh-app-desc">Create and manage events, venues, and ticket sales on the EventHub platform.</p>
+                    <div>
+                        <span class="eh-active-badge"><i class="fa fa-check-circle"></i> Active</span>
                     </div>
-                }     
+                    <div class="eh-active-note">You are registered as an Organizer.</div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-6 mb-4">
+            @if (!(await UserManager.IsInRoleAsync(currentUser!, "Supplier")))
+            {
+                <a asp-action="Apply" asp-route-type="2" class="eh-app-card-link">
+                    <div class="eh-app-card">
+                        <div class="eh-app-icon"><i class="fa fa-briefcase"></i></div>
+                        <div class="eh-app-title">Supplier</div>
+                        <p class="eh-app-desc">Provide goods and services to event organizers on the platform.</p>
+                        <div class="eh-app-cta">Apply as Supplier <i class="fa fa-arrow-right"></i></div>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="eh-app-card">
+                    <div class="eh-app-icon"><i class="fa fa-briefcase"></i></div>
+                    <div class="eh-app-title">Supplier</div>
+                    <p class="eh-app-desc">Provide goods and services to event organizers on the platform.</p>
+                    <div>
+                        <span class="eh-active-badge"><i class="fa fa-check-circle"></i> Active</span>
+                    </div>
+                    <div class="eh-active-note">You are registered as a Supplier.</div>
+                </div>
+            }
         </div>
     </div>
 }
