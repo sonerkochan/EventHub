@@ -54,26 +54,16 @@
                                 </td>
                                 <td class="small">@app.CreatedAt.ToString("dd MMM yyyy")</td>
                                 <td class="text-end">
-                                    <form asp-action="Approve" asp-route-id="@app.Id" method="post" class="approve-form"
-                                          @* onsubmit="return confirm('Approve this application?')" *@>
+                                    <form asp-action="Approve" asp-route-id="@app.Id" method="post" class="approve-form d-inline">
                                         @Html.AntiForgeryToken()
                                         <button type="button" class="table-btn btn-approve">Approve</button>
                                     </form>
 
-                                    <button class="table-btn btn-reject"
-                                            data-toggle="collapse"
-                                            data-target="#reject-@app.Id">
+                                    <button type="button" class="table-btn btn-reject open-reject-modal"
+                                            data-app-id="@app.Id"
+                                            data-app-user="@app.UserName">
                                         Reject
                                     </button>
-
-                                    <div class="collapse mt-2" id="reject-@app.Id">
-                                        <form asp-action="Reject" asp-route-id="@app.Id" method="post" class="d-flex gap-2">
-                                            @Html.AntiForgeryToken()
-                                            <input type="text" name="comment" placeholder="Rejection reason"
-                                                   class="table-input" required />
-                                            <button class="table-btn btn-reject">Confirm</button>
-                                        </form>
-                                    </div>
                                 </td>
                             </tr>
                         }
@@ -131,33 +121,82 @@
         </div>
     </div>
 
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content custom-modal">
+                <form id="rejectForm" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reject Application</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="small text-muted mb-2">
+                            Rejecting application from <strong id="rejectUserLabel"></strong>.
+                            Provide a brief reason — the applicant may see this message.
+                        </p>
+                        <label for="rejectComment" class="form-label small fw-medium">Rejection reason</label>
+                        <textarea id="rejectComment" name="comment" class="form-control"
+                                  rows="3" required maxlength="500"
+                                  placeholder="e.g. Missing organization details, suspicious phone number..."></textarea>
+                        <div class="small text-danger mt-1" id="rejectError" hidden>Please enter a reason.</div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="modal-button modal-cancel" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="modal-button modal-reject">Confirm Reject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
-   <script>
+
+@section Scripts {
+    <script>
         let selectedForm = null;
 
-        // open modal
+        // open approve modal
         document.querySelectorAll(".btn-approve").forEach(btn => {
-
             btn.addEventListener("click", function () {
-
                 selectedForm = this.closest("form");
-
-                const modal = new bootstrap.Modal(
-                    document.getElementById("approveModal")
-                );
-
+                const modal = new bootstrap.Modal(document.getElementById("approveModal"));
                 modal.show();
             });
         });
 
         // confirm approve
-        document.getElementById("confirmApproveBtn")
-            .addEventListener("click", function () {
+        document.getElementById("confirmApproveBtn").addEventListener("click", function () {
+            if (selectedForm) selectedForm.submit();
+        });
 
-                if (selectedForm) {
-                    selectedForm.submit();
-                }
+        // open reject modal
+        const rejectModalEl = document.getElementById("rejectModal");
+        const rejectModal = new bootstrap.Modal(rejectModalEl);
+        const rejectForm = document.getElementById("rejectForm");
+        const rejectComment = document.getElementById("rejectComment");
+        const rejectError = document.getElementById("rejectError");
+        const rejectUserLabel = document.getElementById("rejectUserLabel");
 
+        document.querySelectorAll(".open-reject-modal").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const appId = this.dataset.appId;
+                rejectForm.action = `/Admin/Application/Reject/${appId}`;
+                rejectUserLabel.textContent = this.dataset.appUser || "";
+                rejectComment.value = "";
+                rejectError.hidden = true;
+                rejectModal.show();
             });
-</script>
+        });
+
+        rejectForm.addEventListener("submit", function (e) {
+            if (!rejectComment.value.trim()) {
+                e.preventDefault();
+                rejectError.hidden = false;
+            }
+        });
+    </script>
+}
