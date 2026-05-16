@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <style>
-        /* ── Shared brand tokens (same as Client Area) ── */
+        /* ── Shared brand tokens ── */
         :root {
             --tr-dark:    #1a1a2e;
             --tr-mid:     #0f3460;
@@ -67,7 +67,20 @@
         .eh-nav-link:hover { color: var(--tr-accent) !important; }
         .eh-nav-link.active { color: var(--tr-accent) !important; border-bottom: 2px solid var(--tr-accent); }
 
-        /* user avatar (same as client) */
+        /* ── Hamburger fix (travelista strips Bootstrap's built-in SVG) ── */
+        .navbar-toggler {
+            border: 1px solid rgba(0,0,0,0.15);
+            padding: 0.4rem 0.6rem;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0,0,0,0.5)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 1.5em;
+            height: 1.5em;
+            background-size: contain;
+            display: inline-block;
+        }
+
+        /* user avatar */
         .eh-user-avatar {
             width: 34px; height: 34px;
             background: var(--tr-accent);
@@ -90,7 +103,7 @@
         .eh-dropdown-menu .dropdown-item:hover { background: #f0f8ff; color: var(--tr-accent); }
         .eh-dropdown-menu .dropdown-item.text-danger:hover { background: #fff5f5; color: #dc3545; }
 
-        /* auth buttons in navbar */
+        /* auth buttons */
         .eh-nav-btn {
             font-size: 0.78rem;
             font-weight: 700;
@@ -115,37 +128,31 @@
         }
         .eh-nav-btn-primary:hover { background: var(--tr-dark); border-color: var(--tr-dark); color: #fff; text-decoration: none; }
 
+        /* on mobile, give auth buttons a little breathing room */
+        @@media (max-width: 991px) {
+            .eh-nav-btn { display: block; margin: 4px 0; text-align: center; }
+        }
+
         /* ── Footer ── */
         .eh-footer {
             background: var(--tr-dark);
             padding: 48px 0 24px;
             margin-top: 72px;
         }
-        .eh-footer-brand {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: #fff;
-            margin-bottom: 8px;
-        }
+        .eh-footer-brand { font-weight: 700; font-size: 1.2rem; color: #fff; margin-bottom: 8px; }
         .eh-footer-brand span { color: var(--tr-accent); }
         .eh-footer p { color: rgba(255,255,255,0.45); font-size: 0.8rem; margin: 0; }
         .eh-footer-link { color: rgba(255,255,255,0.5); font-size: 0.8rem; text-decoration: none; margin-left: 18px; transition: color 0.2s; }
         .eh-footer-link:hover { color: var(--tr-accent); text-decoration: none; }
         .eh-footer-divider { border-color: rgba(255,255,255,0.08); margin: 28px 0 20px; }
 
-        /* ── Shared utilities used by views ── */
-        .primary-btn {
-            background: var(--tr-accent);
-            color: #fff;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            transition: background 0.2s;
-        }
+        /* ── Shared utilities ── */
+        .primary-btn { background: var(--tr-accent); color: #fff; font-weight: 600; letter-spacing: 0.3px; transition: background 0.2s; }
         .primary-btn:hover { background: var(--tr-dark); color: #fff; }
         .card { border-radius: 8px; border: 1px solid var(--tr-border); }
         .card-header { font-weight: 600; }
 
-        /* Bootstrap badge tweaks to match travelista palette */
+        /* Bootstrap badge tweaks */
         .badge-primary   { background: #e8f4fd !important; color: #2196f3 !important; }
         .badge-warning   { background: #fff8e1 !important; color: #ff9800 !important; }
         .badge-success   { background: #e8f8f0 !important; color: #27ae60 !important; }
@@ -157,16 +164,21 @@
 <body>
 
 <!-- ===== NAVBAR ===== -->
-<nav class="navbar navbar-expand-lg eh-navbar">
+<!-- FIX 1: added navbar-light so Bootstrap knows to render a dark hamburger on white bg -->
+<nav class="navbar navbar-expand-lg navbar-light eh-navbar">
     <div class="container">
-        <a class="navbar-brand eh-navbar" asp-area="" asp-controller="Home" asp-action="Index">
+        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
             Event<span>Hub</span>
         </a>
 
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNav">
+        <!-- FIX 2: hamburger SVG now rendered via CSS above; aria attrs added for a11y -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse"
+                data-target="#mainNav" aria-controls="mainNav"
+                aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        <!-- FIX 3: auth section moved INSIDE the collapse so it hides/shows with the menu on mobile -->
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
@@ -189,17 +201,21 @@
                 }
             </ul>
 
-            <div class="d-flex align-items-center" style="gap:10px;">
+            <ul class="navbar-nav ml-auto align-items-center">
                 @if (!SignInManager.IsSignedIn(User))
                 {
-                    <a asp-controller="User" asp-action="Login" class="eh-nav-btn eh-nav-btn-outline">Login</a>
-                    <a asp-controller="User" asp-action="Register" class="eh-nav-btn eh-nav-btn-primary">Sign Up</a>
+                    <li class="nav-item">
+                        <a asp-controller="User" asp-action="Login" class="eh-nav-btn eh-nav-btn-outline">Login</a>
+                    </li>
+                    <li class="nav-item ml-lg-2">
+                        <a asp-controller="User" asp-action="Register" class="eh-nav-btn eh-nav-btn-primary">Sign Up</a>
+                    </li>
                 }
                 else
                 {
                     var currentUser = await UserManager.GetUserAsync(User);
-                    <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-decoration-none" data-toggle="dropdown">
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link d-flex align-items-center" data-toggle="dropdown">
                             <span class="eh-user-avatar">@GetInitial(User.Identity?.Name)</span>
                             <span class="ml-2 d-none d-lg-inline" style="font-size:0.82rem;font-weight:500;color:#555;">
                                 @User.Identity?.Name
@@ -240,9 +256,9 @@
                                 </button>
                             </form>
                         </div>
-                    </div>
+                    </li>
                 }
-            </div>
+            </ul>
         </div>
     </div>
 </nav>
