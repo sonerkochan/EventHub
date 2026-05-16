@@ -119,18 +119,33 @@
             right: 20px;
             z-index: 9999;
         }
+
+        /* NAVBAR burgerche */
+        .navbar-toggler {
+            border: 1px solid rgba(0,0,0,0.15);
+            padding: 0.4rem 0.6rem;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0,0,0,0.5)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 1.5em;
+            height: 1.5em;
+            background-size: contain;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
 
     <!-- ===== NAVBAR ===== -->
-    <nav class="navbar navbar-expand-lg eh-navbar sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light eh-navbar sticky-top">
         <div class="container">
             <a class="navbar-brand" asp-area="Client" asp-controller="Home" asp-action="Index">
                 Event<span>Hub</span> <small style="font-size:0.6rem;font-weight:400;color:#999;vertical-align:middle;">Client</small>
             </a>
 
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#clientNav">
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#clientNav" aria-controls="clientNav"
+                    aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
