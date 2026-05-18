@@ -103,7 +103,7 @@ else
                         <div class="eh-service-name">@service.Name</div>
                         @if (service.Price.HasValue)
                         {
-                            <span class="eh-service-price">@service.Price.Value.ToString("C")</span>
+                            <span class="eh-service-price" data-currency-amount="@service.Price.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@service.PriceText</span>
                         }
                     </div>
 

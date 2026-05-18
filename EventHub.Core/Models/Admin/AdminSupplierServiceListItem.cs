@@ -8,6 +8,7 @@ namespace EventHub.Core.Models.Admin
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
         public decimal? Price { get; set; }
+        public string PriceText { get; set; } = string.Empty;
         public string? SupplierId { get; set; }
         public string SupplierName { get; set; } = null!;
         public string? SupplierEmail { get; set; }

@@ -90,7 +90,7 @@ namespace EventHub.Core.Services
                 ZoneId = entity.ZoneId,
                 TierName = entity.TierName!,
                 Price = entity.Price,
-                Currency = entity.Currency ?? "USD",
+                Currency = entity.Currency ?? "EUR",
                 AvailableQuantity = entity.AvailableQuantity
             };
         }

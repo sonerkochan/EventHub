@@ -11,7 +11,19 @@
     <div class="card-body">
         <h5 class="card-title">@Model.Name</h5>
         <p class="card-text">@Model.Description</p>
-        <p class="card-text"><small class="text-muted">Price: @(Model.Price.HasValue ? string.Format("{0:C}", Model.Price.Value) : "—")</small></p>
+        <p class="card-text">
+            <small class="text-muted">
+                Price:
+                @if (Model.Price.HasValue)
+                {
+                    <span data-currency-amount="@Model.Price.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@ViewBag.PriceText</span>
+                }
+                else
+                {
+                    <span>—</span>
+                }
+            </small>
+        </p>
     </div>
 </div>
 

@@ -9,10 +9,14 @@ namespace EventHub.Core.Services
     public class SupplierServiceCatalogService : ISupplierServiceCatalogService
     {
         private readonly IRepository repo;
+        private readonly ICurrencyDisplayService currencyDisplayService;
 
-        public SupplierServiceCatalogService(IRepository _repo)
+        public SupplierServiceCatalogService(
+            IRepository _repo,
+            ICurrencyDisplayService _currencyDisplayService)
         {
             repo = _repo;
+            currencyDisplayService = _currencyDisplayService;
         }
 
         public async Task<SupplierServiceSearchViewModel> SearchServicesAsync(string? searchTerm, string requesterId)
@@ -68,6 +72,10 @@ namespace EventHub.Core.Services
                 {
                     service.SupplierName = service.SupplierEmail ?? "Supplier";
                 }
+
+                service.PriceText = service.Price.HasValue
+                    ? (await currencyDisplayService.FormatAsync(service.Price.Value)).Text
+                    : string.Empty;
             }
 
             return new SupplierServiceSearchViewModel
@@ -138,6 +146,10 @@ namespace EventHub.Core.Services
                 {
                     request.RequesterName = request.RequesterEmail ?? "Requester";
                 }
+
+                request.PriceText = request.Price.HasValue
+                    ? (await currencyDisplayService.FormatAsync(request.Price.Value)).Text
+                    : string.Empty;
             }
 
             return requests;

@@ -1,4 +1,5 @@
 ﻿using EventHub.Core.Contracts;
+using EventHub.Core.Models.Currency;
 using EventHub.Core.Models.Payment;
 using EventHub.Core.Services;
 using EventHub.Infrastructure.Data.Common;
@@ -28,6 +29,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IQRCodeService, QRCodeService>();
             services.AddScoped<ISupplierServiceCatalogService, SupplierServiceCatalogService>();
             services.AddScoped<IAdminSupplierServiceService, AdminSupplierServiceService>();
+            services.AddHttpClient<ICurrencyExchangeRateService, FrankfurterCurrencyExchangeRateService>();
+            services.AddScoped<ICurrencyDisplayService, CurrencyDisplayService>();
 
             return services;
         }
@@ -37,6 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
             IConfiguration configuration)
         {
             services.Configure<StripeOptions>(configuration.GetSection(StripeOptions.Section));
+            services.Configure<CurrencyOptions>(configuration.GetSection(CurrencyOptions.Section));
             return services;
         }
     }

@@ -31,7 +31,7 @@ namespace EventHub.Core.Services
                 ProcessedBy = Guid.Empty,
                 StripeRefundId = null,
                 Amount = model.Amount,
-                Currency = "USD",
+                Currency = "EUR",
                 Reason = model.Reason,
                 Status = DataRefund.RefundStatus.Pending,
                 CreatedAt = DateTime.UtcNow,

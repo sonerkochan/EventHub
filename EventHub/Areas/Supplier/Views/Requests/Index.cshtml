@@ -47,7 +47,16 @@ else
                     <tr>
                         <td>
                             <div class="fw-semibold">@request.ServiceName</div>
-                            <small class="text-muted">@(request.Price.HasValue ? request.Price.Value.ToString("C") : "No price set")</small>
+                            <small class="text-muted">
+                                @if (request.Price.HasValue)
+                                {
+                                    <span data-currency-amount="@request.Price.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@request.PriceText</span>
+                                }
+                                else
+                                {
+                                    <span>No price set</span>
+                                }
+                            </small>
                         </td>
                         <td>
                             <div>@request.RequesterName</div>

@@ -9,10 +9,14 @@ namespace EventHub.Core.Services
     public class AdminSupplierServiceService : IAdminSupplierServiceService
     {
         private readonly IRepository repo;
+        private readonly ICurrencyDisplayService currencyDisplayService;
 
-        public AdminSupplierServiceService(IRepository _repo)
+        public AdminSupplierServiceService(
+            IRepository _repo,
+            ICurrencyDisplayService _currencyDisplayService)
         {
             repo = _repo;
+            currencyDisplayService = _currencyDisplayService;
         }
 
         public async Task<IEnumerable<AdminSupplierServiceListItem>> GetAllAsync(string? statusFilter = null, string? searchTerm = null)
@@ -86,6 +90,10 @@ namespace EventHub.Core.Services
                 {
                     row.SupplierName = row.SupplierEmail ?? "Supplier";
                 }
+
+                row.PriceText = row.Price.HasValue
+                    ? (await currencyDisplayService.FormatAsync(row.Price.Value)).Text
+                    : string.Empty;
             }
 
             return rows;

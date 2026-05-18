@@ -20,7 +20,7 @@ namespace EventHub.Core.Models.EventPricingTier
         public float Price { get; set; }
 
         [StringLength(10)]
-        public string Currency { get; set; } = "USD";
+        public string Currency { get; set; } = "EUR";
 
         [Required]
         [Range(1, int.MaxValue)]

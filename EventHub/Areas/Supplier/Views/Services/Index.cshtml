@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "My Services";
     Layout = "~/Areas/Supplier/Views/Shared/_SupplierLayout.cshtml";
+    var priceTexts = ViewBag.PriceTexts as Dictionary<int, string> ?? new Dictionary<int, string>();
 }
 
 <h3>My Services</h3>
@@ -29,7 +30,16 @@
             <tr>
                 <td>@item.Name</td>
                 <td>@item.Description</td>
-                <td>@(item.Price.HasValue ? string.Format("{0:C}", item.Price.Value) : "—")</td>
+                <td>
+                    @if (item.Price.HasValue && priceTexts.TryGetValue(item.Id, out var priceText))
+                    {
+                        <span data-currency-amount="@item.Price.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@priceText</span>
+                    }
+                    else
+                    {
+                        <span>—</span>
+                    }
+                </td>
                 <td>
                     <a asp-area="Supplier" asp-controller="Services" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
                     <a asp-area="Supplier" asp-controller="Services" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>

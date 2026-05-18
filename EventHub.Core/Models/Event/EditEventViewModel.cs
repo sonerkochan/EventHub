@@ -52,6 +52,21 @@ namespace EventHub.Core.Models.Event
 
         public string? CoverImageUrl { get; set; }
 
+        [StringLength(250)]
+        public string? Address { get; set; }
+
+        [StringLength(100)]
+        public string? City { get; set; }
+
+        [StringLength(2, MinimumLength = 2)]
+        public string? CountryCode { get; set; }
+
+        [Range(-90, 90, ErrorMessage = "Latitude must be between -90 and 90.")]
+        public decimal Latitude { get; set; }
+
+        [Range(-180, 180, ErrorMessage = "Longitude must be between -180 and 180.")]
+        public decimal Longitude { get; set; }
+
         public IEnumerable<SelectListItem> AvailableRooms { get; set; } = [];
     }
 }

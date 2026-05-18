@@ -1,7 +1,15 @@
 @model EventHub.Core.Models.Event.EventDetailViewModel
+@using System.Globalization
+@using System.Text.Json
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
     ViewData["Title"] = Model.EventName;
+    var googleMapsApiKey = Configuration["GoogleMaps:ApiKey"];
+    var hasMapLocation = Model.Latitude != 0 && Model.Longitude != 0;
+    var canRenderMap = !string.IsNullOrWhiteSpace(googleMapsApiKey) && hasMapLocation;
+    var locationText = string.Join(", ", new[] { Model.Address, Model.City, Model.CountryCode }
+        .Where(value => !string.IsNullOrWhiteSpace(value)));
 }
 
 <style>
@@ -138,6 +146,42 @@
                 @(Model.Description ?? "No description provided.")
             </div>
         </div>
+
+        <div class="card eh-surface">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                    <div>
+                        <h6 class="fw-semibold mb-1">Location</h6>
+                        <p class="text-muted small mb-0">@(string.IsNullOrWhiteSpace(locationText) ? "Location details not provided." : locationText)</p>
+                    </div>
+                    @if (hasMapLocation)
+                    {
+                        <span class="eh-badge eh-badge-muted">@Model.Latitude.ToString("0.#######", CultureInfo.InvariantCulture), @Model.Longitude.ToString("0.#######", CultureInfo.InvariantCulture)</span>
+                    }
+                </div>
+
+                @if (canRenderMap)
+                {
+                    <div id="event-map" class="eh-map"></div>
+                }
+                else
+                {
+                    <div class="eh-map-placeholder">
+                        <div class="fw-medium">Map unavailable</div>
+                        <div class="text-muted small">
+                            @if (string.IsNullOrWhiteSpace(googleMapsApiKey))
+                            {
+                                <span>Add a Google Maps API key to show the map.</span>
+                            }
+                            else
+                            {
+                                <span>Add valid latitude and longitude to show the map.</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 
     <div class="col-lg-4">
@@ -162,6 +206,22 @@
                     <div class="eh-info-label">Venue / Room</div>
                     <div class="eh-info-value">
                         <i class="fa fa-map-marker"></i> @Model.RoomName
+                    </div>
+                </div>
+                <div class="eh-info-row">
+                    <div class="eh-info-label">Price</div>
+                    <div class="eh-info-value">
+                        @if (!Model.IsFree)
+                        {
+                            <i class="fa fa-credit-card"></i>
+                            <span data-currency-amount="@Model.PriceAmount?.ToString(CultureInfo.InvariantCulture)" data-currency-source="EUR">@Model.PriceText</span>
+                            <small class="text-muted"> / ticket</small>
+                        }
+                        else
+                        {
+                            <i class="fa fa-ticket"></i>
+                            <span>Free</span>
+                        }
                     </div>
                 </div>
                 <div class="eh-info-row">
@@ -193,3 +253,37 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @if (canRenderMap)
+    {
+        <script>
+            window.initEventMap = function () {
+                const eventLocation = {
+                    lat: @Model.Latitude.ToString(CultureInfo.InvariantCulture),
+                    lng: @Model.Longitude.ToString(CultureInfo.InvariantCulture)
+                };
+
+                const mapElement = document.getElementById("event-map");
+                if (!mapElement || !window.google?.maps) {
+                    return;
+                }
+
+                const map = new google.maps.Map(mapElement, {
+                    zoom: 14,
+                    center: eventLocation,
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: true
+                });
+
+                new google.maps.Marker({
+                    position: eventLocation,
+                    map,
+                    title: @Html.Raw(JsonSerializer.Serialize(Model.EventName))
+                });
+            };
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=@googleMapsApiKey&callback=initEventMap" async defer></script>
+    }
+}
