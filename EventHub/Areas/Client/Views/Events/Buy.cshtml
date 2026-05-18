@@ -1,4 +1,5 @@
 @using EventHub.Infrastructure.Data.Models
+@using System.Globalization
 @model EventHub.Core.Models.Ticket.PurchaseTicketViewModel
 
 <style>
@@ -39,7 +40,11 @@
                     <small class="text-muted"><i class="fa fa-ticket mr-1"></i> @Model.AvailableTickets tickets available</small>
                     @if (Model.Price > 0)
                     {
-                        <small class="fw-medium mt-2">Price: $@Model.Price.ToString("F2") per ticket</small>
+                        <small class="fw-medium mt-2">
+                            Price:
+                            <span data-currency-amount="@Model.Price.ToString(CultureInfo.InvariantCulture)" data-currency-source="EUR">@Model.Price.ToString("F2") @Model.Currency</span>
+                            per ticket
+                        </small>
                     }
                     else
                     {
@@ -59,6 +64,7 @@
                 <form asp-action="BuyDirect" method="post" class="form-modern">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="eventId" value="@Model.EventId" />
+                    <input type="hidden" name="checkoutCurrency" value="@Model.Currency" />
 
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
 
@@ -75,13 +81,17 @@
                         <div class="card mb-3" style="background: hsl(var(--muted)); border: none; padding: 1rem;">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="fw-medium">Total:</span>
-                                <span class="fw-bold" style="font-size: 1.25rem;">$<span id="totalPriceQty">@Model.Price.ToString("F2")</span></span>
+                                <span class="fw-bold" style="font-size: 1.25rem;">
+                                    <span id="totalPriceQty"
+                                          data-currency-amount="@Model.Price.ToString(CultureInfo.InvariantCulture)"
+                                          data-currency-source="EUR">@Model.Price.ToString("F2") @Model.Currency</span>
+                                </span>
                             </div>
                         </div>
 
+                        <input type="hidden" name="unitPrice" value="@Model.Price.ToString(CultureInfo.InvariantCulture)" />
                         <button type="submit" formaction="@Url.Action("Checkout", "Payment", new { area = "Client" })"
                                 formmethod="post" class="btn btn-primary w-100 mb-2" style="padding: 0.75rem;">
-                            <input type="hidden" name="unitPrice" value="@Model.Price" />
                             <i class="fa fa-credit-card mr-1"></i> Pay with Stripe
                         </button>
                     }
@@ -142,7 +152,9 @@ else
                             {
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="legend-swatch" style="background:#212529"></div>
-                                    <span class="small text-muted">Base (@Model.BasePrice.ToString("0.00") @Model.Currency)</span>
+                                    <span class="small text-muted">
+                                        Base (<span data-currency-amount="@Model.BasePrice.ToString(CultureInfo.InvariantCulture)" data-currency-source="EUR">@Model.BasePrice.ToString("0.00") @Model.Currency</span>)
+                                    </span>
                                 </div>
                             }
                             @foreach (var zoneType in Model.Zones.Select(z => z.ZoneType).Distinct().OrderBy(t => t))
@@ -187,7 +199,7 @@ else
                                     <div class="small text-muted">@z.AvailableCount / @z.SeatCount available</div>
                                 </div>
                                 <div class="text-end">
-                                    <div class="small fw-medium">@z.Price.ToString("0.00") @z.Currency</div>
+                                    <div class="small fw-medium" data-currency-amount="@z.Price.ToString(CultureInfo.InvariantCulture)" data-currency-source="EUR">@z.Price.ToString("0.00") @z.Currency</div>
                                     @if (z.UsesBasePrice)
                                     {
                                         <div class="text-muted" style="font-size:0.7rem">base price</div>
@@ -217,6 +229,7 @@ else
                         <form id="checkoutForm" method="post" class="d-flex flex-column gap-2">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="eventId" value="@Model.EventId" />
+                            <input type="hidden" name="checkoutCurrency" value="@Model.Currency" />
                             <div id="hiddenSeats"></div>
 
                             <button type="submit"
@@ -252,13 +265,19 @@ else
     {
         <script>
             const quantityInput = document.querySelector('input[name="quantity"]');
-            const pricePerTicket = @Model.Price;
+            const pricePerTicket = @Model.Price.ToString(CultureInfo.InvariantCulture);
             const totalPriceSpan = document.getElementById('totalPriceQty');
 
             if (totalPriceSpan) {
                 quantityInput.addEventListener('input', () => {
-                    const total = (quantityInput.value * pricePerTicket).toFixed(2);
-                    totalPriceSpan.textContent = total;
+                    const total = quantityInput.value * pricePerTicket;
+                    totalPriceSpan.dataset.currencyAmount = total.toString();
+
+                    if (window.EventHubCurrency) {
+                        window.EventHubCurrency.refresh();
+                    } else {
+                        totalPriceSpan.textContent = `${total.toFixed(2)} @Model.Currency`;
+                    }
                 });
             }
         </script>
@@ -323,6 +342,15 @@ else
                 el.style.background = zoneColors[t] || '#6c757d';
             });
 
+            function moneyText(amount) {
+                if (window.EventHubCurrency) {
+                    const converted = window.EventHubCurrency.convert(amount);
+                    return `${converted.amount.toFixed(2)} ${converted.currency}`;
+                }
+
+                return `${amount.toFixed(2)} @Model.Currency`;
+            }
+
             function toggleSeat(seat, cell) {
                 if (selected.has(seat.id)) {
                     selected.delete(seat.id);
@@ -355,17 +383,22 @@ else
                 let total = 0;
                 list.innerHTML = items.map(s => {
                     total += s.price;
-                    const zone = s.zoneName ? ` · ${s.zoneName}` : '';
-                    return `<div class="d-flex justify-content-between"><span>Seat ${s.seatNumber}${zone}</span><span>${s.price.toFixed(2)} ${s.currency}</span></div>`;
+                    const zone = s.zoneName ? ` &middot; ${s.zoneName}` : '';
+                    return `<div class="d-flex justify-content-between"><span>Seat ${s.seatNumber}${zone}</span><span>${moneyText(s.price)}</span></div>`;
                 }).join('');
 
-                totalSpan.textContent = total.toFixed(2);
-                currencySpan.textContent = items[0].currency;
+                const convertedTotal = window.EventHubCurrency
+                    ? window.EventHubCurrency.convert(total)
+                    : { amount: total, currency: items[0].currency };
+                totalSpan.textContent = convertedTotal.amount.toFixed(2);
+                currencySpan.textContent = convertedTotal.currency;
                 payBtn.disabled = false;
                 reserveBtn.disabled = false;
 
                 hidden.innerHTML = items.map(s => `<input type="hidden" name="seatIds" value="${s.id}" />`).join('');
             }
+
+            document.addEventListener('eventhub:currency-changed', updateSummary);
         </script>
     }
 }

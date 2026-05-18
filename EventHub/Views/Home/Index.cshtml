@@ -275,9 +275,9 @@
                                 <p class="eh-event-meta mb-3"><i class="fa fa-clock-o"></i> @e.StartDateTime.ToString("h:mm tt")</p>
 
                                 <div class="mb-2">
-                                    @if (e.BasePrice > 0)
+                                    @if (!e.IsFree)
                                     {
-                                        <span class="eh-price">$@e.BasePrice.ToString("F2")</span>
+                                        <span class="eh-price" data-currency-amount="@e.PriceAmount?.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@e.PriceText</span>
                                         <small style="color:#aaa;"> / ticket</small>
                                     }
                                     else

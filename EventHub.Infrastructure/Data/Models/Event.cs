@@ -19,8 +19,8 @@ namespace EventHub.Infrastructure.Data.Models
         public DateTime EndDateTime { get; set; }
         public int TotalTickets { get; set; }
         public int TicketsSold { get; set; }
-        public string? Latitude { get; set; }
-        public string? Longitude { get; set; }
+        public decimal Latitude { get; set; } = default;
+        public decimal Longitude { get; set; } = default;
         public string? City { get; set; }
         public string? Address { get; set; }
         public string? CountryCode { get; set; }

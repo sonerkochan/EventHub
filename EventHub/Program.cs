@@ -59,6 +59,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 
 builder.Services.AddControllersWithViews().AddViewLocalization().AddDataAnnotationsLocalization();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

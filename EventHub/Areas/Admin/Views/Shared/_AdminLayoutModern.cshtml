@@ -35,6 +35,9 @@
                         </a>
 
                         <div class="d-flex order-lg-2 ml-auto align-items-center">
+                            <div class="mr-3">
+                                @await Html.PartialAsync("~/Views/Shared/_CurrencySelector.cshtml")
+                            </div>
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 <div class="dropdown">

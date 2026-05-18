@@ -1,0 +1,22 @@
+@using EventHub.Core.Models.Currency
+@using Microsoft.Extensions.Options
+@inject IOptions<CurrencyOptions> CurrencyOptionsAccessor
+
+@{
+    var currencies = CurrencyOptionsAccessor.Value.SupportedCurrencies?.Length > 0
+        ? CurrencyOptionsAccessor.Value.SupportedCurrencies
+        : new[] { "EUR", "USD", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "SEK", "NZD", "TRY" };
+    var selectedCurrency = string.IsNullOrWhiteSpace(CurrencyOptionsAccessor.Value.DisplayCurrency)
+        ? "EUR"
+        : CurrencyOptionsAccessor.Value.DisplayCurrency.Trim().ToUpperInvariant();
+}
+
+<label class="eh-currency-switcher" title="Display and pay in selected currency">
+    <span class="eh-currency-switcher-label">Currency</span>
+    <select class="eh-currency-select" data-currency-selector aria-label="Currency">
+        @foreach (var currency in currencies.Select(c => c.Trim().ToUpperInvariant()).Distinct())
+        {
+            <option value="@currency" selected="@(currency == selectedCurrency)">@currency</option>
+        }
+    </select>
+</label>

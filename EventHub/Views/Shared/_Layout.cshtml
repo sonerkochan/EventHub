@@ -202,6 +202,9 @@
             </ul>
 
             <ul class="navbar-nav ml-auto align-items-center">
+                <li class="nav-item mr-lg-2 my-2 my-lg-0">
+                    @await Html.PartialAsync("~/Views/Shared/_CurrencySelector.cshtml")
+                </li>
                 @if (!SignInManager.IsSignedIn(User))
                 {
                     <li class="nav-item">

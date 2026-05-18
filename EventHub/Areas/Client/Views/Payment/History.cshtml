@@ -2,6 +2,15 @@
 
 @{
     ViewData["Title"] = "Payment History";
+    var acceptedPayments = Model.Where(p => p.Status == "Accepted").ToList();
+    var acceptedCurrencies = acceptedPayments
+        .Select(p => p.Currency)
+        .Where(c => !string.IsNullOrWhiteSpace(c))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToList();
+    var acceptedTotalText = acceptedCurrencies.Count == 1
+        ? $"{acceptedPayments.Sum(p => p.Amount).ToString("F2")} {acceptedCurrencies[0]}"
+        : "Mixed currencies";
 }
 
 <style>
@@ -43,7 +52,7 @@
     <div class="eh-summary-bar">
         <div class="eh-summary-pill">
             <div class="s-label">Total Paid</div>
-            <div class="s-value">$@Model.Where(p => p.Status == "Accepted").Sum(p => p.Amount).ToString("F2")</div>
+            <div class="s-value">@acceptedTotalText</div>
         </div>
         <div class="eh-summary-pill">
             <div class="s-label">Accepted</div>

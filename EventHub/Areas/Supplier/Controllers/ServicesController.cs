@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using EventHub.Areas.Supplier.Models;
+using EventHub.Core.Contracts;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
 using System.Security.Claims;
@@ -10,10 +11,14 @@ namespace EventHub.Areas.Supplier.Controllers
     public class ServicesController : BaseController
     {
         private readonly ApplicationDbContext _db;
+        private readonly ICurrencyDisplayService currencyDisplayService;
 
-        public ServicesController(ApplicationDbContext db)
+        public ServicesController(
+            ApplicationDbContext db,
+            ICurrencyDisplayService _currencyDisplayService)
         {
             _db = db;
+            currencyDisplayService = _currencyDisplayService;
         }
 
         [HttpGet]
@@ -25,6 +30,7 @@ namespace EventHub.Areas.Supplier.Controllers
                 .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync();
 
+            ViewBag.PriceTexts = await BuildPriceTextsAsync(services);
             return View(services);
         }
 
@@ -112,6 +118,10 @@ namespace EventHub.Areas.Supplier.Controllers
             if (entity == null) return NotFound();
             if (entity.SupplierId != userId && !User.IsInRole("Admin")) return Forbid();
 
+            ViewBag.PriceText = entity.Price.HasValue
+                ? (await currencyDisplayService.FormatAsync(entity.Price.Value)).Text
+                : null;
+
             return View(entity);
         }
 
@@ -133,6 +143,18 @@ namespace EventHub.Areas.Supplier.Controllers
             await _db.SaveChangesAsync();
 
             return RedirectToAction("Index");
+        }
+
+        private async Task<Dictionary<int, string>> BuildPriceTextsAsync(IEnumerable<SupplierService> services)
+        {
+            var priceTexts = new Dictionary<int, string>();
+
+            foreach (var service in services.Where(s => s.Price.HasValue))
+            {
+                priceTexts[service.Id] = (await currencyDisplayService.FormatAsync(service.Price!.Value)).Text;
+            }
+
+            return priceTexts;
         }
     }
 }

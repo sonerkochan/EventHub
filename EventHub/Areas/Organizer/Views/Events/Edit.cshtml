@@ -49,12 +49,18 @@
             <span asp-validation-for="TotalTickets" class="text-danger"></span>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-3">
+            <label asp-for="BasePrice" class="form-label">Ticket Price (@CurrencyOptionsAccessor.Value.BaseCurrency)</label>
+            <input asp-for="BasePrice" class="form-control" type="number" min="0" step="0.01" placeholder="0.00" />
+            <span asp-validation-for="BasePrice" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
             <label asp-for="StartDateTime" class="form-label"></label>
             <input asp-for="StartDateTime" class="form-control" type="datetime-local" />
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-3">
             <label asp-for="EndDateTime" class="form-label"></label>
             <input asp-for="EndDateTime" class="form-control" type="datetime-local" />
         </div>
@@ -74,6 +80,41 @@
         <div class="col-md-8">
             <label asp-for="CoverImageUrl" class="form-label">Cover Image URL</label>
             <input asp-for="CoverImageUrl" class="form-control" />
+        </div>
+
+        <div class="col-12">
+            <h5 class="fw-semibold mt-3 mb-0">Location</h5>
+            <p class="text-muted small mb-0">Used for the event details map and external events API.</p>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="Address" class="form-label">Address</label>
+            <input asp-for="Address" class="form-control" placeholder="Street address or venue entrance" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="City" class="form-label">City</label>
+            <input asp-for="City" class="form-control" />
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="CountryCode" class="form-label">Country Code</label>
+            <input asp-for="CountryCode" class="form-control" maxlength="2" placeholder="BG" />
+            <span asp-validation-for="CountryCode" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="Latitude" class="form-label">Latitude</label>
+            <input asp-for="Latitude" class="form-control" type="number" min="-90" max="90" step="any" />
+            <span asp-validation-for="Latitude" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="Longitude" class="form-label">Longitude</label>
+            <input asp-for="Longitude" class="form-control" type="number" min="-180" max="180" step="any" />
+            <span asp-validation-for="Longitude" class="text-danger"></span>
         </div>
     </div>
 

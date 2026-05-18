@@ -53,16 +53,18 @@ namespace EventHub.Areas.Client.Controllers
             if (ev == null) return NotFound();
 
             var basePrice = (float)ev.BasePrice;
+            var displayPrice = (float)(ev.PriceAmount ?? 0m);
             var model = new PurchaseTicketViewModel
             {
                 EventId = ev.Id,
                 EventName = ev.EventName,
                 EventStart = ev.StartDateTime,
                 RoomName = ev.RoomName ?? string.Empty,
-                Price = basePrice,
+                Price = displayPrice,
                 BasePrice = basePrice,
                 AvailableTickets = ev.TotalTickets - ev.TicketsSold,
-                RoomId = ev.RoomId
+                RoomId = ev.RoomId,
+                Currency = "EUR"
             };
 
             var seats = (await seatService.GetByRoomAsync(ev.RoomId))

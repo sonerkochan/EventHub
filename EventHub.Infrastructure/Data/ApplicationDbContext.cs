@@ -46,6 +46,8 @@ namespace EventHub.Infrastructure.Data
             });
 
             builder.Entity<Event>().Property(e => e.BasePrice).HasPrecision(18, 4);
+            builder.Entity<Event>().Property(e => e.Latitude).HasPrecision(10, 7);
+            builder.Entity<Event>().Property(e => e.Longitude).HasPrecision(10, 7);
         }
 
         public DbSet<Venue> Venues { get; set; }
