@@ -4,135 +4,261 @@
 @inject UserManager<User> UserManager
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>@ViewData["Title"] - EventHub</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700&subset=latin-ext" />
-    <link rel="stylesheet" href="~/lib/tabler/assets/css/dashboard.css" />
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/travelista/css/linearicons.css" />
+    <link rel="stylesheet" href="~/lib/travelista/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/lib/travelista/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/lib/travelista/css/animate.min.css" />
+    <link rel="stylesheet" href="~/lib/travelista/css/nice-select.css" />
+    <link rel="stylesheet" href="~/lib/travelista/css/owl.carousel.css" />
+    <link rel="stylesheet" href="~/lib/travelista/css/main.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/tabler-eventhub.css" asp-append-version="true" />
 
     <style>
-        .nav-link.active { color: #467fcf !important; border-bottom-color: #467fcf !important; }
-        .toast-area { position: fixed; top: 20px; right: 20px; z-index: 9999; }
-        .avatar { background: #467fcf; color: #fff; font-weight: 700; }
+        /* EventHub Client Area overrides */
+        .eh-navbar {
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 0;
+        }
+        .eh-navbar .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+        }
+        .eh-navbar .navbar-brand span {
+            color: #55a5d2;
+        }
+        .eh-nav-link {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #555 !important;
+            padding: 1.2rem 1rem !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+        .eh-nav-link:hover, .eh-nav-link.active {
+            color: #55a5d2 !important;
+        }
+        .eh-nav-link.active {
+            border-bottom: 2px solid #55a5d2;
+        }
+        .eh-page-wrapper {
+            min-height: calc(100vh - 140px);
+            padding: 40px 0 60px;
+        }
+        .eh-footer {
+            background: #1a1a2e;
+            padding: 20px 0;
+        }
+        .eh-footer p {
+            color: #aaa;
+            font-size: 0.8rem;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        .eh-user-avatar {
+            width: 36px; height: 36px;
+            background: #55a5d2;
+            color: #fff;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .eh-dropdown-menu {
+            border: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            min-width: 200px;
+        }
+        .eh-dropdown-menu .dropdown-item {
+            padding: 0.6rem 1.2rem;
+            color: #555;
+        }
+        .eh-dropdown-menu .dropdown-item:hover {
+            background: #f0f8ff;
+            color: #55a5d2;
+        }
+        .eh-dropdown-menu .dropdown-item.text-danger:hover {
+            background: #fff5f5;
+            color: #dc3545;
+        }
+        /* Primary button matching travelista */
+        .primary-btn {
+            background: #55a5d2;
+            color: #fff;
+        }
+        .primary-btn:hover {
+            background: #1a1a2e;
+            color: #fff;
+        }
+        /* Card overrides */
+        .card {
+            border-radius: 6px;
+            border: 1px solid #e8ecf0;
+        }
+        /* Toast */
+        .toast-area {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        /* NAVBAR burgerche */
+        .navbar-toggler {
+            border: 1px solid rgba(0,0,0,0.15);
+            padding: 0.4rem 0.6rem;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0,0,0,0.5)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 1.5em;
+            height: 1.5em;
+            background-size: contain;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div class="page-main">
-            <div class="header py-4">
-                <div class="container-fluid">
-                    <div class="d-flex">
-                        <a class="header-brand" asp-area="Client" asp-controller="Home" asp-action="Index">
-                            <span style="font-size:22px; margin-right:8px;">EH</span>
-                            <strong>EventHub</strong>
-                            <small class="text-muted ml-1">Client</small>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-light eh-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand" asp-area="Client" asp-controller="Home" asp-action="Index">
+                Event<span>Hub</span> <small style="font-size:0.6rem;font-weight:400;color:#999;vertical-align:middle;">Client</small>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#clientNav" aria-controls="clientNav"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="clientNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a asp-area="Client" asp-controller="Home" asp-action="Index"
+                           class="nav-link eh-nav-link @(IsActive("Home"))">
+                            Dashboard
                         </a>
-
-                        <div class="d-flex order-lg-2 ml-auto align-items-center">
-                            @if (SignInManager.IsSignedIn(User))
-                            {
-                                var currentUser = await UserManager.GetUserAsync(User);
-                                <div class="dropdown">
-                                    <a href="#" class="nav-link pr-0 leading-none" data-toggle="dropdown">
-                                        <span class="avatar">@GetInitial(User.Identity?.Name)</span>
-                                        <span class="ml-2 d-none d-lg-block">
-                                            <span class="text-default">@User.Identity?.Name</span>
-                                            <small class="text-muted d-block mt-1">Client</small>
-                                        </span>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                        @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Organizer"))
-                                        {
-                                            <a asp-area="Organizer" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                                <i class="dropdown-icon fa fa-calendar"></i> Organizer panel
-                                            </a>
-                                        }
-                                        @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Supplier"))
-                                        {
-                                            <a asp-area="Supplier" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                                <i class="dropdown-icon fa fa-briefcase"></i> Supplier panel
-                                            </a>
-                                        }
-                                        <a asp-area="" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                            <i class="dropdown-icon fa fa-home"></i> Back to site
-                                        </a>
-                                        <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="dropdown-icon fa fa-sign-out"></i> Sign out
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-
-                        <a href="#" class="header-toggler d-lg-none ml-3" data-toggle="collapse" data-target="#headerMenuCollapse">
-                            <span class="header-toggler-icon"></span>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="Client" asp-controller="Events" asp-action="Index"
+                           class="nav-link eh-nav-link @(IsActive("Events"))">
+                            Events
                         </a>
-                    </div>
-                </div>
-            </div>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="Client" asp-controller="Services" asp-action="Index"
+                           class="nav-link eh-nav-link @(IsActive("Services"))">
+                            Services
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="Client" asp-controller="Tickets" asp-action="Index"
+                           class="nav-link eh-nav-link @(IsActive("Tickets"))">
+                            Tickets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="Client" asp-controller="Payment" asp-action="History"
+                           class="nav-link eh-nav-link @(IsActive("Payment"))">
+                            Payments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="Client" asp-controller="Application" asp-action="Index"
+                           class="nav-link eh-nav-link @(IsActive("Application"))">
+                            Applications
+                        </a>
+                    </li>
+                </ul>
 
-            <div class="header collapse d-lg-flex p-0" id="headerMenuCollapse">
-                <div class="container-fluid">
-                    <div class="row align-items-center">
-                        <div class="col-lg order-lg-first">
-                            <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
-                                <li class="nav-item">
-                                    <a asp-area="Client" asp-controller="Home" asp-action="Index" class="nav-link @(IsActive("Home"))">
-                                        <i class="fa fa-th-large mr-1"></i> Dashboard
+                <ul class="navbar-nav ml-auto align-items-center">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        var currentUser = await UserManager.GetUserAsync(User);
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link d-flex align-items-center" data-toggle="dropdown">
+                                <span class="eh-user-avatar">@GetInitial(User.Identity?.Name)</span>
+                                <span class="ml-2 d-none d-lg-inline" style="font-size:0.85rem;font-weight:500;color:#555;">
+                                    @User.Identity?.Name
+                                </span>
+                                <i class="fa fa-angle-down ml-1" style="font-size:0.75rem;color:#999;"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right eh-dropdown-menu">
+                                @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Organizer"))
+                                {
+                                    <a asp-area="Organizer" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                        <i class="fa fa-calendar mr-2"></i> Organizer Panel
                                     </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-area="Client" asp-controller="Events" asp-action="Index" class="nav-link @(IsActive("Events"))">
-                                        <i class="fa fa-calendar mr-1"></i> Events
+                                }
+                                @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Supplier"))
+                                {
+                                    <a asp-area="Supplier" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                        <i class="fa fa-briefcase mr-2"></i> Supplier Panel
                                     </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-area="Client" asp-controller="Services" asp-action="Index" class="nav-link @(IsActive("Services"))">
-                                        <i class="fa fa-briefcase mr-1"></i> Services
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="nav-link @(IsActive("Tickets"))">
-                                        <i class="fa fa-ticket mr-1"></i> Tickets
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-area="Client" asp-controller="Payment" asp-action="History" class="nav-link @(IsActive("Payment"))">
-                                        <i class="fa fa-credit-card mr-1"></i> Payments
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-area="Client" asp-controller="Application" asp-action="Index" class="nav-link @(IsActive("Application"))">
-                                        <i class="fa fa-file-text-o mr-1"></i> Applications
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="my-3 my-md-5">
-                <div class="container-fluid">
-                    @RenderBody()
-                </div>
+                                }
+                                <a asp-area="" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-home mr-2"></i> Back to Site
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fa fa-sign-out mr-2"></i> Sign Out
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    }
+                </ul>
             </div>
         </div>
+    </nav>
+    <!-- ===== END NAVBAR ===== -->
+
+    <!-- ===== PAGE CONTENT ===== -->
+    <div class="eh-page-wrapper">
+        <div class="container">
+            @RenderBody()
+        </div>
     </div>
+    <!-- ===== END PAGE CONTENT ===== -->
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="eh-footer">
+        <div class="container text-center">
+            <p>
+                &copy; <script>document.write(new Date().getFullYear());</script> EventHub. All rights reserved.
+            </p>
+        </div>
+    </footer>
+    <!-- ===== END FOOTER ===== -->
 
     <div class="toast-area" id="toastArea"></div>
 
-    <script src="~/lib/tabler/assets/js/vendors/jquery-3.2.1.min.js"></script>
-    <script src="~/lib/tabler/assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/tabler/assets/js/core.js"></script>
+    <script src="~/lib/travelista/js/vendor/jquery-2.2.4.min.js"></script>
+    <script src="~/lib/travelista/js/popper.min.js"></script>
+    <script src="~/lib/travelista/js/vendor/bootstrap.min.js"></script>
+    <script src="~/lib/travelista/js/easing.min.js"></script>
+    <script src="~/lib/travelista/js/hoverIntent.js"></script>
+    <script src="~/lib/travelista/js/superfish.min.js"></script>
+    <script src="~/lib/travelista/js/main.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

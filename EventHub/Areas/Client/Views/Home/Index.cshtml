@@ -6,142 +6,320 @@
     var myTickets = ViewBag.MyTickets as IEnumerable<TicketListViewModel> ?? Enumerable.Empty<TicketListViewModel>();
 }
 
-<div class="animate-fade-in">
-    <!-- Welcome Header -->
-    <div class="mb-4">
-        <h4 class="fw-bold mb-1">Welcome back, @User.Identity?.Name!</h4>
-        <p class="text-muted mb-0">Your personalized event dashboard</p>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="row g-4 mb-4 stagger-children">
-        <div class="col-md-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-card-label">My Tickets</div>
-                <div class="stat-card-value">@myTickets.Count()</div>
-                <div class="stat-card-change">
-                    <span class="text-muted">@myTickets.Count(t => t.EventStart > DateTime.Now) upcoming</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-card-label">Available Events</div>
-                <div class="stat-card-value">@upcomingEvents.Count()</div>
-                <div class="stat-card-change">
-                    <span class="text-muted">Ready to book</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-            <a asp-controller="Events" asp-action="Index" class="text-decoration-none">
-                <div class="stat-card hover-lift" style="transition: all 0.3s; cursor: pointer;">
-                    <div class="stat-card-label">Browse</div>
-                    <div style="font-size: 2rem;"><i class="fa fa-calendar"></i></div>
-                    <div class="stat-card-change">
-                        <span class="text-muted">Find events</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-            <a asp-controller="Tickets" asp-action="Index" class="text-decoration-none">
-                <div class="stat-card hover-lift" style="transition: all 0.3s; cursor: pointer;">
-                    <div class="stat-card-label">Tickets</div>
-                    <div style="font-size: 2rem;"><i class="fa fa-ticket"></i></div>
-                    <div class="stat-card-change">
-                        <span class="text-muted">View all</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- My Upcoming Tickets -->
-    @if (myTickets.Any(t => t.EventStart > DateTime.Now))
-    {
-        <div class="mb-4">
-            <h5 class="fw-semibold mb-3">Upcoming Events</h5>
-            <div class="row g-3">
-                @foreach (var ticket in myTickets.Where(t => t.EventStart > DateTime.Now).Take(3))
-                {
-                    <div class="col-md-4">
-                        <div class="card hover-lift" style="transition: all 0.3s;">
-                            <div class="card-body">
-                                <div class="mb-2">
-                                    <span class="badge badge-primary">Ticket #@ticket.TicketNumber</span>
-                                </div>
-                                <h6 class="fw-semibold mb-2">@ticket.EventName</h6>
-                                <p class="text-muted small mb-2">
-                                    <i class="fa fa-calendar mr-1"></i> @ticket.EventStart.ToString("ddd, MMM dd")
-                                </p>
-                                <p class="text-muted small mb-3">
-                                    <i class="fa fa-clock-o mr-1"></i> @ticket.EventStart.ToString("h:mm tt")
-                                </p>
-                                <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id"
-                                   class="btn btn-secondary w-100">
-                                    View Ticket
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        </div>
+<style>
+    .eh-welcome-bar {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+        border-radius: 10px;
+        padding: 36px 40px;
+        color: #fff;
+        margin-bottom: 36px;
+        position: relative;
+        overflow: hidden;
     }
+    .eh-welcome-bar::after {
+        content: '\f072';
+        font-family: FontAwesome;
+        position: absolute;
+        right: 40px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 80px;
+        opacity: 0.07;
+        color: #55a5d2;
+    }
+    .eh-welcome-bar h4 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.6rem;
+        margin-bottom: 6px;
+        color: #fff;
+    }
+    .eh-welcome-bar p {
+        color: rgba(255,255,255,0.65);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    .eh-stat-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 8px;
+        padding: 24px 20px;
+        transition: box-shadow 0.25s, transform 0.25s;
+        height: 100%;
+    }
+    .eh-stat-card:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.09);
+        transform: translateY(-3px);
+    }
+    .eh-stat-card .stat-label {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #999;
+        margin-bottom: 10px;
+    }
+    .eh-stat-card .stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+    .eh-stat-card .stat-sub {
+        font-size: 0.8rem;
+        color: #aaa;
+    }
+    .eh-stat-card .stat-icon {
+        font-size: 1.6rem;
+        color: #55a5d2;
+        margin-bottom: 10px;
+    }
+    .eh-section-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 18px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .eh-ticket-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 8px;
+        padding: 20px;
+        transition: box-shadow 0.25s, transform 0.25s;
+        height: 100%;
+    }
+    .eh-ticket-card:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.09);
+        transform: translateY(-3px);
+    }
+    .eh-ticket-badge {
+        display: inline-block;
+        background: #55a5d2;
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+    .eh-event-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 8px;
+        padding: 18px;
+        transition: box-shadow 0.25s, transform 0.25s;
+        height: 100%;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .eh-event-card:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.09);
+        transform: translateY(-3px);
+        text-decoration: none;
+        color: inherit;
+    }
+    .eh-event-type-badge {
+        display: inline-block;
+        background: #f0f8ff;
+        color: #55a5d2;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        margin-bottom: 8px;
+    }
+    .eh-btn {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 9px 22px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+    }
+    .eh-btn-primary {
+        background: #55a5d2;
+        color: #fff;
+    }
+    .eh-btn-primary:hover {
+        background: #1a1a2e;
+        color: #fff;
+        text-decoration: none;
+    }
+    .eh-btn-outline {
+        background: transparent;
+        color: #55a5d2;
+        border: 1px solid #55a5d2;
+    }
+    .eh-btn-outline:hover {
+        background: #55a5d2;
+        color: #fff;
+        text-decoration: none;
+    }
+    .eh-section-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .eh-section-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #e8ecf0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .eh-section-card-header h6 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #1a1a2e;
+        margin: 0;
+    }
+    .eh-section-card-body {
+        padding: 20px;
+    }
+    .eh-empty-state {
+        text-align: center;
+        padding: 48px 20px;
+    }
+    .eh-empty-state .empty-icon {
+        font-size: 48px;
+        color: #ddd;
+        margin-bottom: 16px;
+    }
+    .eh-empty-state p {
+        color: #aaa;
+        font-size: 0.85rem;
+        margin: 0;
+    }
+</style>
 
-    <!-- Discover Events -->
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-semibold">Discover Events</h6>
-                <a asp-controller="Events" asp-action="Index" class="btn btn-link" style="padding: 0.375rem 0.75rem; font-size: 0.8rem;">
-                    View All
-                </a>
+<!-- Welcome Bar -->
+<div class="eh-welcome-bar">
+    <h4>Welcome back, @User.Identity?.Name!</h4>
+    <p>Your personalized EventHub dashboard</p>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-6 col-lg-3 mb-3">
+        <div class="eh-stat-card">
+            <div class="stat-label">My Tickets</div>
+            <div class="stat-value">@myTickets.Count()</div>
+            <div class="stat-sub">@myTickets.Count(t => t.EventStart > DateTime.Now) upcoming</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 mb-3">
+        <div class="eh-stat-card">
+            <div class="stat-label">Available Events</div>
+            <div class="stat-value">@upcomingEvents.Count()</div>
+            <div class="stat-sub">Ready to book</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 mb-3">
+        <a asp-controller="Events" asp-action="Index" class="text-decoration-none d-block h-100">
+            <div class="eh-stat-card text-center" style="cursor:pointer;">
+                <div class="stat-icon"><i class="fa fa-calendar"></i></div>
+                <div class="stat-label">Browse Events</div>
+                <div class="stat-sub">Find & book</div>
             </div>
-        </div>
-        <div class="card-body">
-            @if (upcomingEvents.Any())
-            {
-                <div class="row g-3">
-                    @foreach (var e in upcomingEvents.Take(3))
-                    {
-                        <div class="col-md-4">
-                            <a asp-controller="Events" asp-action="Details" asp-route-id="@e.Id" class="text-decoration-none">
-                                <div class="border rounded p-3 hover-lift" style="transition: all 0.3s;">
-                                    <div class="mb-2">
-                                        <span class="badge badge-secondary">@e.EventType</span>
-                                    </div>
-                                    <h6 class="fw-semibold mb-2">@e.EventName</h6>
-                                    <p class="text-muted small mb-2">@e.StartDateTime.ToString("dd MMM, HH:mm")</p>
-                                    <p class="text-muted small mb-0">@(e.TotalTickets - e.TicketsSold) tickets left</p>
-                                </div>
-                            </a>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-4">
-                    <div style="font-size: 48px; opacity: 0.3; margin-bottom: 1rem;"><i class="fa fa-calendar"></i></div>
-                    <p class="text-muted small mb-0">No events available</p>
-                </div>
-            }
-        </div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3 mb-3">
+        <a asp-controller="Tickets" asp-action="Index" class="text-decoration-none d-block h-100">
+            <div class="eh-stat-card text-center" style="cursor:pointer;">
+                <div class="stat-icon"><i class="fa fa-ticket"></i></div>
+                <div class="stat-label">My Tickets</div>
+                <div class="stat-sub">View all</div>
+            </div>
+        </a>
     </div>
 </div>
 
-<style>
-    .hover-lift {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+<!-- Upcoming Tickets -->
+@if (myTickets.Any(t => t.EventStart > DateTime.Now))
+{
+    <div class="mb-4">
+        <div class="eh-section-title">
+            <i class="fa fa-clock-o mr-1" style="color:#55a5d2;"></i> Your Upcoming Events
+        </div>
+        <div class="row">
+            @foreach (var ticket in myTickets.Where(t => t.EventStart > DateTime.Now).Take(3))
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="eh-ticket-card">
+                        <div class="eh-ticket-badge">Ticket #@ticket.TicketNumber</div>
+                        <h6 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:0.95rem;color:#1a1a2e;margin-bottom:10px;">
+                            @ticket.EventName
+                        </h6>
+                        <p class="mb-1" style="font-size:0.8rem;color:#888;">
+                            <i class="fa fa-calendar mr-1" style="color:#55a5d2;"></i>
+                            @ticket.EventStart.ToString("ddd, MMM dd")
+                        </p>
+                        <p class="mb-3" style="font-size:0.8rem;color:#888;">
+                            <i class="fa fa-clock-o mr-1" style="color:#55a5d2;"></i>
+                            @ticket.EventStart.ToString("h:mm tt")
+                        </p>
+                        <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id"
+                           class="eh-btn eh-btn-outline d-block text-center">View Ticket</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
 
-    .hover-lift:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-</style>
+<!-- Discover Events -->
+<div class="eh-section-card">
+    <div class="eh-section-card-header">
+        <h6><i class="fa fa-compass mr-1" style="color:#55a5d2;"></i> Discover Events</h6>
+        <a asp-controller="Events" asp-action="Index" class="eh-btn eh-btn-outline" style="padding:5px 14px;">View All</a>
+    </div>
+    <div class="eh-section-card-body">
+        @if (upcomingEvents.Any())
+        {
+            <div class="row">
+                @foreach (var e in upcomingEvents.Take(3))
+                {
+                    <div class="col-md-4 mb-3">
+                        <a asp-controller="Events" asp-action="Details" asp-route-id="@e.Id" class="eh-event-card">
+                            <div class="eh-event-type-badge">@e.EventType</div>
+                            <h6 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:0.9rem;color:#1a1a2e;margin-bottom:8px;">
+                                @e.EventName
+                            </h6>
+                            <p class="mb-1" style="font-size:0.8rem;color:#888;">
+                                <i class="fa fa-calendar mr-1" style="color:#55a5d2;"></i>
+                                @e.StartDateTime.ToString("dd MMM, HH:mm")
+                            </p>
+                            <p class="mb-0" style="font-size:0.8rem;color:#aaa;">
+                                <i class="fa fa-ticket mr-1"></i> @(e.TotalTickets - e.TicketsSold) tickets left
+                            </p>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="eh-empty-state">
+                <div class="empty-icon"><i class="fa fa-calendar"></i></div>
+                <p>No events available right now. Check back soon!</p>
+            </div>
+        }
+    </div>
+</div>

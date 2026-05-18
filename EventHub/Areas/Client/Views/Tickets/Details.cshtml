@@ -4,52 +4,129 @@
     ViewData["Title"] = $"Ticket #{Model.TicketNumber}";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="fw-semibold mb-0">Ticket #@Model.TicketNumber</h5>
-    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">My Tickets</a>
-</div>
+<style>
+    .eh-back-link { display:inline-flex;align-items:center;font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:500;color:#55a5d2;text-decoration:none;margin-bottom:24px;transition:color 0.2s; }
+    .eh-back-link:hover { color:#1a1a2e;text-decoration:none; }
+    .eh-back-link i { margin-right:6px; }
+    .eh-ticket-wrapper { max-width: 480px; }
+    .eh-ticket-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .eh-ticket-card .ticket-top {
+        background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+        padding: 28px 24px;
+        text-align: center;
+        position: relative;
+    }
+    .eh-ticket-card .ticket-top::after {
+        content: '';
+        position: absolute;
+        bottom: -12px;
+        left: 0;
+        right: 0;
+        height: 24px;
+        background: #fff;
+        border-radius: 50% 50% 0 0 / 0 0 100% 100%;
+    }
+    .eh-ticket-status {
+        display: inline-block;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+    }
+    .status-valid { background: rgba(39,174,96,0.2); color: #27ae60; }
+    .status-used  { background: rgba(150,150,150,0.2); color: #aaa; }
+    .ticket-event-name {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #fff;
+        margin: 0;
+    }
+    .eh-ticket-body {
+        padding: 32px 24px 24px;
+    }
+    .eh-ticket-qr {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+    .eh-ticket-qr img {
+        border: 6px solid #f4f4f4;
+        border-radius: 8px;
+        max-width: 200px;
+    }
+    .eh-ticket-qr small {
+        display: block;
+        margin-top: 8px;
+        font-size: 0.75rem;
+        color: #bbb;
+        font-family: 'Poppins', sans-serif;
+    }
+    .eh-divider { border: none; border-top: 1px dashed #e0e0e0; margin: 20px 0; }
+    .eh-detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 14px;
+        font-family: 'Poppins', sans-serif;
+    }
+    .eh-detail-row .label { font-size: 0.78rem; color: #bbb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .eh-detail-row .value { font-size: 0.85rem; color: #333; font-weight: 500; text-align: right; max-width: 60%; }
+    .eh-detail-row .value.mono { font-family: monospace; font-size: 0.8rem; word-break: break-all; }
+</style>
 
-<div class="card border" style="max-width: 480px;">
-    <div class="card-body">
-        <div class="text-center mb-4">
-            <span class="badge bg-@(Model.IsUsed ? "secondary" : "success") mb-2">
-                @(Model.IsUsed ? "Used" : "Valid")
-            </span>
-            <h6 class="fw-semibold mb-0">@Model.EventName</h6>
-        </div>
+<a asp-action="Index" class="eh-back-link">
+    <i class="fa fa-arrow-left"></i> My Tickets
+</a>
 
-        @if (!string.IsNullOrEmpty(Model.QRCodeImage))
-        {
-            <div class="text-center mb-4">
-                <img src="data:image/png;base64,@Model.QRCodeImage" 
-                     alt="Ticket QR Code" 
-                     class="img-fluid border rounded" 
-                     style="max-width: 250px; height: auto;" />
-                <p class="text-muted small mt-2">Scan to verify ticket</p>
+<div class="eh-ticket-wrapper">
+    <div class="eh-ticket-card">
+        <div class="ticket-top">
+            <div class="eh-ticket-status @(Model.IsUsed ? "status-used" : "status-valid")">
+                @(Model.IsUsed ? "Used" : "Valid Ticket")
             </div>
-        }
+            <p class="ticket-event-name">@Model.EventName</p>
+        </div>
 
-        <hr />
+        <div class="eh-ticket-body">
+            @if (!string.IsNullOrEmpty(Model.QRCodeImage))
+            {
+                <div class="eh-ticket-qr">
+                    <img src="data:image/png;base64,@Model.QRCodeImage" alt="Ticket QR Code" />
+                    <small>Scan to verify</small>
+                </div>
+            }
 
-        <div class="row mb-2">
-            <div class="col-5 text-muted small">Ticket Code</div>
-            <div class="col-7 fw-medium small font-monospace">@Model.HashedCode</div>
-        </div>
-        <div class="row mb-2">
-            <div class="col-5 text-muted small">Date &amp; Time</div>
-            <div class="col-7 small">@Model.EventStart.ToString("dd MMM yyyy, HH:mm")</div>
-        </div>
-        <div class="row mb-2">
-            <div class="col-5 text-muted small">Ends</div>
-            <div class="col-7 small">@Model.EventEnd.ToString("dd MMM yyyy, HH:mm")</div>
-        </div>
-        <div class="row mb-2">
-            <div class="col-5 text-muted small">Venue / Room</div>
-            <div class="col-7 small">@Model.RoomName</div>
-        </div>
-        <div class="row mb-2">
-            <div class="col-5 text-muted small">Purchased</div>
-            <div class="col-7 small">@Model.PurchasedAt.ToString("dd MMM yyyy, HH:mm")</div>
+            <hr class="eh-divider" />
+
+            <div class="eh-detail-row">
+                <span class="label">Ticket Code</span>
+                <span class="value mono">@Model.HashedCode</span>
+            </div>
+            <div class="eh-detail-row">
+                <span class="label">Date &amp; Time</span>
+                <span class="value">@Model.EventStart.ToString("dd MMM yyyy, HH:mm")</span>
+            </div>
+            <div class="eh-detail-row">
+                <span class="label">Ends</span>
+                <span class="value">@Model.EventEnd.ToString("dd MMM yyyy, HH:mm")</span>
+            </div>
+            <div class="eh-detail-row">
+                <span class="label">Venue / Room</span>
+                <span class="value">@Model.RoomName</span>
+            </div>
+            <div class="eh-detail-row">
+                <span class="label">Purchased</span>
+                <span class="value">@Model.PurchasedAt.ToString("dd MMM yyyy, HH:mm")</span>
+            </div>
         </div>
     </div>
 </div>

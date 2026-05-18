@@ -4,63 +4,104 @@
     ViewData["Title"] = "My Tickets";
 }
 
+<style>
+    .eh-page-header { margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid #e8ecf0; }
+    .eh-page-header h4 { font-family:'Poppins',sans-serif; font-weight:700; font-size:1.4rem; color:#1a1a2e; margin-bottom:4px; }
+    .eh-page-header p  { color:#aaa; font-size:0.85rem; margin:0; }
+    .eh-table-card { background:#fff; border:1px solid #e8ecf0; border-radius:8px; overflow:hidden; }
+    .eh-table { width:100%; border-collapse:collapse; font-family:'Poppins',sans-serif; }
+    .eh-table thead th {
+        font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.7px;
+        color:#999; padding:14px 16px; border-bottom:1px solid #e8ecf0; background:#fafbfc; white-space:nowrap;
+    }
+    .eh-table tbody td { padding:14px 16px; border-bottom:1px solid #f4f4f4; vertical-align:middle; font-size:0.85rem; color:#555; }
+    .eh-table tbody tr:last-child td { border-bottom:none; }
+    .eh-table tbody tr:hover { background:#fafbfc; }
+    .eh-pill {
+        display:inline-block; padding:3px 11px; border-radius:20px;
+        font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;
+    }
+    .pill-purchased { background:#e8f4fd; color:#2196f3; }
+    .pill-reserved  { background:#fff8e1; color:#ff9800; }
+    .pill-valid     { background:#e8f8f0; color:#27ae60; }
+    .pill-used      { background:#f1f3f4; color:#999; }
+    .eh-view-btn {
+        display:inline-block; padding:5px 14px; border-radius:4px;
+        border:1px solid #55a5d2; color:#55a5d2; font-size:0.75rem; font-weight:600;
+        text-transform:uppercase; letter-spacing:0.4px; text-decoration:none;
+        transition:background 0.2s, color 0.2s;
+    }
+    .eh-view-btn:hover { background:#55a5d2; color:#fff; text-decoration:none; }
+    .eh-empty { text-align:center; padding:60px 20px; }
+    .eh-empty i { font-size:52px; color:#e0e0e0; display:block; margin-bottom:16px; }
+    .eh-empty p { color:#bbb; font-size:0.85rem; }
+    .eh-empty a { color:#55a5d2; }
+</style>
+
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show small" role="alert">
+    <div class="alert alert-success alert-dismissible fade show small" role="alert"
+         style="font-family:'Poppins',sans-serif;border-radius:6px;">
         @TempData["Success"]
         <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
 }
 
-<div class="card border">
-    <div class="card-body p-0">
-        <table class="table table-sm table-hover mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th class="small">#</th>
-                    <th class="small">Event</th>
-                    <th class="small">Date</th>
-                    <th class="small">Venue</th>
-                    <th class="small">Type</th>
-                    <th class="small">Status</th>
-                    <th class="small">Purchased</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var t in Model)
-                {
+<div class="eh-page-header">
+    <h4><i class="fa fa-ticket mr-2" style="color:#55a5d2;"></i>My Tickets</h4>
+    <p>@Model.Count() ticket(s) in your account</p>
+</div>
+
+<div class="eh-table-card">
+    @if (!Model.Any())
+    {
+        <div class="eh-empty">
+            <i class="fa fa-ticket"></i>
+            <p>No tickets yet. <a asp-action="Index" asp-controller="Events">Browse events</a> to get started.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="eh-table">
+                <thead>
                     <tr>
-                        <td class="small text-muted">@t.TicketNumber</td>
-                        <td class="small fw-medium">@t.EventName</td>
-                        <td class="small">@t.EventStart.ToString("dd MMM yyyy, HH:mm")</td>
-                        <td class="small">@t.RoomName</td>
-                        <td>
-                            <span class="badge bg-@(t.Status == EventHub.Infrastructure.Data.Models.TicketStatus.Purchased ? "primary" : "info") fw-normal">
-                                @t.Status
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge bg-@(t.IsUsed ? "secondary" : "success") fw-normal">
-                                @(t.IsUsed ? "Used" : "Valid")
-                            </span>
-                        </td>
-                        <td class="small">@t.PurchasedAt.ToString("dd MMM yyyy")</td>
-                        <td class="text-end">
-                            <a asp-action="Details" asp-route-id="@t.Id"
-                               class="btn btn-outline-secondary btn-sm">View</a>
-                        </td>
+                        <th>#</th>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Purchased</th>
+                        <th></th>
                     </tr>
-                }
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="7" class="text-center text-muted small py-4">
-                            No tickets yet. <a asp-action="Index" asp-controller="Events">Browse events</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model)
+                    {
+                        <tr>
+                            <td style="color:#bbb;">@t.TicketNumber</td>
+                            <td style="font-weight:600;color:#1a1a2e;">@t.EventName</td>
+                            <td>@t.EventStart.ToString("dd MMM yyyy, HH:mm")</td>
+                            <td>@t.RoomName</td>
+                            <td>
+                                <span class="eh-pill @(t.Status == EventHub.Infrastructure.Data.Models.TicketStatus.Purchased ? "pill-purchased" : "pill-reserved")">
+                                    @t.Status
+                                </span>
+                            </td>
+                            <td>
+                                <span class="eh-pill @(t.IsUsed ? "pill-used" : "pill-valid")">
+                                    @(t.IsUsed ? "Used" : "Valid")
+                                </span>
+                            </td>
+                            <td>@t.PurchasedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-right">
+                                <a asp-action="Details" asp-route-id="@t.Id" class="eh-view-btn">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

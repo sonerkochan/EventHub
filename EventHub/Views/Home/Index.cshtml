@@ -7,216 +7,371 @@
     ViewData["Title"] = "EventHub - Your Event Marketplace";
 }
 
-<!-- Hero Section -->
-<div class="bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 80px 0;">
-    <div class="container">
+<style>
+    /* ── Hero ── */
+    .eh-hero {
+        background: linear-gradient(135deg, var(--tr-dark) 0%, #16213e 55%, var(--tr-mid) 100%);
+        padding: 96px 0 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .eh-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2355a5d2' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .eh-hero-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: 3rem;
+        color: #fff;
+        line-height: 1.15;
+        margin-bottom: 20px;
+    }
+    .eh-hero-title span { color: var(--tr-accent); }
+    .eh-hero-sub {
+        font-size: 1rem;
+        color: rgba(255,255,255,0.65);
+        line-height: 1.7;
+        margin-bottom: 36px;
+        max-width: 480px;
+    }
+    .eh-hero-btn {
+        display: inline-block;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        padding: 14px 32px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s;
+    }
+    .eh-hero-btn-primary { background: var(--tr-accent); color: #fff; }
+    .eh-hero-btn-primary:hover { background: #fff; color: var(--tr-dark); text-decoration: none; }
+    .eh-hero-btn-outline { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.35); margin-left: 12px; }
+    .eh-hero-btn-outline:hover { background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; }
+    .eh-hero-visual {
+        display: flex; align-items: center; justify-content: center;
+        font-size: 160px; opacity: 0.12; color: var(--tr-accent);
+    }
+
+    /* ── Stats bar ── */
+    .eh-stats-bar {
+        background: #fff;
+        border-bottom: 1px solid var(--tr-border);
+        padding: 28px 0;
+    }
+    .eh-stat { text-align: center; }
+    .eh-stat .num {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: 1.8rem;
+        color: var(--tr-dark);
+        line-height: 1;
+        margin-bottom: 5px;
+    }
+    .eh-stat .lbl { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.7px; color: var(--tr-muted); font-weight: 600; }
+
+    /* ── Section titles ── */
+    .eh-section { padding: 72px 0; }
+    .eh-section-alt { background: #f4f7fa; }
+    .eh-section-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: 1.65rem;
+        color: var(--tr-dark);
+        margin-bottom: 6px;
+    }
+    .eh-section-sub { font-size: 0.88rem; color: var(--tr-muted); margin-bottom: 36px; }
+
+    /* ── Event cards (public listing) ── */
+    .eh-event-card {
+        background: #fff;
+        border: 1px solid var(--tr-border);
+        border-radius: 10px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.25s, transform 0.25s;
+    }
+    .eh-event-card:hover { box-shadow: 0 12px 32px rgba(0,0,0,0.10); transform: translateY(-5px); }
+    .eh-event-card .card-img { height: 190px; object-fit: cover; width: 100%; display: block; }
+    .eh-event-card .card-placeholder {
+        height: 190px;
+        background: linear-gradient(135deg, var(--tr-dark) 0%, var(--tr-mid) 100%);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 64px;
+    }
+    .eh-event-card .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    .eh-type-pill {
+        display: inline-block;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 3px 10px; border-radius: 20px;
+        text-transform: uppercase; letter-spacing: 0.4px;
+        margin-bottom: 10px; margin-right: 4px;
+    }
+    .pill-conference { background:#e8f4fd;color:#2196f3; }
+    .pill-workshop   { background:#fff8e1;color:#ff9800; }
+    .pill-seminar    { background:#e8f0ff;color:#5c6bc0; }
+    .pill-concert    { background:#fce8e8;color:#e74c3c; }
+    .pill-sports     { background:#e8f8f0;color:#27ae60; }
+    .pill-other      { background:#f3e5f5;color:#9c27b0; }
+    .pill-venue      { background:#f1f3f4;color:#777; }
+    .eh-event-title  { font-family:'Poppins',sans-serif; font-weight:700; font-size:1rem; color:var(--tr-dark); margin-bottom:8px; }
+    .eh-event-meta   { font-size:0.8rem; color:#888; margin-bottom:4px; }
+    .eh-event-meta i { color:var(--tr-accent); margin-right:5px; }
+    .eh-price        { font-family:'Poppins',sans-serif; font-weight:800; font-size:1.2rem; color:var(--tr-accent); }
+    .eh-free-pill    { display:inline-block; background:#e8f8f0; color:#27ae60; font-size:0.72rem; font-weight:700; padding:3px 12px; border-radius:20px; text-transform:uppercase; }
+    .eh-avail-track  { height:5px; border-radius:10px; background:#eee; overflow:hidden; margin-bottom:14px; }
+    .eh-avail-fill   { height:100%; border-radius:10px; }
+    .fill-ok         { background: #27ae60; }
+    .fill-low        { background: #e74c3c; }
+    .eh-card-btn {
+        display:block; text-align:center;
+        background:var(--tr-dark); color:#fff;
+        font-family:'Poppins',sans-serif; font-size:0.78rem; font-weight:700;
+        text-transform:uppercase; letter-spacing:0.5px;
+        padding:10px; border-radius:4px; text-decoration:none;
+        transition:background 0.2s; margin-top:auto;
+    }
+    .eh-card-btn:hover { background:var(--tr-accent); color:#fff; text-decoration:none; }
+
+    /* ── Category grid ── */
+    .eh-cat-card {
+        background:#fff; border:1px solid var(--tr-border); border-radius:8px;
+        padding:22px 14px; text-align:center;
+        transition:box-shadow 0.25s,transform 0.25s,border-color 0.25s;
+        text-decoration:none; display:block; color:inherit;
+    }
+    .eh-cat-card:hover { box-shadow:0 8px 24px rgba(0,0,0,0.09); transform:translateY(-4px); border-color:var(--tr-accent); text-decoration:none; color:inherit; }
+    .eh-cat-icon  { font-size:36px; margin-bottom:10px; display:block; }
+    .eh-cat-label { font-family:'Poppins',sans-serif; font-size:0.8rem; font-weight:600; color:var(--tr-dark); text-transform:uppercase; letter-spacing:0.4px; }
+
+    /* ── CTA band ── */
+    .eh-cta-band {
+        background: linear-gradient(135deg, var(--tr-accent) 0%, var(--tr-mid) 100%);
+        padding: 72px 0;
+        text-align: center;
+    }
+    .eh-cta-band h2 { font-family:'Poppins',sans-serif; font-weight:800; font-size:1.8rem; color:#fff; margin-bottom:14px; }
+    .eh-cta-band p  { color:rgba(255,255,255,0.75); font-size:0.95rem; margin-bottom:32px; }
+    .eh-cta-btn {
+        display:inline-block; background:#fff; color:var(--tr-dark);
+        font-family:'Poppins',sans-serif; font-size:0.85rem; font-weight:700;
+        text-transform:uppercase; letter-spacing:0.6px;
+        padding:14px 36px; border-radius:4px; text-decoration:none;
+        transition:background 0.2s, color 0.2s;
+    }
+    .eh-cta-btn:hover { background:var(--tr-dark); color:#fff; text-decoration:none; }
+</style>
+
+<!-- ===== HERO ===== -->
+<section class="eh-hero">
+    <div class="container position-relative">
         <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-3">Discover Amazing Events</h1>
-                <p class="lead mb-4">From concerts to conferences, workshops to sports - find and book tickets for events that inspire you.</p>
+            <div class="col-lg-7">
+                <h1 class="eh-hero-title">
+                    Discover <span>Amazing</span><br>Events Near You
+                </h1>
+                <p class="eh-hero-sub">
+                    From concerts to conferences, workshops to sports &mdash; find and book
+                    tickets for events that inspire you.
+                </p>
                 @if (!SignInManager.IsSignedIn(User))
                 {
-                    <div class="d-flex gap-3">
-                        <a href="/User/Register" class="btn btn-light btn-lg px-4">Get Started</a>
-                        <a href="/User/Login" class="btn btn-outline-light btn-lg px-4">Sign In</a>
+                    <div>
+                        <a asp-controller="User" asp-action="Register" class="eh-hero-btn eh-hero-btn-primary">Get Started</a>
+                        <a asp-controller="User" asp-action="Login" class="eh-hero-btn eh-hero-btn-outline">Sign In</a>
                     </div>
                 }
                 else
                 {
-                    <div class="d-flex gap-3">
-                        <a asp-area="Client" asp-controller="Events" asp-action="Index" class="btn btn-light btn-lg px-4">Browse Events</a>
-                        <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="btn btn-outline-light btn-lg px-4">My Tickets</a>
+                    <div>
+                        <a asp-area="Client" asp-controller="Events" asp-action="Index" class="eh-hero-btn eh-hero-btn-primary">Browse Events</a>
+                        <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="eh-hero-btn eh-hero-btn-outline">My Tickets</a>
                     </div>
                 }
             </div>
-            <div class="col-lg-6 text-center d-none d-lg-block">
-                <div style="font-size: 200px; opacity: 0.2;">🎫</div>
+            <div class="col-lg-5 d-none d-lg-flex eh-hero-visual">
+                <i class="fa fa-ticket"></i>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Stats Section -->
-<div class="bg-light py-4">
+<!-- ===== STATS ===== -->
+<div class="eh-stats-bar">
     <div class="container">
-        <div class="row text-center">
-            <div class="col-md-3 col-6 mb-3 mb-md-0">
-                <h3 class="fw-bold mb-0">@Model.Count()</h3>
-                <small class="text-muted">Live Events</small>
+        <div class="row">
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="eh-stat">
+                    <div class="num">@Model.Count()</div>
+                    <div class="lbl">Live Events</div>
+                </div>
             </div>
-            <div class="col-md-3 col-6 mb-3 mb-md-0">
-                <h3 class="fw-bold mb-0">@Model.Sum(e => e.TotalTickets)</h3>
-                <small class="text-muted">Total Tickets</small>
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="eh-stat">
+                    <div class="num">@Model.Sum(e => e.TotalTickets)</div>
+                    <div class="lbl">Total Tickets</div>
+                </div>
             </div>
-            <div class="col-md-3 col-6">
-                <h3 class="fw-bold mb-0">@Model.Sum(e => e.TicketsSold)</h3>
-                <small class="text-muted">Tickets Sold</small>
+            <div class="col-6 col-md-3">
+                <div class="eh-stat">
+                    <div class="num">@Model.Sum(e => e.TicketsSold)</div>
+                    <div class="lbl">Tickets Sold</div>
+                </div>
             </div>
-            <div class="col-md-3 col-6">
-                <h3 class="fw-bold mb-0">@Model.Select(e => e.EventType).Distinct().Count()</h3>
-                <small class="text-muted">Categories</small>
+            <div class="col-6 col-md-3">
+                <div class="eh-stat">
+                    <div class="num">@Model.Select(e => e.EventType).Distinct().Count()</div>
+                    <div class="lbl">Categories</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Upcoming Events Section -->
-<div class="container my-5">
-    @if (Model.Any())
-    {
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0">Upcoming Events</h2>
-            <a asp-area="Client" asp-controller="Events" asp-action="Index" class="btn btn-outline-dark">View All →</a>
-        </div>
+<!-- ===== UPCOMING EVENTS ===== -->
+<section class="eh-section">
+    <div class="container">
+        @if (Model.Any())
+        {
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <div class="eh-section-title">Upcoming Events</div>
+                    <div class="eh-section-sub">Don&rsquo;t miss what&rsquo;s happening around you</div>
+                </div>
+                <a asp-area="Client" asp-controller="Events" asp-action="Index"
+                   style="font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:700;color:var(--tr-accent);text-transform:uppercase;letter-spacing:0.5px;text-decoration:none;">
+                    View All <i class="fa fa-arrow-right ml-1"></i>
+                </a>
+            </div>
 
-        <div class="row g-4">
-            @foreach (var e in Model.Take(6))
-            {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100 hover-lift" style="transition: all 0.3s;">
-                        @if (!string.IsNullOrEmpty(e.CoverImageUrl))
-                        {
-                            <img src="@e.CoverImageUrl" class="card-img-top" alt="@e.EventName" style="height: 200px; object-fit: cover;">
-                        }
-                        else
-                        {
-                            <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center" 
-                                 style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                <span style="font-size: 64px;">@GetEventIcon(e.EventType)</span>
-                            </div>
-                        }
-                        <div class="card-body d-flex flex-column">
-                            <div class="mb-2">
-                                <span class="badge bg-@GetTypeBadgeColor(e.EventType) fw-normal small">@e.EventType</span>
-                                <span class="badge bg-secondary fw-normal small ms-1">@e.RoomName</span>
-                            </div>
-                            <h5 class="card-title fw-semibold mb-2">@e.EventName</h5>
-                            <p class="text-muted small mb-2">
-                                📅 @e.StartDateTime.ToString("ddd, MMM dd, yyyy")
-                            </p>
-                            <p class="text-muted small mb-3">
-                                🕐 @e.StartDateTime.ToString("h:mm tt")
-                            </p>
-                            <div class="mt-auto">
-                                @if (e.BasePrice > 0)
-                                {
-                                    <div class="mb-2">
-                                        <span class="fw-bold" style="font-size: 1.25rem; color: #667eea;">$@e.BasePrice.ToString("F2")</span>
-                                        <small class="text-muted"> per ticket</small>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="mb-2">
-                                        <span class="badge fw-normal" style="background: #10b981; color: white; padding: 0.25rem 0.75rem;">FREE</span>
-                                    </div>
-                                }
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <small class="text-muted">@(e.TotalTickets - e.TicketsSold) tickets left</small>
-                                    <div class="progress" style="width: 100px; height: 6px;">
-                                        <div class="progress-bar bg-success" role="progressbar" 
-                                             style="width: @((e.TotalTickets - e.TicketsSold) * 100.0 / e.TotalTickets)%"></div>
-                                    </div>
+            <div class="row">
+                @foreach (var e in Model.Take(6))
+                {
+                    var pct  = e.TotalTickets > 0 ? (e.TotalTickets - e.TicketsSold) * 100.0 / e.TotalTickets : 0;
+                    var isLow = pct < 20;
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="eh-event-card">
+                            @if (!string.IsNullOrEmpty(e.CoverImageUrl))
+                            {
+                                <img src="@e.CoverImageUrl" class="card-img" alt="@e.EventName" />
+                            }
+                            else
+                            {
+                                <div class="card-placeholder">@GetEventIcon(e.EventType)</div>
+                            }
+                            <div class="card-body">
+                                <div>
+                                    <span class="eh-type-pill pill-@e.EventType.ToString().ToLower()">@e.EventType</span>
+                                    <span class="eh-type-pill pill-venue">@e.RoomName</span>
                                 </div>
+                                <div class="eh-event-title">@e.EventName</div>
+                                <p class="eh-event-meta"><i class="fa fa-calendar"></i> @e.StartDateTime.ToString("ddd, MMM dd, yyyy")</p>
+                                <p class="eh-event-meta mb-3"><i class="fa fa-clock-o"></i> @e.StartDateTime.ToString("h:mm tt")</p>
+
+                                <div class="mb-2">
+                                    @if (e.BasePrice > 0)
+                                    {
+                                        <span class="eh-price">$@e.BasePrice.ToString("F2")</span>
+                                        <small style="color:#aaa;"> / ticket</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="eh-free-pill">Free</span>
+                                    }
+                                </div>
+                                <div class="d-flex justify-content-between mb-1" style="font-size:0.77rem;color:#aaa;">
+                                    <span>@(e.TotalTickets - e.TicketsSold) / @e.TotalTickets left</span>
+                                    <span style="color:@(isLow ? "#e74c3c" : "#27ae60");">@(isLow ? "Low stock" : "Available")</span>
+                                </div>
+                                <div class="eh-avail-track mb-3">
+                                    <div class="eh-avail-fill @(isLow ? "fill-low" : "fill-ok")" style="width:@pct%;"></div>
+                                </div>
+
                                 @if (SignInManager.IsSignedIn(User))
                                 {
-                                    <a asp-area="Client" asp-controller="Events" asp-action="Details" asp-route-id="@e.Id" 
-                                       class="btn btn-dark btn-sm w-100">View Details</a>
+                                    <a asp-area="Client" asp-controller="Events" asp-action="Details"
+                                       asp-route-id="@e.Id" class="eh-card-btn">View Details</a>
                                 }
                                 else
                                 {
-                                    <a href="/User/Login" class="btn btn-dark btn-sm w-100">Sign in to Book</a>
+                                    <a asp-controller="User" asp-action="Login" class="eh-card-btn">
+                                        <i class="fa fa-lock mr-1"></i> Sign In to Book
+                                    </a>
                                 }
                             </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <div class="text-center py-5">
-            <div style="font-size: 80px; opacity: 0.3; margin-bottom: 20px;">🎭</div>
-            <h3 class="text-muted">No events available right now</h3>
-            <p class="text-muted">Check back soon for upcoming events!</p>
-            @if (User.IsInRole("Admin") || User.IsInRole("Organizer"))
-            {
-                <a asp-area="Admin" asp-controller="Events" asp-action="Create" class="btn btn-primary mt-3">Create Your First Event</a>
-            }
-        </div>
-    }
-</div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fa fa-calendar-o" style="font-size:72px;color:#e0e0e0;display:block;margin-bottom:20px;"></i>
+                <h4 style="font-family:'Poppins',sans-serif;font-weight:700;color:#bbb;">No events available right now</h4>
+                <p style="color:#ccc;font-size:0.88rem;">Check back soon for upcoming events!</p>
+            </div>
+        }
+    </div>
+</section>
 
-<!-- Categories Section -->
-<div class="bg-light py-5">
+<!-- ===== CATEGORIES ===== -->
+<section class="eh-section eh-section-alt">
     <div class="container">
-        <h2 class="fw-bold text-center mb-4">Browse by Category</h2>
-        <div class="row g-3">
+        <div class="text-center mb-4">
+            <div class="eh-section-title">Browse by Category</div>
+            <div class="eh-section-sub">Something for every interest</div>
+        </div>
+        <div class="row">
             @foreach (var type in Enum.GetValues<EventType>())
             {
-                <div class="col-6 col-md-4 col-lg-2">
-                    <a asp-area="Client" asp-controller="Events" asp-action="Index" 
-                       class="text-decoration-none">
-                        <div class="card border-0 shadow-sm text-center p-3 h-100 hover-lift" style="transition: all 0.3s;">
-                            <div style="font-size: 40px;">@GetEventIcon(type)</div>
-                            <small class="fw-medium mt-2">@type</small>
-                        </div>
+                <div class="col-6 col-md-4 col-lg-2 mb-3">
+                    <a asp-area="Client" asp-controller="Events" asp-action="Index" class="eh-cat-card">
+                        <span class="eh-cat-icon">@GetEventIcon(type)</span>
+                        <span class="eh-cat-label">@type</span>
                     </a>
                 </div>
             }
         </div>
     </div>
-</div>
+</section>
 
-<!-- CTA Section for Organizers -->
+<!-- ===== CTA ===== -->
 @if (!SignInManager.IsSignedIn(User) || !User.IsInRole("Organizer"))
 {
-    <div class="container my-5">
-        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-            <div class="card-body text-white text-center py-5">
-                <h2 class="fw-bold mb-3">Want to Host Events?</h2>
-                <p class="lead mb-4">Join EventHub as an organizer and reach thousands of potential attendees.</p>
-                @if (SignInManager.IsSignedIn(User))
-                {
-                    <a asp-area="Client" asp-controller="Application" asp-action="Apply" asp-route-type="1" 
-                       class="btn btn-light btn-lg px-5">Apply as Organizer</a>
-                }
-                else
-                {
-                    <a href="/User/Register" class="btn btn-light btn-lg px-5">Get Started</a>
-                }
-            </div>
+    <section class="eh-cta-band">
+        <div class="container">
+            <h2>Want to Host Events?</h2>
+            <p>Join EventHub as an organizer and reach thousands of potential attendees.</p>
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <a asp-area="Client" asp-controller="Application" asp-action="Apply" asp-route-type="1" class="eh-cta-btn">
+                    Apply as Organizer
+                </a>
+            }
+            else
+            {
+                <a asp-controller="User" asp-action="Register" class="eh-cta-btn">Get Started Free</a>
+            }
         </div>
-    </div>
+    </section>
 }
 
 @functions {
     string GetEventIcon(EventType type) => type switch
     {
         EventType.Conference => "💼",
-        EventType.Workshop => "🛠️",
-        EventType.Seminar => "🎓",
-        EventType.Concert => "🎵",
-        EventType.Sports => "⚽",
-        EventType.Other => "🎭",
+        EventType.Workshop   => "🛠️",
+        EventType.Seminar    => "🎓",
+        EventType.Concert    => "🎵",
+        EventType.Sports     => "⚽",
+        EventType.Other      => "🎭",
         _ => "🎫"
     };
-
-    string GetTypeBadgeColor(EventType type) => type switch
-    {
-        EventType.Conference => "primary",
-        EventType.Workshop => "warning",
-        EventType.Seminar => "info",
-        EventType.Concert => "danger",
-        EventType.Sports => "success",
-        _ => "secondary"
-    };
 }
-
-<style>
-    .hover-lift:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    }
-</style>

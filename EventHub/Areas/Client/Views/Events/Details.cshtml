@@ -4,52 +4,190 @@
     ViewData["Title"] = Model.EventName;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="fw-semibold mb-0">@Model.EventName</h5>
-    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back</a>
-</div>
+<style>
+    .eh-back-link {
+        display: inline-flex;
+        align-items: center;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #55a5d2;
+        text-decoration: none;
+        margin-bottom: 20px;
+        transition: color 0.2s;
+    }
+    .eh-back-link:hover { color: #1a1a2e; text-decoration: none; }
+    .eh-back-link i { margin-right: 6px; }
+    .eh-detail-hero {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    .eh-detail-hero img {
+        width: 100%;
+        max-height: 380px;
+        object-fit: cover;
+        display: block;
+    }
+    .eh-detail-hero .desc {
+        padding: 24px;
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.7;
+    }
+    .eh-info-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .eh-info-card-header {
+        background: #1a1a2e;
+        padding: 16px 20px;
+    }
+    .eh-info-card-header h5 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #fff;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .eh-info-card-body {
+        padding: 20px;
+    }
+    .eh-info-row {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .eh-info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .eh-info-label {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #bbb;
+        margin-bottom: 4px;
+    }
+    .eh-info-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: #1a1a2e;
+    }
+    .eh-info-value i { color: #55a5d2; margin-right: 6px; }
+    .eh-book-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: #55a5d2;
+        color: #fff;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 13px;
+        border-radius: 4px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 8px;
+    }
+    .eh-book-btn:hover { background: #1a1a2e; color: #fff; text-decoration: none; }
+    .eh-sold-out-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: #e8ecf0;
+        color: #aaa;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 13px;
+        border-radius: 4px;
+        margin-top: 8px;
+        cursor: not-allowed;
+    }
+    .eh-avail-bar { height: 6px; border-radius: 10px; background: #e8ecf0; overflow: hidden; margin-top: 6px; }
+    .eh-avail-bar .fill { height: 100%; border-radius: 10px; }
+</style>
 
-<div class="row g-4">
-    <div class="col-md-8">
-        <div class="card border mb-3">
-            <div class="card-body">
-                @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
-                {
-                    <img src="@Model.CoverImageUrl" class="img-fluid rounded mb-3" alt="Event cover" />
-                }
-                <p class="text-muted">@(Model.Description ?? "No description provided.")</p>
+<a asp-action="Index" class="eh-back-link">
+    <i class="fa fa-arrow-left"></i> Back to Events
+</a>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="eh-detail-hero">
+            @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+            {
+                <img src="@Model.CoverImageUrl" alt="@Model.EventName" />
+            }
+            <div class="desc">
+                <h4 style="font-family:'Poppins',sans-serif;font-weight:700;color:#1a1a2e;margin-bottom:14px;">@Model.EventName</h4>
+                @(Model.Description ?? "No description provided.")
             </div>
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card border mb-3">
-            <div class="card-body">
-                <div class="mb-2">
-                    <small class="text-muted d-block">Start</small>
-                    <span class="fw-medium small">@Model.StartDateTime.ToString("dd MMM yyyy, HH:mm")</span>
+    <div class="col-lg-4">
+        <div class="eh-info-card">
+            <div class="eh-info-card-header">
+                <h5>@Model.EventName</h5>
+            </div>
+            <div class="eh-info-card-body">
+                <div class="eh-info-row">
+                    <div class="eh-info-label">Start</div>
+                    <div class="eh-info-value">
+                        <i class="fa fa-calendar"></i> @Model.StartDateTime.ToString("dd MMM yyyy, HH:mm")
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <small class="text-muted d-block">End</small>
-                    <span class="fw-medium small">@Model.EndDateTime.ToString("dd MMM yyyy, HH:mm")</span>
+                <div class="eh-info-row">
+                    <div class="eh-info-label">End</div>
+                    <div class="eh-info-value">
+                        <i class="fa fa-calendar-check-o"></i> @Model.EndDateTime.ToString("dd MMM yyyy, HH:mm")
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <small class="text-muted d-block">Venue / Room</small>
-                    <span class="fw-medium small">@Model.RoomName</span>
+                <div class="eh-info-row">
+                    <div class="eh-info-label">Venue / Room</div>
+                    <div class="eh-info-value">
+                        <i class="fa fa-map-marker"></i> @Model.RoomName
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <small class="text-muted d-block">Availability</small>
-                    <span class="fw-medium small">@(Model.TotalTickets - Model.TicketsSold) / @Model.TotalTickets tickets left</span>
+                <div class="eh-info-row">
+                    <div class="eh-info-label">Availability</div>
+                    <div class="eh-info-value">
+                        <i class="fa fa-ticket"></i>
+                        @(Model.TotalTickets - Model.TicketsSold) / @Model.TotalTickets tickets left
+                    </div>
+                    @{
+                        var pct = Model.TotalTickets > 0 ? (Model.TotalTickets - Model.TicketsSold) * 100.0 / Model.TotalTickets : 0;
+                        var isLow = pct < 20;
+                    }
+                    <div class="eh-avail-bar">
+                        <div class="fill" style="width:@pct%;background:@(isLow ? "#e74c3c" : "#27ae60");"></div>
+                    </div>
                 </div>
 
                 @if (Model.TotalTickets - Model.TicketsSold > 0)
                 {
-                    <a asp-action="Buy" asp-route-id="@Model.Id"
-                       class="btn btn-dark btn-sm w-100">Get Tickets</a>
+                    <a asp-action="Buy" asp-route-id="@Model.Id" class="eh-book-btn">
+                        <i class="fa fa-ticket mr-1"></i> Get Tickets
+                    </a>
                 }
                 else
                 {
-                    <button class="btn btn-secondary btn-sm w-100" disabled>Sold Out</button>
+                    <div class="eh-sold-out-btn">Sold Out</div>
                 }
             </div>
         </div>
