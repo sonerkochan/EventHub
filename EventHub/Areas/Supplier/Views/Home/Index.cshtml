@@ -1,40 +1,177 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@using EventHub.Infrastructure.Data.Models
+@inject EventHub.Infrastructure.Data.ApplicationDbContext DbContext
+
 @{
     ViewData["Title"] = "Supplier Dashboard";
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var servicesCount = DbContext.SupplierServices.Count(s => s.SupplierId == userId && !s.IsDeleted);
+    var pendingRequestsCount = DbContext.ServiceRentalRequests.Count(r => r.SupplierService.SupplierId == userId && r.Status == ServiceRentalRequestStatus.Pending);
+
+    // Взимаме последните 3 заявки за този доставчик, за да ги покажем на таблото
+    var recentRequests = DbContext.ServiceRentalRequests
+        .Include(r => r.SupplierService)
+        .Include(r => r.Requester) 
+        .Where(r => r.SupplierService.SupplierId == userId)
+        .OrderByDescending(r => r.RequestedAt)
+        .Take(3)
+        .ToList();
 }
 
-<div class="page-header">
-    <h1 class="page-title">Supplier Dashboard</h1>
-    <div class="page-options">
-        <a asp-area="Supplier" asp-controller="Services" asp-action="Create" class="btn btn-primary">
-            <i class="fa fa-plus mr-1"></i> Create Service
-        </a>
+<div class="page-header mt-5">
+    <h1 class="page-title" style="font-size: 2rem;">Supplier Dashboard</h1>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 border-0">
+            <div class="card-status bg-primary"></div>
+            <div class="card-body p-5 text-center d-flex flex-column align-items-center">
+                <div class="d-flex align-items-center justify-content-center" style="height: 80px; min-height: 80px;">
+                    <span class="avatar avatar-xxl rounded-circle" style="background: rgba(30, 60, 114, 0.08); color: #1e3c72; width: 80px; height: 80px; font-size: 32px;"><i class="fa fa-briefcase"></i></span>
+                </div>
+                
+                <div class="h1 mt-4 mb-0 font-weight-bold" style="font-size: 3.5rem; color: #1e3c72; line-height: 1;">@servicesCount</div>
+                <div class="text-muted mb-4 mt-2 text-uppercase tracking-wide font-weight-bold small" style="letter-spacing: 1px;">Active Services</div>
+                
+                <div class="mt-autow-100" style="margin-top: auto !important;">
+                    <a asp-area="Supplier" asp-controller="Services" asp-action="Index" class="btn btn-pill px-4 text-uppercase font-weight-bold btn-sm" style="letter-spacing: 1px; color: #1e3c72; background: rgba(30, 60, 114, 0.05); border: none;">
+                        Manage Services <i class="fa fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 border-0">
+            <div class="card-status bg-success"></div>
+            <div class="card-body p-5 text-center d-flex flex-column align-items-center">
+                <div class="d-flex align-items-center justify-content-center" style="height: 80px; min-height: 80px;">
+                    <span class="avatar avatar-xxl rounded-circle" style="background: rgba(17, 153, 142, 0.08); color: #11998e; width: 80px; height: 80px; font-size: 32px;"><i class="fa fa-clock-o"></i></span>
+                </div>
+                
+                <div class="h1 mt-4 mb-0 font-weight-bold" style="font-size: 3.5rem; color: #11998e; line-height: 1;">@pendingRequestsCount</div>
+                <div class="text-muted mb-4 mt-2 text-uppercase tracking-wide font-weight-bold small" style="letter-spacing: 1px;">Pending Requests</div>
+                
+                <div class="mt-auto w-100" style="margin-top: auto !important;">
+                    <a asp-area="Supplier" asp-controller="Requests" asp-action="Index" class="btn btn-pill px-4 text-uppercase font-weight-bold btn-sm" style="letter-spacing: 1px; color: #11998e; background: rgba(17, 153, 142, 0.05); border: none;">
+                        View Requests <i class="fa fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6 col-xl-4">
-        <div class="card">
-            <div class="card-status bg-primary"></div>
-            <div class="card-body">
-                <h3 class="card-title">My Services</h3>
-                <p class="text-muted">Manage the services you offer to event organizers.</p>
-                <a asp-area="Supplier" asp-controller="Services" asp-action="Index" class="btn btn-secondary">
-                    View Services
-                </a>
+<div class="row mt-2">
+    
+    <div class="col-lg-8 mb-4">
+        <div class="card border-0 h-100">
+            <div class="card-header border-0 bg-transparent pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h3 class="card-title font-weight-700 m-0" style="color: #1e3c72; font-size: 1.25rem;">Recent Rental Requests</h3>
+                <a asp-area="Supplier" asp-controller="Requests" asp-action="Index" class="small font-weight-600 text-primary" style="text-decoration:none;">See all</a>
+            </div>
+            
+            <div class="card-body p-0">
+                @if (!recentRequests.Any())
+                {
+                    <div class="p-5 text-center text-muted">
+                        <i class="fa fa-inbox mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                        <p class="m-0 small">No requests recorded yet.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+    <table class="table table-hover table-vcenter card-table mb-0" style="font-size: 0.9rem;">
+        <thead style="background: #f8fafc; border-bottom: 1px solid rgba(0,0,0,0.03);">
+            <tr>
+                <th class="pl-4 text-muted small text-uppercase font-weight-bold">Requester</th>
+                <th class="text-muted small text-uppercase font-weight-bold">Service</th>
+                <th class="text-muted small text-uppercase font-weight-bold">Status</th>
+                <th class="pr-4 text-muted small text-uppercase font-weight-bold text-right">Requested On</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var req in recentRequests)
+            {
+                <tr>
+                    <td class="pl-4 py-3">
+    <div class="d-flex align-items-center">
+        <i class="fa fa-user text-muted mr-2" style="font-size: 0.85rem; color: #94a3b8 !important;"></i>
+        <div class="font-weight-600 text-dark" style="font-size: 0.95rem;">
+            @(req.Requester != null && !string.IsNullOrWhiteSpace(req.Requester.UserName) ? req.Requester.UserName : "Client")
+        </div>
+    </div>
+</td>
+
+                    <td class="py-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-briefcase text-muted mr-2" style="font-size: 0.85rem; color: #94a3b8 !important;"></i>
+                            <div class="font-weight-600 text-secondary">
+                                @(req.SupplierService != null ? req.SupplierService.Name : "Unknown Service")
+                            </div>
+                        </div>
+                    </td>
+                    
+                    <td class="py-3">
+                        @if (req.Status == ServiceRentalRequestStatus.Pending)
+                        {
+                            <span class="badge badge-pill font-weight-bold" style="background: rgba(255, 193, 7, 0.12); color: #8a6d00; padding: 0.4em 0.8em;">Pending</span>
+                        }
+                        else if (req.Status == ServiceRentalRequestStatus.Accepted)
+                        {
+                            <span class="badge badge-pill font-weight-bold" style="background: rgba(17, 153, 142, 0.12); color: #0e746a; padding: 0.4em 0.8em;">Accepted</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-pill font-weight-bold" style="background: rgba(230, 57, 70, 0.1); color: #b71c1c; padding: 0.4em 0.8em;">Declined</span>
+                        }
+                    </td>
+
+                    <td class="pr-4 py-3 text-right text-muted font-weight-500" style="font-size: 0.85rem;">
+                        <div>@req.RequestedAt.ToLocalTime().ToString("MMM dd, yyyy")</div>
+                        <small class="text-muted" style="font-size: 0.75rem;">@req.RequestedAt.ToLocalTime().ToString("hh:mm tt")</small>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+                }
             </div>
         </div>
     </div>
 
-    <div class="col-md-6 col-xl-4">
-        <div class="card">
-            <div class="card-status bg-success"></div>
-            <div class="card-body">
-                <h3 class="card-title">Service Requests</h3>
-                <p class="text-muted">Review organizer requests and rental activity.</p>
-                <a asp-area="Supplier" asp-controller="Requests" asp-action="Index" class="btn btn-secondary">
-                    View Requests
-                </a>
+    <div class="col-lg-4 mb-4">
+        <div class="card border-0 h-100">
+            <div class="card-header border-0 bg-transparent pt-4 px-4">
+                <h3 class="card-title font-weight-700 m-0" style="color: #1e3c72; font-size: 1.25rem;">Quick Actions</h3>
+            </div>
+            <div class="card-body px-4 pt-2">
+                <div class="d-flex flex-column gap-2">
+                    
+                    <button class="btn p-3 text-left border-0 d-flex align-items-center justify-content-between" data-toggle="modal" data-target="#createServiceModal" style="background: rgba(30, 60, 114, 0.04); border-radius: 12px; transition: all 0.2s ease; color: #1e3c72;" onmouseover="this.style.background='rgba(30, 60, 114, 0.08)'" onmouseout="this.style.background='rgba(30, 60, 114, 0.04)'">
+                        <div class="d-flex align-items-center">
+                            <span class="mr-3 d-flex align-items-center justify-content-center" style="background: #ffffff; width: 36px; height: 36px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);"><i class="fa fa-plus text-primary"></i></span>
+                            <span class="font-weight-600" style="font-size: 0.95rem;">Create New Service</span>
+                        </div>
+                        <i class="fa fa-chevron-right text-muted small"></i>
+                    </button>
+
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn p-3 text-left border-0 d-flex align-items-center justify-content-between" style="background: rgba(30, 60, 114, 0.04); border-radius: 12px; transition: all 0.2s ease; color: #475569; text-decoration: none;" onmouseover="this.style.background='rgba(30, 60, 114, 0.08)'" onmouseout="this.style.background='rgba(30, 60, 114, 0.04)'">
+                        <div class="d-flex align-items-center">
+                            <span class="mr-3 d-flex align-items-center justify-content-center" style="background: #ffffff; width: 36px; height: 36px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);"><i class="fa fa-home text-secondary"></i></span>
+                            <span class="font-weight-600" style="font-size: 0.95rem;">View Main Website</span>
+                        </div>
+                        <i class="fa fa-chevron-right text-muted small"></i>
+                    </a>
+
+                </div>
             </div>
         </div>
     </div>
+
 </div>
