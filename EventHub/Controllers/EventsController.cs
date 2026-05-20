@@ -2,6 +2,7 @@ using EventHub.Core.Contracts;
 using EventHub.Core.Models.Event;
 using EventHub.Models.Api;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace EventHub.Controllers
 {
@@ -10,31 +11,76 @@ namespace EventHub.Controllers
     public class EventsController : ControllerBase
     {
         private readonly IEventService _eventsService;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<EventsController> _logger;
 
-        public EventsController(IEventService eventService)
+        public EventsController(IEventService eventService, IMemoryCache cache, ILogger<EventsController> logger    )
         {
             _eventsService = eventService;
+            _cache = cache;
+            _logger = logger;
         }
+
+        //[HttpGet]
+        //public async Task<IActionResult> GetEvents()
+        //{
+        //    var events = await _cache.GetOrCreateAsync("events_all", async entry =>
+        //    {
+        //        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+        //        _logger.LogInformation("");
+        //        return await _eventsService.GetPublishedEventsAsync();
+        //    });
+
+        //    return Ok(events!.Select(MapToApiResponse));
+        //}
 
         [HttpGet]
         public async Task<IActionResult> GetEvents()
         {
-            var events = await _eventsService.GetPublishedEventsAsync();
+            const string cacheKey = "events_all";
+            bool cacheHit = _cache.TryGetValue(cacheKey, out IEnumerable<EventListViewModel>? events);
 
-            return Ok(events.Select(MapToApiResponse));
+            if (!cacheHit)
+            {
+                _logger.LogInformation("CACHE MISS — fetching from DB for key: {Key}", cacheKey);
+                events = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                    return await _eventsService.GetPublishedEventsAsync();
+                });
+            }
+            else
+            {
+                _logger.LogInformation("CACHE HIT — returning cached data for key: {Key}", cacheKey);
+            }
+
+            return Ok(events!.Select(MapToApiResponse));
         }
+
 
         [HttpGet("city")]
         public async Task<IActionResult> GetEventsByCity([FromQuery] string? city)
         {
             if (string.IsNullOrWhiteSpace(city))
-            {
                 return BadRequest(new { error = "The city query parameter is required." });
+
+            var cacheKey = $"events_city_{city.ToLowerInvariant()}";
+            bool cacheHit = _cache.TryGetValue(cacheKey, out IEnumerable<EventListViewModel>? events);
+            if (!cacheHit)
+            {
+                _logger.LogInformation("CACHE MISS - fetching from DB for key: {Key}", cacheKey);
+                events = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                    return await _eventsService.GetPublishedEventsByCityAsync(city);
+                });
+            }
+            else
+            {
+                _logger.LogInformation("CACHE HIT - returning cached data for key: {Key}", cacheKey);
             }
 
-            var events = await _eventsService.GetPublishedEventsByCityAsync(city);
-
-            return Ok(events.Select(MapToApiResponse));
+            return Ok(events!.Select(MapToApiResponse));
         }
 
         private static EventApiResponse MapToApiResponse(EventListViewModel e)
