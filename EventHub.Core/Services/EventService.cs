@@ -3,6 +3,7 @@ using EventHub.Core.Models.Event;
 using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,51 +13,65 @@ namespace EventHub.Core.Services
     public class EventService : IEventService
     {
         private readonly IRepository repo;
+        private readonly IMemoryCache _cache;
         private readonly ICurrencyDisplayService currencyDisplayService;
 
         public EventService(
             IRepository _repo,
+            IMemoryCache cache,
             ICurrencyDisplayService _currencyDisplayService)
         {
             repo = _repo;
+            _cache = cache;
             currencyDisplayService = _currencyDisplayService;
         }
 
         public async Task<Guid> CreateAsync(CreateEventViewModel model, Guid createdBy)
         {
-            var entity = new Event
+            try
             {
-                Id = Guid.NewGuid(),
-                OrganizerId = createdBy,
-                RoomId = model.RoomId,
-                EventName = model.EventName,
-                Description = model.Description,
-                EventType = model.EventType,
-                EventPriority = model.EventPriority,
-                EventStatus = EventStatus.Draft,
-                StartDateTime = model.StartDateTime,
-                EndDateTime = model.EndDateTime,
-                TotalTickets = model.TotalTickets,
-                TicketsSold = 0,
-                BasePrice = model.BasePrice,
-                AllowRefunds = model.AllowRefunds,
-                RefundDeadline = model.RefundDeadline ?? default,
-                IsActive = true,
-                CoverImageUrl = model.CoverImageUrl,
-                Address = string.IsNullOrWhiteSpace(model.Address) ? null : model.Address.Trim(),
-                City = string.IsNullOrWhiteSpace(model.City) ? null : model.City.Trim(),
-                CountryCode = string.IsNullOrWhiteSpace(model.CountryCode)
+                var entity = new Event
+                {
+                    Id = Guid.NewGuid(),
+                    OrganizerId = createdBy,
+                    RoomId = model.RoomId,
+                    EventName = model.EventName,
+                    Description = model.Description,
+                    EventType = model.EventType,
+                    EventPriority = model.EventPriority,
+                    EventStatus = EventStatus.Draft,
+                    StartDateTime = model.StartDateTime,
+                    EndDateTime = model.EndDateTime,
+                    TotalTickets = model.TotalTickets,
+                    TicketsSold = 0,
+                    BasePrice = model.BasePrice,
+                    AllowRefunds = model.AllowRefunds,
+                    RefundDeadline = model.RefundDeadline ?? default,
+                    IsActive = true,
+                    CoverImageUrl = model.CoverImageUrl,
+                    Address = string.IsNullOrWhiteSpace(model.Address) ? null : model.Address.Trim(),
+                    City = string.IsNullOrWhiteSpace(model.City) ? null : model.City.Trim(),
+                    CountryCode = string.IsNullOrWhiteSpace(model.CountryCode)
                     ? null
                     : model.CountryCode.Trim().ToUpperInvariant(),
-                Latitude = model.Latitude,
-                Longitude = model.Longitude,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+                    Latitude = model.Latitude,
+                    Longitude = model.Longitude,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                await repo.AddAsync(entity);
+                await repo.SaveChangesAsync();
 
-            await repo.AddAsync(entity);
-            await repo.SaveChangesAsync();
-            return entity.Id;
+                _cache.Remove("events_all");
+                _cache.Remove($"events_city_{entity?.City?.ToLowerInvariant()}");
+
+                return entity.Id;
+            }
+            catch(Exception)
+            {
+                return Guid.Empty;
+                throw;
+            }
         }
 
         public async Task<IEnumerable<EventListViewModel>> GetAllEventsAsync()
