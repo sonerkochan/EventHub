@@ -5,32 +5,51 @@
     Layout = "~/Areas/Supplier/Views/Shared/_SupplierLayout.cshtml";
 }
 
-<h3>Create a new service</h3>
-
-<form asp-action="Create" method="post" class="row g-3">
-    <div class="col-md-6">
-        <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+<div class="page-header mt-5">
+    <div>
+        <h1 class="page-title" style="font-size: 2rem;">Add New Service</h1>
+        <div class="page-subtitle mt-2" style="font-size: 1.1rem; color: #6c757d;">Publish a new service to be rented by event organizers.</div>
     </div>
+</div>
 
-    <div class="col-12">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+<div class="card mt-4 p-5 border-0" style="max-width: 800px; border-radius: 20px;">
+    <div>
+        <form asp-action="Create" method="post" class="row">
+            <div class="col-md-8 mb-4">
+                <label asp-for="Name" class="form-label font-weight-bold text-muted small text-uppercase" style="letter-spacing: 1px;">Service Name</label>
+                <input asp-for="Name" class="form-control form-control-lg border-0 bg-light" placeholder="e.g. Premium Catering, DJ Setup..." style="font-size: 1.05rem; border-radius: 12px;" />
+                <span asp-validation-for="Name" class="text-danger small mt-1 d-block"></span>
+            </div>
 
-    <div class="col-md-4">
-        <label asp-for="Price" class="form-label"></label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
+            <div class="col-md-4 mb-4">
+                <label asp-for="Price" class="form-label font-weight-bold text-muted small text-uppercase" style="letter-spacing: 1px;">Base Price</label>
+                <div class="input-group input-group-lg" style="border-radius: 12px; overflow: hidden;">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light border-0"><i class="fa fa-eur text-primary"></i></span>
+                    </div>
+                    <input asp-for="Price" class="form-control border-0 bg-light" placeholder="0.00" style="font-size: 1.05rem;" />
+                </div>
+                <span asp-validation-for="Price" class="text-danger small"></span>
+                <small class="form-text text-muted mt-2">Leave empty for custom quote.</small>
+            </div>
 
-    <div class="col-12">
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a asp-area="Supplier" asp-controller="Home" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+            <div class="col-12 mb-4">
+                <label asp-for="Description" class="form-label font-weight-bold text-muted small text-uppercase" style="letter-spacing: 1px;">Description</label>
+                <textarea asp-for="Description" class="form-control border-0 bg-light" rows="6" placeholder="Describe everything included in this service..." style="border-radius: 12px; resize: none; font-size: 1.05rem;"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 pt-4 mt-2">
+                <div class="d-flex justify-content-end align-items-center">
+                    <a asp-action="Index" class="btn btn-link text-muted mr-4 font-weight-bold" style="text-decoration: none; font-size: 1.05rem;">Cancel</a>
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm" style="font-weight: 600; font-size: 1.05rem;">
+                        <i class="fa fa-paper-plane mr-2"></i> Publish Service
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
-</form>
+</div>
 
 @section Scripts {
     <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
