@@ -14,15 +14,18 @@ namespace EventHub.Areas.Organizer.Controllers
         private readonly UserManager<User> userManager;
         private readonly IEventService eventService;
         private readonly IRoomService roomService;
+        private readonly IPhotoService photoService;
 
         public EventsController(
             UserManager<User> _userManager,
             IEventService _eventService,
-            IRoomService _roomService)
+            IRoomService _roomService,
+            IPhotoService _photoService)
         {
             userManager = _userManager;
             eventService = _eventService;
             roomService = _roomService;
+            photoService = _photoService;
         }
         public async Task<IActionResult> Index()
         {
@@ -49,6 +52,14 @@ namespace EventHub.Areas.Organizer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateEventViewModel model)
         {
+            ValidateCoverImageUrl(model.CoverPhotoUpload, model.CoverImageUrl);
+            if (!ModelState.IsValid)
+            {
+                model.AvailableRooms = await BuildRoomSelectList();
+                return View(model);
+            }
+
+            await ApplyCoverImageAsync(model);
             if (!ModelState.IsValid)
             {
                 model.AvailableRooms = await BuildRoomSelectList();
@@ -74,6 +85,14 @@ namespace EventHub.Areas.Organizer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditEventViewModel model)
         {
+            ValidateCoverImageUrl(model.CoverPhotoUpload, model.CoverImageUrl);
+            if (!ModelState.IsValid)
+            {
+                model.AvailableRooms = await BuildRoomSelectList();
+                return View(model);
+            }
+
+            await ApplyCoverImageAsync(model);
             if (!ModelState.IsValid)
             {
                 model.AvailableRooms = await BuildRoomSelectList();
@@ -119,6 +138,56 @@ namespace EventHub.Areas.Organizer.Controllers
                 Value = r.Id.ToString(),
                 Text = $"{r.Name} (cap. {r.Capacity})"
             });
+        }
+
+        private async Task ApplyCoverImageAsync(CreateEventViewModel model)
+        {
+            if (model.CoverPhotoUpload?.Length > 0)
+            {
+                await UploadCoverPhotoAsync(model.CoverPhotoUpload, id => model.CoverPhotoId = id);
+                model.CoverImageUrl = null;
+                return;
+            }
+
+            model.CoverImageUrl = string.IsNullOrWhiteSpace(model.CoverImageUrl)
+                ? null
+                : model.CoverImageUrl.Trim();
+        }
+
+        private async Task ApplyCoverImageAsync(EditEventViewModel model)
+        {
+            if (model.CoverPhotoUpload?.Length > 0)
+            {
+                await UploadCoverPhotoAsync(model.CoverPhotoUpload, id => model.CoverPhotoId = id);
+                model.CoverImageUrl = null;
+                return;
+            }
+
+            model.CoverImageUrl = string.IsNullOrWhiteSpace(model.CoverImageUrl)
+                ? null
+                : model.CoverImageUrl.Trim();
+        }
+
+        private async Task UploadCoverPhotoAsync(IFormFile file, Action<Guid?> setPhotoId)
+        {
+            try
+            {
+                setPhotoId(await photoService.UploadPhotoAsync(file));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("CoverPhotoUpload", ex.Message);
+            }
+        }
+
+        private void ValidateCoverImageUrl(IFormFile? upload, string? value)
+        {
+            if (upload?.Length > 0 || EventCoverImageResolver.IsValidExternalUrl(value))
+            {
+                return;
+            }
+
+            ModelState.AddModelError("CoverImageUrl", "Cover image URL must be an absolute http or https URL.");
         }
     }
 }

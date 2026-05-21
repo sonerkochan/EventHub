@@ -5,9 +5,10 @@
 
 <h2>Edit Event</h2>
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <input asp-for="Id" type="hidden" />
+    <input asp-for="CoverPhotoId" type="hidden" />
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
     <div class="row g-3">
@@ -80,6 +81,14 @@
         <div class="col-md-8">
             <label asp-for="CoverImageUrl" class="form-label">Cover Image URL</label>
             <input asp-for="CoverImageUrl" class="form-control" />
+            <span asp-validation-for="CoverImageUrl" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="CoverPhotoUpload" class="form-label">Upload New Cover Photo</label>
+            <input asp-for="CoverPhotoUpload" class="form-control" type="file" accept="image/jpeg,image/png,image/webp,image/heic" />
+            <span asp-validation-for="CoverPhotoUpload" class="text-danger"></span>
+            <small class="text-muted d-block mt-1">Uploaded photo is used instead of the URL.</small>
         </div>
 
         <div class="col-12">

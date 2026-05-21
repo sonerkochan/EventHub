@@ -48,6 +48,11 @@ namespace EventHub.Infrastructure.Data
             builder.Entity<Event>().Property(e => e.BasePrice).HasPrecision(18, 4);
             builder.Entity<Event>().Property(e => e.Latitude).HasPrecision(10, 7);
             builder.Entity<Event>().Property(e => e.Longitude).HasPrecision(10, 7);
+            builder.Entity<Event>()
+                .HasOne(e => e.CoverImage)
+                .WithMany()
+                .HasForeignKey(e => e.CoverPhotoId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
         public DbSet<Venue> Venues { get; set; }
@@ -73,6 +78,7 @@ namespace EventHub.Infrastructure.Data
         public DbSet<SeatHolds> SeatHolds { get; set; }
         public DbSet<SupplierService> SupplierServices { get; set; }
         public DbSet<ServiceRentalRequest> ServiceRentalRequests { get; set; }
+        public DbSet<Photo> CoverPhotos { get; set; }
 
     }
 }

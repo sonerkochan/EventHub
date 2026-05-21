@@ -1,6 +1,6 @@
 @model EventHub.Core.Models.Event.CreateEventViewModel
 
-<form asp-action="Create" method="post" onsubmit="return submitModalForm(this)">
+<form asp-action="Create" method="post" enctype="multipart/form-data" onsubmit="return submitModalForm(this)">
     @Html.AntiForgeryToken()
 
     <div class="modal-header">
@@ -75,6 +75,14 @@
         <div class="mb-3">
             <label asp-for="CoverImageUrl" class="form-label small fw-medium">Cover Image URL</label>
             <input asp-for="CoverImageUrl" class="form-control form-control-sm" placeholder="https://..." />
+            <span asp-validation-for="CoverImageUrl" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CoverPhotoUpload" class="form-label small fw-medium">Upload Cover Photo</label>
+            <input asp-for="CoverPhotoUpload" class="form-control form-control-sm" type="file" accept="image/jpeg,image/png,image/webp,image/heic" />
+            <span asp-validation-for="CoverPhotoUpload" class="text-danger small"></span>
+            <small class="text-muted d-block mt-1">Uploaded photo is used instead of the URL.</small>
         </div>
 
         <div class="mb-2">

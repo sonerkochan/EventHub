@@ -31,6 +31,8 @@ namespace EventHub.Infrastructure.Data.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public string? CoverImageUrl { get; set; }
+        public Guid? CoverPhotoId { get; set; }
+        public Photo? CoverImage { get; set; }
     }
 
     public enum EventPriority

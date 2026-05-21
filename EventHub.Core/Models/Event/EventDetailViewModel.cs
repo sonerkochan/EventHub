@@ -27,6 +27,8 @@ namespace EventHub.Core.Models.Event
         public DateTime? RefundDeadline { get; set; }
         public bool IsActive { get; set; }
         public string? CoverImageUrl { get; set; }
+        public Guid? CoverPhotoId { get; set; }
+        public string? CoverImageDisplayUrl { get; set; }
         public string? RoomName { get; set; }
         public string? Address { get; set; }
         public string? City { get; set; }

@@ -26,6 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ISeatService, SeatService>();
             services.AddScoped<IZoneService, ZoneService>();
             services.AddScoped<IEventPricingTierService, EventPricingTierService>();
+            services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IQRCodeService, QRCodeService>();
             services.AddScoped<ISupplierServiceCatalogService, SupplierServiceCatalogService>();
             services.AddScoped<IAdminSupplierServiceService, AdminSupplierServiceService>();

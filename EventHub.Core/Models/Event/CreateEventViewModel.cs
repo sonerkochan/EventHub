@@ -1,4 +1,5 @@
 ﻿using EventHub.Infrastructure.Data.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,8 @@ namespace EventHub.Core.Models.Event
         public DateTime? RefundDeadline { get; set; }
 
         public string? CoverImageUrl { get; set; }
+        public Guid? CoverPhotoId { get; set; }
+        public IFormFile? CoverPhotoUpload { get; set; }
 
         [StringLength(250)]
         public string? Address { get; set; }

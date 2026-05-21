@@ -14,7 +14,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form asp-action="Create" method="post" class="form-modern">
+            <form asp-action="Create" method="post" enctype="multipart/form-data" class="form-modern">
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
 
@@ -92,6 +92,15 @@
                         <div class="form-group">
                             <label asp-for="CoverImageUrl" class="form-label">Cover Image URL</label>
                             <input asp-for="CoverImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                            <span asp-validation-for="CoverImageUrl" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="CoverPhotoUpload" class="form-label">Upload Cover Photo</label>
+                            <input asp-for="CoverPhotoUpload" class="form-control" type="file" accept="image/jpeg,image/png,image/webp,image/heic" />
+                            <span asp-validation-for="CoverPhotoUpload" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">Uploaded photo is used instead of the URL.</small>
                         </div>
                     </div>
                 </div>

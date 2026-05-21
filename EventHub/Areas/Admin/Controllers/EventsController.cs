@@ -1,5 +1,6 @@
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.Event;
+using EventHub.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
@@ -10,11 +11,16 @@ namespace EventHub.Areas.Admin.Controllers
     {
         private readonly IEventService eventService;
         private readonly IRoomService roomService;
+        private readonly IPhotoService photoService;
 
-        public EventsController(IEventService _eventService, IRoomService _roomService)
+        public EventsController(
+            IEventService _eventService,
+            IRoomService _roomService,
+            IPhotoService _photoService)
         {
             eventService = _eventService;
             roomService = _roomService;
+            photoService = _photoService;
         }
 
         public async Task<IActionResult> Index()
@@ -37,6 +43,14 @@ namespace EventHub.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateEventViewModel model)
         {
+            ValidateCoverImageUrl(model.CoverPhotoUpload, model.CoverImageUrl);
+            if (!ModelState.IsValid)
+            {
+                model.AvailableRooms = await BuildRoomSelectList();
+                return PartialView("_CreateModal", model);
+            }
+
+            await ApplyCoverImageAsync(model);
             if (!ModelState.IsValid)
             {
                 model.AvailableRooms = await BuildRoomSelectList();
@@ -62,6 +76,14 @@ namespace EventHub.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditEventViewModel model)
         {
+            ValidateCoverImageUrl(model.CoverPhotoUpload, model.CoverImageUrl);
+            if (!ModelState.IsValid)
+            {
+                model.AvailableRooms = await BuildRoomSelectList();
+                return PartialView("_EditModal", model);
+            }
+
+            await ApplyCoverImageAsync(model);
             if (!ModelState.IsValid)
             {
                 model.AvailableRooms = await BuildRoomSelectList();
@@ -106,6 +128,60 @@ namespace EventHub.Areas.Admin.Controllers
                 Value = r.Id.ToString(),
                 Text = $"{r.Name} (cap. {r.Capacity})"
             });
+        }
+
+        private async Task ApplyCoverImageAsync(CreateEventViewModel model)
+        {
+            if (model.CoverPhotoUpload?.Length > 0)
+            {
+                await UploadCoverPhotoAsync(model.CoverPhotoUpload, id => model.CoverPhotoId = id);
+                model.CoverImageUrl = null;
+                return;
+            }
+
+            NormalizeCoverImageUrl(model.CoverImageUrl, value => model.CoverImageUrl = value);
+        }
+
+        private async Task ApplyCoverImageAsync(EditEventViewModel model)
+        {
+            if (model.CoverPhotoUpload?.Length > 0)
+            {
+                await UploadCoverPhotoAsync(model.CoverPhotoUpload, id => model.CoverPhotoId = id);
+                model.CoverImageUrl = null;
+                return;
+            }
+
+            NormalizeCoverImageUrl(model.CoverImageUrl, value => model.CoverImageUrl = value);
+        }
+
+        private void ValidateCoverImageUrl(IFormFile? upload, string? value)
+        {
+            if (upload?.Length > 0)
+            {
+                return;
+            }
+
+            if (!EventCoverImageResolver.IsValidExternalUrl(value))
+            {
+                ModelState.AddModelError("CoverImageUrl", "Cover image URL must be an absolute http or https URL.");
+            }
+        }
+
+        private async Task UploadCoverPhotoAsync(IFormFile file, Action<Guid?> setPhotoId)
+        {
+            try
+            {
+                setPhotoId(await photoService.UploadPhotoAsync(file));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("CoverPhotoUpload", ex.Message);
+            }
+        }
+
+        private void NormalizeCoverImageUrl(string? value, Action<string?> setUrl)
+        {
+            setUrl(string.IsNullOrWhiteSpace(value) ? null : value.Trim());
         }
     }
 }

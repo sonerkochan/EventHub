@@ -31,5 +31,7 @@ namespace EventHub.Core.Models.Event
         public bool IsActive { get; set; }
         public string? RoomName { get; set; }
         public string? CoverImageUrl { get; set; }
+        public Guid? CoverPhotoId { get; set; }
+        public string? CoverImageDisplayUrl { get; set; }
     }
 }
