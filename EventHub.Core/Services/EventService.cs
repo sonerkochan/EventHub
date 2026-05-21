@@ -53,8 +53,8 @@ namespace EventHub.Core.Services
                     Address = string.IsNullOrWhiteSpace(model.Address) ? null : model.Address.Trim(),
                     City = string.IsNullOrWhiteSpace(model.City) ? null : model.City.Trim(),
                     CountryCode = string.IsNullOrWhiteSpace(model.CountryCode)
-                    ? null
-                    : model.CountryCode.Trim().ToUpperInvariant(),
+                        ? null
+                        : model.CountryCode.Trim().ToUpperInvariant(),
                     Latitude = model.Latitude,
                     Longitude = model.Longitude,
                     CreatedAt = DateTime.UtcNow,
@@ -64,7 +64,10 @@ namespace EventHub.Core.Services
                 await repo.SaveChangesAsync();
 
                 _cache.Remove("events_all");
-                _cache.Remove($"events_city_{entity?.City?.ToLowerInvariant()}");
+                if (!string.IsNullOrWhiteSpace(entity.City))
+                {
+                    _cache.Remove($"events_city_{entity.City.ToLowerInvariant()}");
+                }
 
                 return entity.Id;
             }

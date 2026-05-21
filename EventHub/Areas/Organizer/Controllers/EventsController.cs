@@ -29,10 +29,13 @@ namespace EventHub.Areas.Organizer.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var user = await userManager.GetUserAsync(User);
+            var userIdValue = userManager.GetUserId(User);
+            if (userIdValue == null)
+            {
+                return Unauthorized();
+            }
 
-            Guid userId = Guid.Parse(user.Id);
-
+            Guid userId = Guid.Parse(userIdValue);
             var model = await eventService.GetOrganizersEventsAsync(userId);
 
             return View(model);
