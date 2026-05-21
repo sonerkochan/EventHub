@@ -170,9 +170,9 @@ else
             var isLow = pct < 20;
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="eh-event-listing-card">
-                    @if (!string.IsNullOrEmpty(e.CoverImageUrl))
+                    @if (!string.IsNullOrEmpty(e.CoverImageDisplayUrl))
                     {
-                        <img src="@e.CoverImageUrl" class="card-img-top" alt="@e.EventName" />
+                        <img src="@e.CoverImageDisplayUrl" class="card-img-top" alt="@e.EventName" />
                     }
                     else
                     {

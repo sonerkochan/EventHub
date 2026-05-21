@@ -14,10 +14,10 @@
 </div>
 
 <div class="modal-body">
-    @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+    @if (!string.IsNullOrEmpty(Model.CoverImageDisplayUrl))
     {
-        <img src="@Model.CoverImageUrl" class="rounded mb-3"
-             style="max-height:220px;object-fit:cover;width:100%;" alt="Cover" />
+        <img src="@Model.CoverImageDisplayUrl" class="rounded mb-3"
+             style="max-height:220px;object-fit:cover;width:100%;" alt="@Model.EventName" />
     }
 
     <div class="row g-3">

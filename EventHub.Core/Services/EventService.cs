@@ -49,11 +49,12 @@ namespace EventHub.Core.Services
                     RefundDeadline = model.RefundDeadline ?? default,
                     IsActive = true,
                     CoverImageUrl = model.CoverImageUrl,
+                    CoverPhotoId = model.CoverPhotoId,
                     Address = string.IsNullOrWhiteSpace(model.Address) ? null : model.Address.Trim(),
                     City = string.IsNullOrWhiteSpace(model.City) ? null : model.City.Trim(),
                     CountryCode = string.IsNullOrWhiteSpace(model.CountryCode)
-                    ? null
-                    : model.CountryCode.Trim().ToUpperInvariant(),
+                        ? null
+                        : model.CountryCode.Trim().ToUpperInvariant(),
                     Latitude = model.Latitude,
                     Longitude = model.Longitude,
                     CreatedAt = DateTime.UtcNow,
@@ -63,7 +64,10 @@ namespace EventHub.Core.Services
                 await repo.SaveChangesAsync();
 
                 _cache.Remove("events_all");
-                _cache.Remove($"events_city_{entity?.City?.ToLowerInvariant()}");
+                if (!string.IsNullOrWhiteSpace(entity.City))
+                {
+                    _cache.Remove($"events_city_{entity.City.ToLowerInvariant()}");
+                }
 
                 return entity.Id;
             }
@@ -171,6 +175,7 @@ namespace EventHub.Core.Services
                 AllowRefunds = ev.AllowRefunds,
                 RefundDeadline = ev.RefundDeadline == default ? null : ev.RefundDeadline,
                 CoverImageUrl = ev.CoverImageUrl,
+                CoverPhotoId = ev.CoverPhotoId,
                 Address = ev.Address,
                 City = ev.City,
                 CountryCode = ev.CountryCode,
@@ -199,6 +204,7 @@ namespace EventHub.Core.Services
             ev.AllowRefunds = model.AllowRefunds;
             ev.RefundDeadline = model.RefundDeadline ?? default;
             ev.CoverImageUrl = model.CoverImageUrl;
+            ev.CoverPhotoId = model.CoverPhotoId;
             ev.Address = string.IsNullOrWhiteSpace(model.Address) ? null : model.Address.Trim();
             ev.City = string.IsNullOrWhiteSpace(model.City) ? null : model.City.Trim();
             ev.CountryCode = string.IsNullOrWhiteSpace(model.CountryCode)
@@ -271,7 +277,9 @@ namespace EventHub.Core.Services
                         BasePrice = e.BasePrice,
                         IsActive = e.IsActive,
                         RoomName = r.Name,
-                        CoverImageUrl = e.CoverImageUrl
+                        CoverImageUrl = e.CoverImageUrl,
+                        CoverPhotoId = e.CoverPhotoId,
+                        CoverImageDisplayUrl = EventCoverImageResolver.BuildDisplayUrl(e.CoverPhotoId, e.CoverImageUrl)
                     })
                 .OrderBy(e => e.StartDateTime);
         }
@@ -399,6 +407,8 @@ namespace EventHub.Core.Services
                         RefundDeadline = e.RefundDeadline == default ? null : e.RefundDeadline,
                         IsActive = e.IsActive,
                         CoverImageUrl = e.CoverImageUrl,
+                        CoverPhotoId = e.CoverPhotoId,
+                        CoverImageDisplayUrl = EventCoverImageResolver.BuildDisplayUrl(e.CoverPhotoId, e.CoverImageUrl),
                         RoomName = r.Name,
                         RoomId = e.RoomId,
                         Address = e.Address,
@@ -416,5 +426,6 @@ namespace EventHub.Core.Services
             public Dictionary<Guid, IEnumerable<decimal>> TierPricesByEvent { get; set; } = new();
             public Dictionary<Guid, IEnumerable<decimal>> TicketPricesByEvent { get; set; } = new();
         }
+
     }
 }

@@ -21,19 +21,6 @@ namespace EventHub.Controllers
             _logger = logger;
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetEvents()
-        //{
-        //    var events = await _cache.GetOrCreateAsync("events_all", async entry =>
-        //    {
-        //        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-        //        _logger.LogInformation("");
-        //        return await _eventsService.GetPublishedEventsAsync();
-        //    });
-
-        //    return Ok(events!.Select(MapToApiResponse));
-        //}
-
         [HttpGet]
         public async Task<IActionResult> GetEvents()
         {
@@ -98,7 +85,7 @@ namespace EventHub.Controllers
                 TicketsSold = e.TicketsSold,
                 StartDateTime = e.StartDateTime,
                 EndDateTime = e.EndDateTime,
-                CoverImageUrl = e.CoverImageUrl,
+                CoverImageUrl = e.CoverImageDisplayUrl,
                 RoomName = e.RoomName,
                 Location = new EventApiLocationResponse
                 {

@@ -137,9 +137,12 @@
 <div class="row">
     <div class="col-lg-8">
         <div class="eh-detail-hero">
-            @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+            @if (!string.IsNullOrEmpty(Model.CoverImageDisplayUrl))
             {
-                <img src="@Model.CoverImageUrl" alt="@Model.EventName" />
+                <img src="@Model.CoverImageDisplayUrl"
+                     class="img-fluid rounded mb-4"
+                     alt="@Model.EventName"
+                     style="max-height:300px;object-fit:cover;width:100%" />
             }
             <div class="desc">
                 <h4 style="font-family:'Poppins',sans-serif;font-weight:700;color:#1a1a2e;margin-bottom:14px;">@Model.EventName</h4>
