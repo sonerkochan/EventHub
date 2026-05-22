@@ -2,6 +2,7 @@ using System.Globalization;
 using Elastic.Apm.NetCoreAll;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
+using HapniTuk.Middlewares;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -78,6 +79,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseMiddleware<AnalyticsMiddleware>();
 app.UseRouting();
 
 // Apply localization from config
