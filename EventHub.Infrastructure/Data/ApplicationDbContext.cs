@@ -79,6 +79,8 @@ namespace EventHub.Infrastructure.Data
         public DbSet<SupplierService> SupplierServices { get; set; }
         public DbSet<ServiceRentalRequest> ServiceRentalRequests { get; set; }
         public DbSet<Photo> CoverPhotos { get; set; }
-
+        
+        // Analytics Logs
+        public DbSet<AnalyticsLog> AnalyticsLogs { get; set; }
     }
 }
