@@ -1,4 +1,4 @@
-using EventHub.Data;
+using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
 
 namespace EventHub.Middlewares
