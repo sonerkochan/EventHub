@@ -1,0 +1,38 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build_and_deploy:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test
+
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./publish --runtime win-x86
+
+      - name: Deploy Staging
+        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+        with:
+          website-name: ${{ secrets.STAGING_WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.STAGING_SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.STAGING_SERVER_USERNAME }}
+          server-password: ${{ secrets.STAGING_SERVER_PASSWORD }}
