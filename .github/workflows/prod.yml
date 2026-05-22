@@ -1,5 +1,6 @@
-name: Build, publish and deploy to MonsterASP.NET
-on: 
+name: Deploy Production
+
+on:
   push:
     branches:
       - master
@@ -7,6 +8,7 @@ on:
 jobs:
   build_and_deploy:
     runs-on: windows-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -14,20 +16,20 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-          
-      - name: Install dependencies
+
+      - name: Restore
         run: dotnet restore
-        
+
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Publish
-        run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
-        
-      - name: Test with .NET
+      - name: Test
         run: dotnet test
 
-      - name: Deploy to MonsterASP.NET via WebDeploy
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./publish --runtime win-x86
+
+      - name: Deploy Production
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
           website-name: ${{ secrets.WEBSITE_NAME }}
