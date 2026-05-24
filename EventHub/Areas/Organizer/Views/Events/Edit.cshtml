@@ -3,6 +3,10 @@
     ViewData["Title"] = "Edit Event";
 }
 
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
 <h2>Edit Event</h2>
 
 <form asp-action="Edit" method="post" enctype="multipart/form-data">
@@ -113,16 +117,22 @@
             <input asp-for="CountryCode" class="form-control" maxlength="2" placeholder="BG" />
             <span asp-validation-for="CountryCode" class="text-danger"></span>
         </div>
+        
+        <div class="col-12">
+            <label class="form-label">Pick Location on Map</label>
+            <div id="locationMap" style="height:350px; border-radius:8px; border:1px solid #dee2e6;"></div>
+            <small class="text-muted">Click the map to place a pin and fill in coordinates automatically.</small>
+        </div>
 
         <div class="col-md-3">
             <label asp-for="Latitude" class="form-label">Latitude</label>
-            <input asp-for="Latitude" class="form-control" type="number" min="-90" max="90" step="any" />
+            <input asp-for="Latitude" id="latInput" class="form-control" type="number" min="-90" max="90" step="any" />
             <span asp-validation-for="Latitude" class="text-danger"></span>
         </div>
 
         <div class="col-md-3">
             <label asp-for="Longitude" class="form-label">Longitude</label>
-            <input asp-for="Longitude" class="form-control" type="number" min="-180" max="180" step="any" />
+            <input asp-for="Longitude" id="lngInput" class="form-control" type="number" min="-180" max="180" step="any" />
             <span asp-validation-for="Longitude" class="text-danger"></span>
         </div>
     </div>
@@ -143,5 +153,55 @@
         const toggle = () => group.style.display = cb.checked ? 'block' : 'none';
         cb.addEventListener('change', toggle);
         toggle();
+    </script>
+    <script>
+        // MAP PICKER
+        const latInput = document.getElementById('latInput');
+        const lngInput = document.getElementById('lngInput');
+
+        const defaultLat = parseFloat(latInput.value) || 42.7;
+        const defaultLng = parseFloat(lngInput.value) || 25.5; // centres on Bulgaria
+
+        const map = L.map('locationMap').setView([defaultLat, defaultLng], 7);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // If coords already writen by user ->> show the pin immediately
+        let marker = null;
+        if (latInput.value && lngInput.value) {
+        marker = L.marker([defaultLat, defaultLng]).addTo(map);
+        }
+
+        // Click map -> drop/move pin then fill inputs
+        map.on('click', (e) => {
+        const { lat, lng } = e.latlng;
+        latInput.value = lat.toFixed(6);
+        lngInput.value = lng.toFixed(6);
+
+        if (marker) {
+        marker.setLatLng(e.latlng);
+        } else {
+        marker = L.marker(e.latlng).addTo(map);
+        }
+        });
+
+        // Typing in inputs -> movess pin
+        function syncMapFromInputs() {
+        const lat = parseFloat(latInput.value);
+        const lng = parseFloat(lngInput.value);
+        if (isNaN(lat) || isNaN(lng)) return;
+        const latlng = [lat, lng];
+        if (marker) {
+        marker.setLatLng(latlng);
+        } else {
+        marker = L.marker(latlng).addTo(map);
+        }
+        map.panTo(latlng);
+        }
+
+        latInput.addEventListener('change', syncMapFromInputs);
+        lngInput.addEventListener('change', syncMapFromInputs);
     </script>
 }
