@@ -9,7 +9,6 @@
     var servicesCount = DbContext.SupplierServices.Count(s => s.SupplierId == userId && !s.IsDeleted);
     var pendingRequestsCount = DbContext.ServiceRentalRequests.Count(r => r.SupplierService.SupplierId == userId && r.Status == ServiceRentalRequestStatus.Pending);
 
-    // Взимаме последните 3 заявки за този доставчик, за да ги покажем на таблото
     var recentRequests = DbContext.ServiceRentalRequests
         .Include(r => r.SupplierService)
         .Include(r => r.Requester) 
