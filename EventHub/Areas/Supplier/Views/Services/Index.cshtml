@@ -1,4 +1,4 @@
-@model IEnumerable<EventHub.Infrastructure.Data.Models.SupplierService>
+﻿@model IEnumerable<EventHub.Infrastructure.Data.Models.SupplierService>
 
 @{
     ViewData["Title"] = "My Services";
@@ -6,56 +6,162 @@
     var priceTexts = ViewBag.PriceTexts as Dictionary<int, string> ?? new Dictionary<int, string>();
 }
 
-<h3>My Services</h3>
+<div class="page-header mt-5 mb-4">
+    <h1 class="page-title" style="font-size: 2rem;">My Services</h1>
+    <div class="page-options">
+        <a href="#" class="btn btn-primary rounded-pill px-4 shadow-sm" data-toggle="modal" data-target="#createServiceModal">
+            <i class="fa fa-plus mr-2"></i> Create Service
+        </a>
+    </div>
+</div>
 
-<p>
-    <a asp-area="Supplier" asp-controller="Services" asp-action="Create" class="btn btn-primary">Create new service</a>
-</p>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible shadow-sm fade show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+        <i class="fa fa-check-circle mr-2"></i> @TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible shadow-sm fade show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+        <i class="fa fa-exclamation-circle mr-2"></i> @TempData["Error"]
+    </div>
+}
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Actions</th>
-            <th>Created</th>
-        </tr>
-    </thead>
-    <tbody>
-    @if (Model != null && Model.Any())
-    {
-        foreach (var item in Model)
+@if (Model != null && Model.Any())
+{
+    <div class="row row-cards">
+        @foreach (var item in Model)
         {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Description</td>
-                <td>
-                    @if (item.Price.HasValue && priceTexts.TryGetValue(item.Id, out var priceText))
-                    {
-                        <span data-currency-amount="@item.Price.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@priceText</span>
-                    }
-                    else
-                    {
-                        <span>—</span>
-                    }
-                </td>
-                <td>
-                    <a asp-area="Supplier" asp-controller="Services" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                    <a asp-area="Supplier" asp-controller="Services" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
-                </td>
-                <td>@item.CreatedAt.ToLocalTime().ToString("g")</td>
-            </tr>
+            <div class="col-sm-6 col-lg-3 mb-4 d-flex flex-column">
+            
+            <div class="card border-0 h-100 d-flex flex-column" style="border-radius: 16px; background: #ffffff; box-shadow: 0 10px 25px -5px rgba(30, 60, 114, 0.05); transition: all 0.3s ease;">
+                <div class="card-body p-4 d-flex flex-column flex-grow-1"> <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <div class="stamp d-flex align-items-center justify-content-center" style="background: rgba(30, 60, 114, 0.05); color: #1e3c72; border-radius: 12px; width: 46px; height: 46px; min-width: 46px;">
+                                <i class="fa fa-briefcase" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <h4 class="m-0 ml-3 font-weight-700 text-dark" style="font-size: 1.3rem; letter-spacing: -0.3px;">@item.Name</h4>
+                        </div>
+
+                        <div class="font-weight-600" style="font-size: 0.85rem;">
+                            @if (item.Price.HasValue && priceTexts.TryGetValue(item.Id, out var priceText))
+                            {
+                                <span style="color:#10b981; background: rgba(16, 185, 129, 0.1); padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; font-size: 0.9rem;">
+                                    <i class="fa fa-tag mr-2"></i> 
+                                    <span data-currency-amount="@item.Price.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@priceText</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="color:#f59e0b; background: rgba(245, 158, 11, 0.1); padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; font-size: 0.9rem;">
+                                    <i class="fa fa-tags mr-2"></i> Custom Price
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-3 p-3 text-muted d-flex align-items-start flex-grow-1" style="background: #f8fafc; border-radius: 10px; font-size: 0.92rem; line-height: 1.6; color: #475569 !important;">
+                        <i class="fa fa-file-text-o mr-2 mt-1" style="color: #94a3b8; font-size: 0.95rem;"></i>
+                        <div style="word-break: break-word; width: 100%;">
+                            @(item.Description != null && item.Description.Length > 150 ? item.Description.Substring(0, 150) + "..." : item.Description)
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-3 d-flex justify-content-end gap-2" style="border-top: 1px solid #f1f5f9 !important;">
+                        <a href="#" style="border-radius: 10px;" class="btn btn-edit-modern px-4 py-2 font-weight-600" data-toggle="modal" data-target="#editServiceModal-@item.Id">
+                            <i class="fa fa-pencil mr-2"></i> Edit
+                        </a>
+                        
+                        <button type="button" style="border-radius: 10px;" class="btn btn-delete-modern px-4 py-2 font-weight-600" data-toggle="modal" data-target="#deleteServiceModal-@item.Id">
+                            <i class="fa fa-trash mr-2"></i> Delete
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+                <div class="modal fade" id="deleteServiceModal-@item.Id" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title font-weight-bold">Confirm Delete</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center py-4">
+                                <i class="fa fa-exclamation-triangle text-danger fa-4x mb-3"></i>
+                                <h4 class="font-weight-bold">Are you sure you want to delete this service?</h4>
+                                <p class="text-muted mb-1"><strong>@item.Name</strong></p>
+                                <p class="text-muted small">This action cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer" style="background: #f8fafc;">
+                                <button type="button" class="btn btn-link text-muted font-weight-bold" data-dismiss="modal" style="text-decoration:none; border-radius:10px;">Cancel</button>
+                                <form asp-area="Supplier" asp-controller="Services" asp-action="Delete" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="Id" value="@item.Id" />
+                                    <button type="submit" class="btn btn-danger px-4 rounded-pill" style="background:#e63946; border:none; border-radius:10px;">Yes, Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="editServiceModal-@item.Id" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title font-weight-bold" style="color:#1e3c72;">Edit Service</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <form asp-area="Supplier" asp-controller="Services" asp-action="Edit" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="Id" value="@item.Id" />
+                                    <div class="form-group mb-3">
+                                        <label class="form-label font-weight-bold text-muted small text-uppercase" for="Name-@item.Id">Service Name</label>
+                                        <input type="text" id="Name-@item.Id" name="Name" class="form-control border-0 bg-light" value="@item.Name" style="border-radius:10px;" required />
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label class="form-label font-weight-bold text-muted small text-uppercase" for="Price-@item.Id">Base Price (EUR)</label>
+                                        <div class="input-icon">
+                                            <span class="input-icon-addon">
+                                                <i class="fa fa-eur text-primary"></i>
+                                            </span>
+                                            <input type="number" step="0.01" id="Price-@item.Id" name="Price" class="form-control border-0 bg-light" style="border-radius:10px; padding-left: 2.5rem;" value="@(item.Price?.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) ?? "")" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label class="form-label font-weight-bold text-muted small text-uppercase" for="Description-@item.Id">Description</label>
+                                        <textarea id="Description-@item.Id" name="Description" class="form-control border-0 bg-light" rows="4" style="border-radius:10px; resize:none;">@item.Description</textarea>
+                                    </div>
+                                    <div class="text-right mt-4">
+                                        <button type="button" class="btn btn-link text-muted font-weight-bold mr-2" data-dismiss="modal" style="text-decoration:none;">Cancel</button>
+                                        <button type="submit" class="btn btn-primary px-4 rounded-pill">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         }
-    }
-    else
-    {
-        <tr>
-            <td colspan="4" class="text-muted">No services created yet.</td>
-        </tr>
-    }
-    </tbody>
-</table>
+    </div>
+}
+else
+{
+    <div class="card p-5 text-center mt-3 border-0">
+        <h4 class="text-muted font-weight-bold">No services found</h4>
+        <p class="text-muted mb-4">You haven't listed any services for event organizers yet.</p>
+        <div>
+            <button class="btn btn-primary rounded-pill px-4" data-toggle="modal" data-target="#createServiceModal">
+                <i class="fa fa-plus mr-1"></i> Create First Service
+            </button>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
