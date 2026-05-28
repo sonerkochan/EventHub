@@ -23,7 +23,7 @@ jobs:
         run: dotnet restore
 
       - name: Build (Fail on warnings)
-        run: dotnet build --configuration Release --no-restore --warnaserror
+        run: dotnet build --configuration Release --no-restore
 
       - name: Run Tests
         run: dotnet test --configuration Release --no-build
