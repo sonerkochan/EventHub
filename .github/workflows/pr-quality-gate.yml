@@ -1,0 +1,32 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - staging
+      - master
+
+jobs:
+  validate:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build (Fail on warnings)
+        run: dotnet build --configuration Release --no-restore --warnaserror
+
+      - name: Run Tests
+        run: dotnet test --configuration Release --no-build
+
+      - name: Publish check (optional)
+        run: dotnet publish --configuration Release --output ./publish --runtime win-x86
