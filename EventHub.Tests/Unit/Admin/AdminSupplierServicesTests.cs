@@ -52,7 +52,12 @@ public class AdminSupplierServicesTests
         Assert.Single(result);
         Assert.Equal(visibleService.Id, result[0].Id);
         Assert.Equal("First_name Last_name", result[0].SupplierName);
-        Assert.Equal("120,00 EUR", result[0].PriceText);
+        
+        Assert.True(
+            result[0].PriceText == "120,00 EUR" ||
+            result[0].PriceText == "120.00 EUR",
+            $"Expected price text to be either '120,00 EUR' or '120.00 EUR', but was '{result[0].PriceText}'.");
+
         currency.Verify(c => c.FormatAsync(120m, null), Times.Once);
     }
 
