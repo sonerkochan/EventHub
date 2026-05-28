@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-EventHub-099efd32-dba6-41f8-9282-c25f6d82da63</UserSecretsId>
+
+    <WarningsNotAsErrors>CS8981</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
