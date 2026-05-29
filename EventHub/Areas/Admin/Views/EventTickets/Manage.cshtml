@@ -45,7 +45,9 @@
     <div class="col-6 col-sm-3">
         <div class="card border"><div class="card-body py-2">
             <div class="small text-muted">Revenue</div>
-            <div class="fw-semibold fs-5">@Model.TotalRevenue.ToString("0.00") @Model.Currency</div>
+            <div class="fw-semibold fs-5">
+                <span data-currency-amount="@Model.TotalRevenue.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@Model.TotalRevenue.ToString("0.00") @CurrencyOptionsAccessor.Value.BaseCurrency</span>
+            </div>
         </div></div>
     </div>
 </div>
@@ -193,7 +195,9 @@
                             <td class="small text-muted">@(t.ZoneName ?? "—")</td>
                             <td class="small">@t.BuyerDisplay</td>
                             <td><span class="badge bg-@StatusBadge(t.Status) fw-normal">@t.Status</span></td>
-                            <td class="small text-end">@t.Price.ToString("0.00") @t.Currency</td>
+                            <td class="small text-end">
+                                <span data-currency-amount="@t.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@t.Price.ToString("0.00") @CurrencyOptionsAccessor.Value.BaseCurrency</span>
+                            </td>
                             <td class="small text-muted">@(bestDate.HasValue ? bestDate.Value.ToString("dd MMM yyyy HH:mm") : "—")</td>
                             <td class="text-end">
                                 <button class="btn btn-outline-secondary btn-sm"
