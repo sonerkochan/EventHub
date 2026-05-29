@@ -113,3 +113,25 @@ body.dark {
   outline: none;
 }
 
+/* NAVBAR */
+
+.navbar-toggler {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler:focus,
+.navbar-toggler:active,
+.navbar-toggler:hover {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.eh-navbar .navbar-collapse {
+    flex-grow: 0;
+}
+
+/* NAVBAR END*/
