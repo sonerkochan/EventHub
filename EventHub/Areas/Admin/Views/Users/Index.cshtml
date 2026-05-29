@@ -28,7 +28,7 @@
         <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Organizers</div><div class="fw-semibold fs-5">@Model.Count()</div></div></div></div>
         <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Active events</div><div class="fw-semibold fs-5">@totalEvents</div></div></div></div>
         <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Tickets sold</div><div class="fw-semibold fs-5">@totalTickets</div></div></div></div>
-        <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Revenue</div><div class="fw-semibold fs-5">@totalRevenue.ToString("0.00")</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Revenue</div><div class="fw-semibold fs-5"><span data-currency-amount="@totalRevenue.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@totalRevenue.ToString("0.00") @CurrencyOptionsAccessor.Value.BaseCurrency</span></div></div></div></div>
     </div>
 }
 else if (roleFilter == "Supplier" && Model.Any())
@@ -115,7 +115,7 @@ else if (roleFilter == "Client" && Model.Any())
                                 <div>@user.OrganizerEventCount events &middot; @user.OrganizerTicketsSold sold</div>
                                 @if (user.OrganizerRevenue > 0)
                                 {
-                                    <div class="text-success">@user.OrganizerRevenue.ToString("0.00") revenue</div>
+                                    <div class="text-success"><span data-currency-amount="@user.OrganizerRevenue.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@user.OrganizerRevenue.ToString("0.00") @CurrencyOptionsAccessor.Value.BaseCurrency</span> revenue</div>
                                 }
                             }
                             @if (user.Roles.Contains("Supplier"))
