@@ -15,5 +15,9 @@ namespace EventHub.Infrastructure.Data.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; } = null;
+
+        public DateTime? LastOnline { get; set; }
+        public string? LastLoginIP { get; set; }
+        public string? LastLoginDevice { get; set; }
     }
 }
