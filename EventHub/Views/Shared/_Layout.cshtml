@@ -179,7 +179,7 @@
         </button>
 
         <!-- FIX 3: auth section moved INSIDE the collapse so it hides/shows with the menu on mobile -->
-        <div class="collapse navbar-collapse" id="mainNav">
+        <div class="collapse navbar-collapse eh-main-navbar" id="mainNav">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
                     <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link eh-nav-link">
@@ -201,7 +201,7 @@
                 }
             </ul>
 
-            <ul class="navbar-nav ml-auto align-items-center">
+            <ul class="navbar-nav ml-auto align-items-center eh-main-navbar-ul2">
                 <li class="nav-item mr-lg-2 my-2 my-lg-0">
                     @await Html.PartialAsync("~/Views/Shared/_CurrencySelector.cshtml")
                 </li>
