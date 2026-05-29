@@ -124,38 +124,44 @@ namespace EventHub.Controllers
             {
                 return View(model);
             }
-
+        
             var user = await userManager.FindByNameAsync(model.Username);
-
+        
             if (user != null)
             {
-
                 if (!user.IsActive)
                 {
                     ModelState.AddModelError("", "Your account is deactivated!");
                     return View(model);
                 }
-
+        
                 var result = await signInManager.PasswordSignInAsync(
                     user,
                     model.Password,
                     false,
                     false
                 );
-
+        
                 if (result.Succeeded)
                 {
+                    // Log login info
+                    user.LastLoginIP = GetClientIp();
+                    user.LastLoginDevice = GetDevice();
+                    user.LastOnline = DateTime.UtcNow;
+        
+                    await userManager.UpdateAsync(user);
+        
                     var roles = await userManager.GetRolesAsync(user);
                     var role = roles.FirstOrDefault();
-
+        
                     return !string.IsNullOrEmpty(role)
                         ? RedirectToAction("Index", "Home", new { area = role })
                         : RedirectToAction("Index", "Home");
                 }
             }
-
+        
             ModelState.AddModelError("", "Invalid login");
-
+        
             return View(model);
         }
 
@@ -172,6 +178,19 @@ namespace EventHub.Controllers
             await signInManager.SignOutAsync();
 
             return RedirectToAction("Index", "Home");
+        }
+
+        // Helpers
+        
+        
+        private string GetClientIp()
+        {
+            return HttpContext.Connection.RemoteIpAddress?.ToString();
+        }
+        
+        private string GetDevice()
+        {
+            return Request.Headers["User-Agent"].ToString();
         }
     }
 }
