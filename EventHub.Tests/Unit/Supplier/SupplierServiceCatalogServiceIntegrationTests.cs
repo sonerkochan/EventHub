@@ -19,33 +19,59 @@ public class SupplierServiceCatalogServiceIntegrationTests
         return new ApplicationDbContext(options);
     }
 
+    private static IRepository CreateRepository(ApplicationDbContext dbContext)
+        => new Repository(dbContext);
+
+    private static SupplierServiceCatalogService CreateService(
+        IRepository repo,
+        Mock<ICurrencyDisplayService>? currencyMock = null)
+    {
+        currencyMock ??= new Mock<ICurrencyDisplayService>();
+
+        return new SupplierServiceCatalogService(
+            repo,
+            currencyMock.Object);
+    }
+
+    private static async Task AddAsync<T>(IRepository repo, T entity)
+        where T : class
+    {
+        await repo.AddAsync(entity);
+        await repo.SaveChangesAsync();
+    }
+
+    private static async Task AddRangeAsync<T>(IRepository repo, params T[] entities)
+        where T : class
+    {
+        foreach (var entity in entities)
+        {
+            await repo.AddAsync(entity);
+        }
+
+        await repo.SaveChangesAsync();
+    }
+
     [Fact]
     public async Task RequestServiceAsync_WithValidData_ShouldSaveRequestInDatabase()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        dbContext.SupplierServices.Add(new SupplierService
+        await AddAsync(repo, new SupplierService
         {
             Id = 1,
             Name = "Sound System",
             SupplierId = "supplier-1"
         });
 
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
-
         var result = await service.RequestServiceAsync(
             1,
             "user-1",
             "  Need this for event  ");
 
-        var request = await dbContext.ServiceRentalRequests.FirstOrDefaultAsync();
+        var request = await repo.AllReadonly<ServiceRentalRequest>()
+            .FirstOrDefaultAsync();
 
         Assert.True(result);
         Assert.NotNull(request);
@@ -59,17 +85,17 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task AcceptRequestAsync_WithValidPendingRequest_ShouldUpdateRequestInDatabase()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        var supplierService = new SupplierService
+        await AddAsync(repo, new SupplierService
         {
             Id = 2,
             Name = "Lighting",
             SupplierId = "supplier-1"
-        };
+        });
 
-        dbContext.SupplierServices.Add(supplierService);
-
-        dbContext.ServiceRentalRequests.Add(new ServiceRentalRequest
+        await AddAsync(repo, new ServiceRentalRequest
         {
             Id = 10,
             SupplierServiceId = 2,
@@ -78,22 +104,14 @@ public class SupplierServiceCatalogServiceIntegrationTests
             RequestedAt = DateTime.UtcNow
         });
 
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
-
         var result = await service.AcceptRequestAsync(
             10,
             "supplier-1",
             "reviewer-1",
             " Accepted ");
 
-        var request = await dbContext.ServiceRentalRequests.FirstAsync(r => r.Id == 10);
+        var request = await repo.AllReadonly<ServiceRentalRequest>()
+            .FirstAsync(r => r.Id == 10);
 
         Assert.True(result);
         Assert.Equal(ServiceRentalRequestStatus.Accepted, request.Status);
@@ -106,8 +124,20 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task SearchServicesAsync_WhenSearchTermMatchesName_ShouldReturnMatchingServices()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var currencyMock = new Mock<ICurrencyDisplayService>();
 
-        dbContext.SupplierServices.AddRange(
+        currencyMock
+            .Setup(c => c.FormatAsync(300m, null))
+            .ReturnsAsync(new EventHub.Core.Models.Currency.CurrencyDisplayValue
+            {
+                Text = "300.00 лв."
+            });
+
+        var service = CreateService(repo, currencyMock);
+
+        await AddRangeAsync(
+            repo,
             new SupplierService
             {
                 Id = 1,
@@ -123,24 +153,7 @@ public class SupplierServiceCatalogServiceIntegrationTests
                 Description = "Food and drinks",
                 Price = 500m,
                 SupplierId = "supplier-2"
-            }
-        );
-
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        currencyMock
-            .Setup(c => c.FormatAsync(300m, null))
-            .ReturnsAsync(new EventHub.Core.Models.Currency.CurrencyDisplayValue
-            {
-                Text = "300.00 лв."
             });
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
 
         var result = await service.SearchServicesAsync("  Sound  ", "user-1");
 
@@ -159,15 +172,17 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task AcceptRequestAsync_WhenRequestBelongsToAnotherSupplier_ShouldReturnFalse()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        dbContext.SupplierServices.Add(new SupplierService
+        await AddAsync(repo, new SupplierService
         {
             Id = 1,
             Name = "Lighting",
             SupplierId = "real-supplier"
         });
 
-        dbContext.ServiceRentalRequests.Add(new ServiceRentalRequest
+        await AddAsync(repo, new ServiceRentalRequest
         {
             Id = 1,
             SupplierServiceId = 1,
@@ -175,22 +190,14 @@ public class SupplierServiceCatalogServiceIntegrationTests
             Status = ServiceRentalRequestStatus.Pending
         });
 
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
-
         var result = await service.AcceptRequestAsync(
             1,
             "fake-supplier",
             "reviewer-1",
             "Accepted");
 
-        var request = await dbContext.ServiceRentalRequests.FirstAsync();
+        var request = await repo.AllReadonly<ServiceRentalRequest>()
+            .FirstAsync();
 
         Assert.False(result);
         Assert.Equal(ServiceRentalRequestStatus.Pending, request.Status);
@@ -201,30 +208,23 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task AcceptRequestAsync_WhenRequestAlreadyAccepted_ShouldReturnFalse()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        dbContext.SupplierServices.Add(new SupplierService
+        await AddAsync(repo, new SupplierService
         {
             Id = 2,
             Name = "Catering",
             SupplierId = "supplier-1"
         });
 
-        dbContext.ServiceRentalRequests.Add(new ServiceRentalRequest
+        await AddAsync(repo, new ServiceRentalRequest
         {
             Id = 2,
             SupplierServiceId = 2,
             RequesterId = "user-1",
             Status = ServiceRentalRequestStatus.Accepted
         });
-
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
 
         var result = await service.AcceptRequestAsync(
             2,
@@ -239,32 +239,25 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task RequestServiceAsync_WhenRequestingOwnService_ShouldReturnFalse()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        dbContext.SupplierServices.Add(new SupplierService
+        await AddAsync(repo, new SupplierService
         {
             Id = 3,
             Name = "DJ Setup",
             SupplierId = "supplier-1"
         });
 
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
-
         var result = await service.RequestServiceAsync(
             3,
             "supplier-1",
             "Need my own service");
 
+        var requestsCount = await repo.AllReadonly<ServiceRentalRequest>()
+            .CountAsync();
+
         Assert.False(result);
-
-        var requestsCount = await dbContext.ServiceRentalRequests.CountAsync();
-
         Assert.Equal(0, requestsCount);
     }
 
@@ -272,8 +265,20 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task GetRequestsForSupplierAsync_ShouldReturnOnlyRequestsForGivenSupplier()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var currencyMock = new Mock<ICurrencyDisplayService>();
 
-        dbContext.Users.AddRange(
+        currencyMock
+            .Setup(c => c.FormatAsync(300m, null))
+            .ReturnsAsync(new EventHub.Core.Models.Currency.CurrencyDisplayValue
+            {
+                Text = "300.00 лв."
+            });
+
+        var service = CreateService(repo, currencyMock);
+
+        await AddRangeAsync(
+            repo,
             new User
             {
                 Id = "user-1",
@@ -289,10 +294,10 @@ public class SupplierServiceCatalogServiceIntegrationTests
                 Email = "user2@test.com",
                 FirstName = "Petar",
                 LastName = "Petrov"
-            }
-        );
+            });
 
-        dbContext.SupplierServices.AddRange(
+        await AddRangeAsync(
+            repo,
             new SupplierService
             {
                 Id = 1,
@@ -306,10 +311,10 @@ public class SupplierServiceCatalogServiceIntegrationTests
                 Name = "Catering",
                 Price = 500m,
                 SupplierId = "supplier-2"
-            }
-        );
+            });
 
-        dbContext.ServiceRentalRequests.AddRange(
+        await AddRangeAsync(
+            repo,
             new ServiceRentalRequest
             {
                 Id = 1,
@@ -325,24 +330,7 @@ public class SupplierServiceCatalogServiceIntegrationTests
                 RequesterId = "user-2",
                 Status = ServiceRentalRequestStatus.Pending,
                 RequestedAt = DateTime.UtcNow
-            }
-        );
-
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        currencyMock
-            .Setup(c => c.FormatAsync(300m, null))
-            .ReturnsAsync(new EventHub.Core.Models.Currency.CurrencyDisplayValue
-            {
-                Text = "300.00 лв."
             });
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
 
         var result = await service.GetRequestsForSupplierAsync("supplier-1");
 
@@ -362,8 +350,10 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task GetRequestsForSupplierAsync_WhenRequesterNameIsMissing_ShouldUseEmailAsRequesterName()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        dbContext.Users.Add(new User
+        await AddAsync(repo, new User
         {
             Id = "user-1",
             UserName = "user1@test.com",
@@ -372,7 +362,7 @@ public class SupplierServiceCatalogServiceIntegrationTests
             LastName = null
         });
 
-        dbContext.SupplierServices.Add(new SupplierService
+        await AddAsync(repo, new SupplierService
         {
             Id = 1,
             Name = "Lighting",
@@ -380,7 +370,7 @@ public class SupplierServiceCatalogServiceIntegrationTests
             SupplierId = "supplier-1"
         });
 
-        dbContext.ServiceRentalRequests.Add(new ServiceRentalRequest
+        await AddAsync(repo, new ServiceRentalRequest
         {
             Id = 1,
             SupplierServiceId = 1,
@@ -388,15 +378,6 @@ public class SupplierServiceCatalogServiceIntegrationTests
             Status = ServiceRentalRequestStatus.Pending,
             RequestedAt = DateTime.UtcNow
         });
-
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
 
         var result = await service.GetRequestsForSupplierAsync("supplier-1");
 
@@ -415,8 +396,11 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task SearchServicesAsync_WhenSearchTermMatchesDescription_ShouldReturnMatchingServices()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        dbContext.SupplierServices.AddRange(
+        await AddRangeAsync(
+            repo,
             new SupplierService
             {
                 Id = 1,
@@ -430,17 +414,7 @@ public class SupplierServiceCatalogServiceIntegrationTests
                 Name = "Catering",
                 Description = "Food services",
                 SupplierId = "supplier-2"
-            }
-        );
-
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
+            });
 
         var result = await service.SearchServicesAsync("audio", "user-1");
 
@@ -456,15 +430,18 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task SearchServicesAsync_ShouldIncludeLatestUserRequestStatus()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        dbContext.SupplierServices.Add(new SupplierService
+        await AddAsync(repo, new SupplierService
         {
             Id = 1,
             Name = "Sound System",
             SupplierId = "supplier-1"
         });
 
-        dbContext.ServiceRentalRequests.AddRange(
+        await AddRangeAsync(
+            repo,
             new ServiceRentalRequest
             {
                 Id = 1,
@@ -480,17 +457,7 @@ public class SupplierServiceCatalogServiceIntegrationTests
                 RequesterId = "user-1",
                 Status = ServiceRentalRequestStatus.Accepted,
                 RequestedAt = DateTime.UtcNow
-            }
-        );
-
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
+            });
 
         var result = await service.SearchServicesAsync(null, "user-1");
 
@@ -508,15 +475,17 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task DeclineRequestAsync_WithValidPendingRequest_ShouldUpdateRequestInDatabase()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        dbContext.SupplierServices.Add(new SupplierService
+        await AddAsync(repo, new SupplierService
         {
             Id = 1,
             Name = "DJ Setup",
             SupplierId = "supplier-1"
         });
 
-        dbContext.ServiceRentalRequests.Add(new ServiceRentalRequest
+        await AddAsync(repo, new ServiceRentalRequest
         {
             Id = 1,
             SupplierServiceId = 1,
@@ -524,22 +493,14 @@ public class SupplierServiceCatalogServiceIntegrationTests
             Status = ServiceRentalRequestStatus.Pending
         });
 
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
-
         var result = await service.DeclineRequestAsync(
             1,
             "supplier-1",
             "reviewer-1",
             "Declined");
 
-        var request = await dbContext.ServiceRentalRequests.FirstAsync();
+        var request = await repo.AllReadonly<ServiceRentalRequest>()
+            .FirstAsync();
 
         Assert.True(result);
         Assert.Equal(ServiceRentalRequestStatus.Declined, request.Status);
@@ -552,30 +513,23 @@ public class SupplierServiceCatalogServiceIntegrationTests
     public async Task DeclineRequestAsync_WhenRequestAlreadyDeclined_ShouldReturnFalse()
     {
         using var dbContext = CreateDbContext();
+        var repo = CreateRepository(dbContext);
+        var service = CreateService(repo);
 
-        dbContext.SupplierServices.Add(new SupplierService
+        await AddAsync(repo, new SupplierService
         {
             Id = 1,
             Name = "Lighting",
             SupplierId = "supplier-1"
         });
 
-        dbContext.ServiceRentalRequests.Add(new ServiceRentalRequest
+        await AddAsync(repo, new ServiceRentalRequest
         {
             Id = 1,
             SupplierServiceId = 1,
             RequesterId = "user-1",
             Status = ServiceRentalRequestStatus.Declined
         });
-
-        await dbContext.SaveChangesAsync();
-
-        var repo = new Repository(dbContext);
-        var currencyMock = new Mock<ICurrencyDisplayService>();
-
-        var service = new SupplierServiceCatalogService(
-            repo,
-            currencyMock.Object);
 
         var result = await service.DeclineRequestAsync(
             1,
