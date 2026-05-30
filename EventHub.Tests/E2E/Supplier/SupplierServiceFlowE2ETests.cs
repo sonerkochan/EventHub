@@ -3,9 +3,10 @@ using Microsoft.Playwright;
 
 namespace EventHub.Tests.E2E.Supplier;
 
+[Trait("Category", "E2E")]
 public class SupplierServiceFlowE2ETests
 {
-    [Fact]
+    [Fact(Skip = "Requires local environment")]
     public async Task SupplierCreatesService_ClientRequestsIt_SupplierApprovesEditsAndDeletesIt()
     {
         var baseUrl = GetRequiredEnv("EVENTHUB_BASE_URL");
