@@ -2,7 +2,7 @@ using EventHub.Core.Contracts;
 using EventHub.Core.Services;
 using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
-using MockQueryable;
+using MockQueryable.Moq;
 using Moq;
 
 namespace EventHub.Tests.Unit.Supplier;
