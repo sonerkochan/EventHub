@@ -1,10 +1,8 @@
 using EventHub.Core.Contracts;
-using EventHub.Core.Models.Supplier;
 using EventHub.Core.Services;
 using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
 using MockQueryable;
-using MockQueryable.Moq;
 using Moq;
 
 namespace EventHub.Tests.Unit.Supplier;
@@ -13,6 +11,11 @@ public class SupplierServiceCatalogServiceTests
 {
     private readonly Mock<IRepository> repoMock = new();
     private readonly Mock<ICurrencyDisplayService> currencyMock = new();
+
+    private SupplierServiceCatalogService CreateService()
+        => new SupplierServiceCatalogService(
+            repoMock.Object,
+            currencyMock.Object);
 
     [Fact]
     public async Task RequestServiceAsync_WhenServiceDoesNotExist_ShouldReturnFalse()
@@ -23,9 +26,7 @@ public class SupplierServiceCatalogServiceTests
             .Setup(r => r.AllReadonly<SupplierService>())
             .Returns(services);
 
-        var service = new SupplierServiceCatalogService(
-            repoMock.Object,
-            currencyMock.Object);
+        var service = CreateService();
 
         var result = await service.RequestServiceAsync(999, "user-1", "message");
 
@@ -51,9 +52,7 @@ public class SupplierServiceCatalogServiceTests
             .Setup(r => r.AllReadonly<SupplierService>())
             .Returns(services);
 
-        var service = new SupplierServiceCatalogService(
-            repoMock.Object,
-            currencyMock.Object);
+        var service = CreateService();
 
         var result = await service.RequestServiceAsync(1, "supplier-1", "message");
 
@@ -94,9 +93,7 @@ public class SupplierServiceCatalogServiceTests
             .Setup(r => r.AllReadonly<ServiceRentalRequest>())
             .Returns(requests);
 
-        var service = new SupplierServiceCatalogService(
-            repoMock.Object,
-            currencyMock.Object);
+        var service = CreateService();
 
         var result = await service.RequestServiceAsync(1, "user-1", "message");
 
@@ -139,9 +136,7 @@ public class SupplierServiceCatalogServiceTests
             .Setup(r => r.SaveChangesAsync())
             .ReturnsAsync(1);
 
-        var service = new SupplierServiceCatalogService(
-            repoMock.Object,
-            currencyMock.Object);
+        var service = CreateService();
 
         var result = await service.RequestServiceAsync(1, "user-1", "  Need this service  ");
 
@@ -174,7 +169,7 @@ public class SupplierServiceCatalogServiceTests
                     Name = "Lighting"
                 }
             }
-        }.BuildMock();
+        }.AsQueryable().BuildMock();
 
         repoMock
             .Setup(r => r.All<ServiceRentalRequest>())
@@ -184,9 +179,7 @@ public class SupplierServiceCatalogServiceTests
             .Setup(r => r.SaveChangesAsync())
             .ReturnsAsync(1);
 
-        var service = new SupplierServiceCatalogService(
-            repoMock.Object,
-            currencyMock.Object);
+        var service = CreateService();
 
         var result = await service.AcceptRequestAsync(
             1,
@@ -225,7 +218,7 @@ public class SupplierServiceCatalogServiceTests
                     Name = "Catering"
                 }
             }
-        }.BuildMock();
+        }.AsQueryable().BuildMock();
 
         repoMock
             .Setup(r => r.All<ServiceRentalRequest>())
@@ -235,9 +228,7 @@ public class SupplierServiceCatalogServiceTests
             .Setup(r => r.SaveChangesAsync())
             .ReturnsAsync(1);
 
-        var service = new SupplierServiceCatalogService(
-            repoMock.Object,
-            currencyMock.Object);
+        var service = CreateService();
 
         var result = await service.DeclineRequestAsync(
             2,
