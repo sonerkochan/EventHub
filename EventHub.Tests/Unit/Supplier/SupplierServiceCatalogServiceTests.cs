@@ -7,6 +7,7 @@ using Moq;
 
 namespace EventHub.Tests.Unit.Supplier;
 
+[Trait("Category", "E2E")]
 public class SupplierServiceCatalogServiceTests
 {
     private readonly Mock<IRepository> repoMock = new();
