@@ -160,7 +160,7 @@ namespace EventHub.Controllers
                 }
             }
         
-            ModelState.AddModelError("", "Invalid login");
+            ModelState.AddModelError("", "Invalid username or password");
         
             return View(model);
         }
