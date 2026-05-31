@@ -1,0 +1,198 @@
+@model EventHub.Core.Models.Event.CreateEventViewModel
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<div class="animate-fade-in" style="max-width: 800px; margin: 0 auto;">
+    <div class="mb-4">
+        <a asp-action="Index" class="btn btn-link mb-2" style="padding: 0.375rem 0.75rem;">
+            <i class="fa fa-arrow-left mr-1"></i> Back to Events
+        </a>
+        <h4 class="fw-bold mb-1">Create New Event</h4>
+        <p class="text-muted mb-0">Fill in the details below to create your event.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Create" method="post" enctype="multipart/form-data" class="form-modern">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
+
+                <!-- Event Name -->
+                <div class="form-group">
+                    <label asp-for="EventName" class="form-label">Event Name</label>
+                    <input asp-for="EventName" class="form-control" placeholder="Summer Music Festival 2026" />
+                    <span asp-validation-for="EventName" class="text-danger small"></span>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label asp-for="Description" class="form-label">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" 
+                              placeholder="Tell attendees what makes this event special..."></textarea>
+                </div>
+
+                <!-- Type & Priority Row -->
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="EventType" class="form-label">Event Type</label>
+                            <select asp-for="EventType"
+                                    asp-items="Html.GetEnumSelectList<EventHub.Infrastructure.Data.Models.EventType>()"
+                                    class="form-control custom-select"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="EventPriority" class="form-label">Priority</label>
+                            <select asp-for="EventPriority"
+                                    asp-items="Html.GetEnumSelectList<EventHub.Infrastructure.Data.Models.EventPriority>()"
+                                    class="form-control custom-select"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="RoomId" class="form-label">Room / Venue</label>
+                            <select asp-for="RoomId" asp-items="Model.AvailableRooms" class="form-control custom-select">
+                                <option value="">Select</option>
+                            </select>
+                            <span asp-validation-for="RoomId" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dates Row -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="StartDateTime" class="form-label">Start Date & Time</label>
+                            <input asp-for="StartDateTime" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="StartDateTime" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="EndDateTime" class="form-label">End Date & Time</label>
+                            <input asp-for="EndDateTime" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="EndDateTime" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tickets & Cover -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="TotalTickets" class="form-label">Total Tickets</label>
+                            <input asp-for="TotalTickets" class="form-control" type="number" min="1" placeholder="100" />
+                            <span asp-validation-for="TotalTickets" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="CoverImageUrl" class="form-label">Cover Image URL</label>
+                            <input asp-for="CoverImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                            <span asp-validation-for="CoverImageUrl" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="CoverPhotoUpload" class="form-label">Upload Cover Photo</label>
+                            <input asp-for="CoverPhotoUpload" class="form-control" type="file" accept="image/jpeg,image/png,image/webp,image/heic" />
+                            <span asp-validation-for="CoverPhotoUpload" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">Uploaded photo is used instead of the URL.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 mb-2">
+                    <h5 class="fw-semibold mb-1">Location</h5>
+                    <p class="text-muted small mb-0">Used for the event details map and external events API.</p>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <input asp-for="Address" class="form-control" placeholder="Street address or venue entrance" />
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="City" class="form-label">City</label>
+                            <input asp-for="City" class="form-control" />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="CountryCode" class="form-label">Country Code</label>
+                            <input asp-for="CountryCode" class="form-control" maxlength="2" placeholder="BG" />
+                            <span asp-validation-for="CountryCode" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="Latitude" class="form-label">Latitude</label>
+                            <input asp-for="Latitude" class="form-control" type="number" min="-90" max="90" step="any" />
+                            <span asp-validation-for="Latitude" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="Longitude" class="form-label">Longitude</label>
+                            <input asp-for="Longitude" class="form-control" type="number" min="-180" max="180" step="any" />
+                            <span asp-validation-for="Longitude" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Refunds Section -->
+                <div class="card" style="background: hsl(var(--muted)); border: none; padding: 1.25rem;">
+                    <div class="form-check mb-3">
+                        <input asp-for="AllowRefunds" class="form-check-input" type="checkbox" id="allowRefunds" />
+                        <label class="form-check-label fw-medium" for="allowRefunds">
+                            Allow Refunds
+                        </label>
+                    </div>
+
+                    <div id="refundDeadlineGroup" style="display:none">
+                        <div class="form-group mb-0">
+                            <label asp-for="RefundDeadline" class="form-label">Refund Deadline</label>
+                            <input asp-for="RefundDeadline" class="form-control" type="datetime-local" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" style="padding: 0.625rem 2rem;">
+                        Create Event
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary" style="padding: 0.625rem 2rem;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        const cb = document.getElementById('allowRefunds');
+        const group = document.getElementById('refundDeadlineGroup');
+        const toggle = () => {
+            if (cb.checked) {
+                group.style.display = 'block';
+                group.style.animation = 'fadeIn 0.3s ease-out';
+            } else {
+                group.style.display = 'none';
+            }
+        };
+        cb.addEventListener('change', toggle);
+        toggle();
+    </script>
+}
