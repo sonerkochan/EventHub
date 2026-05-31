@@ -1,0 +1,139 @@
+@using EventHub.Infrastructure.Data.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>@ViewData["Title"] - EventHub Moderator</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700&subset=latin-ext" />
+    <link rel="stylesheet" href="~/lib/tabler/assets/css/dashboard.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tabler-eventhub.css" asp-append-version="true" />
+
+    <style>
+        .nav-link.active { color: #467fcf !important; border-bottom-color: #467fcf !important; }
+        .toast-area { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+        .avatar { background: #467fcf; color: #fff; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="page-main">
+            <div class="header py-4">
+                <div class="container-fluid">
+                    <div class="d-flex">
+                        <a class="header-brand" asp-area="Moderator" asp-controller="Home" asp-action="Index">
+                            <span style="font-size:22px; margin-right:8px;">EH</span>
+                            <strong>EventHub</strong>
+                            <small class="text-muted ml-1">Moderator</small>
+                        </a>
+
+                        <div class="d-flex order-lg-2 ml-auto align-items-center">
+                            <div class="mr-3">
+                                @await Html.PartialAsync("~/Views/Shared/_CurrencySelector.cshtml")
+                            </div>
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                <div class="dropdown">
+                                    <a href="#" class="nav-link pr-0 leading-none" data-toggle="dropdown">
+                                        <span class="avatar">@GetInitial(User.Identity?.Name)</span>
+                                        <span class="ml-2 d-none d-lg-block">
+                                            <span class="text-default">@User.Identity?.Name</span>
+                                            <small class="text-muted d-block mt-1">Moderator</small>
+                                        </span>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                                        <a asp-area="" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                            <i class="dropdown-icon fa fa-home"></i> Back to site
+                                        </a>
+                                        <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="dropdown-icon fa fa-sign-out"></i> Sign out
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <a href="#" class="header-toggler d-lg-none ml-3" data-toggle="collapse" data-target="#headerMenuCollapse">
+                            <span class="header-toggler-icon"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header collapse d-lg-flex p-0" id="headerMenuCollapse">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-lg order-lg-first">
+                            <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
+                                <li class="nav-item">
+                                    <a asp-area="Moderator" asp-controller="Home" asp-action="Index" class="nav-link @(IsActive("Home"))">
+                                        <i class="fa fa-th-large mr-1"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-area="Moderator" asp-controller="Events" asp-action="Index" class="nav-link @(IsActive("Events"))">
+                                        <i class="fa fa-calendar mr-1"></i> Events
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-area="Moderator" asp-controller="Venues" asp-action="Index" class="nav-link @(IsActive("Venues"))">
+                                        <i class="fa fa-building mr-1"></i> Venues
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-area="Moderator" asp-controller="Rooms" asp-action="Index" class="nav-link @(IsActive("Rooms"))">
+                                        <i class="fa fa-map-marker mr-1"></i> Rooms
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-area="Moderator" asp-controller="Tickets" asp-action="Index" class="nav-link @(IsActive("Tickets"))">
+                                        <i class="fa fa-ticket mr-1"></i> Tickets
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-area="Moderator" asp-controller="Application" asp-action="Index" class="nav-link @(IsActive("Application"))">
+                                        <i class="fa fa-list-alt mr-1"></i> Applications
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-area="Moderator" asp-controller="SupplierServices" asp-action="Index" class="nav-link @(IsActive("SupplierServices"))">
+                                        <i class="fa fa-cubes mr-1"></i> Services
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="my-3 my-md-5">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-area" id="toastArea"></div>
+
+    <script src="~/lib/tabler/assets/js/vendors/jquery-3.2.1.min.js"></script>
+    <script src="~/lib/tabler/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/tabler/assets/js/core.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+@functions {
+    string IsActive(string controller) => ViewContext.RouteData.Values["controller"]?.ToString() == controller ? "active" : "";
+    string GetInitial(string? name) => string.IsNullOrWhiteSpace(name) ? "U" : name.Trim()[0].ToString().ToUpperInvariant();
+}

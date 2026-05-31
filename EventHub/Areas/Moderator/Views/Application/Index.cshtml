@@ -1,0 +1,202 @@
+@using EventHub.Core.Models.ApplicationForm
+@model IEnumerable<ApplicationListViewModel>
+
+@{
+    ViewData["Title"] = "Applications";
+}
+
+<link rel="stylesheet" href="~/css/adminApplicationManagementTable.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/modalStyles.css" asp-append-version="true">
+
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show small" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-semibold mb-0">Pending Applications</h5>
+    <span class="badge bg-secondary">@Model.Count() pending</span>
+</div>
+
+<div class="card border">
+    <div class="card-body p-0">
+        <div class="table-responsivness">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="small">User</th>
+                            <th class="small">Type</th>
+                            <th class="small">Organization</th>
+                            <th class="small">Phone</th>
+                            <th class="small">Description</th>
+                            <th class="small">Submitted</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var app in Model)
+                        {
+                            <tr>
+                                <td class="small fw-medium">@app.UserName</td>
+                                <td>
+                                    <span class="badge bg-@(app.Type.ToString() == "Organizer" ? "primary" : "info") fw-normal">
+                                        @app.Type
+                                    </span>
+                                </td>
+                                <td class="small">@app.OrganizationName</td>
+                                <td class="small">@app.PhoneNumber</td>
+                                <td class="small text-muted" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    @app.Description
+                                </td>
+                                <td class="small">@app.CreatedAt.ToString("dd MMM yyyy")</td>
+                                <td class="text-end">
+                                    <form asp-action="Approve" asp-route-id="@app.Id" method="post" class="approve-form d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="button" class="table-btn btn-approve">Approve</button>
+                                    </form>
+
+                                    <button type="button" class="table-btn btn-reject open-reject-modal"
+                                            data-app-id="@app.Id"
+                                            data-app-user="@app.UserName">
+                                        Reject
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted small py-4">No pending applications.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+        </div>
+    </div>
+</div>
+
+
+    <div class="modal fade" id="approveModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content custom-modal">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Confirm Approval
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    Are you sure you want to approve this application?
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="modal-button modal-cancel"
+                            data-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            id="confirmApproveBtn"
+                            class="modal-button modal-approve">
+                        Approve
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content custom-modal">
+                <form id="rejectForm" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reject Application</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="small text-muted mb-2">
+                            Rejecting application from <strong id="rejectUserLabel"></strong>.
+                            Provide a brief reason — the applicant may see this message.
+                        </p>
+                        <label for="rejectComment" class="form-label small fw-medium">Rejection reason</label>
+                        <textarea id="rejectComment" name="comment" class="form-control"
+                                  rows="3" required maxlength="500"
+                                  placeholder="e.g. Missing organization details, suspicious phone number..."></textarea>
+                        <div class="small text-danger mt-1" id="rejectError" hidden>Please enter a reason.</div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="modal-button modal-cancel" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="modal-button modal-reject">Confirm Reject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+@section Scripts {
+    <script>
+        let selectedForm = null;
+
+        // open approve modal
+        document.querySelectorAll(".btn-approve").forEach(btn => {
+            btn.addEventListener("click", function () {
+                selectedForm = this.closest("form");
+                const modal = new bootstrap.Modal(document.getElementById("approveModal"));
+                modal.show();
+            });
+        });
+
+        // confirm approve
+        document.getElementById("confirmApproveBtn").addEventListener("click", function () {
+            if (selectedForm) selectedForm.submit();
+        });
+
+        // open reject modal
+        const rejectModalEl = document.getElementById("rejectModal");
+        const rejectModal = new bootstrap.Modal(rejectModalEl);
+        const rejectForm = document.getElementById("rejectForm");
+        const rejectComment = document.getElementById("rejectComment");
+        const rejectError = document.getElementById("rejectError");
+        const rejectUserLabel = document.getElementById("rejectUserLabel");
+
+        document.querySelectorAll(".open-reject-modal").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const appId = this.dataset.appId;
+                rejectForm.action = `/Admin/Application/Reject/${appId}`;
+                rejectUserLabel.textContent = this.dataset.appUser || "";
+                rejectComment.value = "";
+                rejectError.hidden = true;
+                rejectModal.show();
+            });
+        });
+
+        rejectForm.addEventListener("submit", function (e) {
+            if (!rejectComment.value.trim()) {
+                e.preventDefault();
+                rejectError.hidden = false;
+            }
+        });
+    </script>
+}

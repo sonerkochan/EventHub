@@ -1,0 +1,125 @@
+@using EventHub.Infrastructure.Data.Models
+@model IEnumerable<EventHub.Core.Models.Room.RoomListViewModel>
+@{
+    ViewData["Title"] = "Rooms";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-semibold mb-0">Rooms</h5>
+    <button class="btn btn-dark btn-sm" onclick="openModal('@Url.Action("CreatePartial")')">+ New Room</button>
+</div>
+
+<div class="card border">
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="small">Name</th>
+                    <th class="small">Venue</th>
+                    <th class="small">Type</th>
+                    <th class="small">Capacity</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var room in Model)
+                {
+                    <tr>
+                        <td class="small">@room.Name</td>
+                        <td class="small text-muted">@room.VenueName</td>
+                        <td><span class="badge bg-secondary fw-normal">@room.RoomType</span></td>
+                        <td class="small">@room.Capacity</td>
+                        <td class="text-end">
+                            <a asp-action="Layout" asp-route-id="@room.Id"
+                               class="btn btn-outline-primary btn-sm">Layout</a>
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    onclick="openModal('@Url.Action("EditPartial", new { id = room.Id })')">
+                                Edit
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm"
+                                    onclick="deactivateRoom('@Url.Action("Deactivate", new { id = room.Id })')">
+                                Deactivate
+                            </button>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted small py-4">No rooms yet.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal container -->
+<div class="modal fade" id="roomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="roomModalContent">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const modalEl = document.getElementById('roomModal');
+        const modal = new bootstrap.Modal(modalEl);
+
+        function openModal(url) {
+            fetch(url)
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById('roomModalContent').innerHTML = html;
+                    modal.show();
+                });
+        }
+
+        function deactivateRoom(url) {
+            if (!confirm('Deactivate this room?')) return;
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                || '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1];
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: '__RequestVerificationToken=' + encodeURIComponent(token)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) location.reload();
+            });
+        }
+
+        function submitModalForm(form) {
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => {
+                const ct = r.headers.get('content-type') || '';
+                if (ct.includes('application/json')) return r.json();
+                return r.text().then(html => ({ html }));
+            })
+            .then(result => {
+                if (result.success) {
+                    modal.hide();
+                    location.reload();
+                } else if (result.html) {
+                    document.getElementById('roomModalContent').innerHTML = result.html;
+                }
+            });
+
+            return false;
+        }
+    </script>
+}
+
+@Html.AntiForgeryToken()

@@ -1,0 +1,369 @@
+@using EventHub.Infrastructure.Data.Models
+@model EventHub.Core.Models.Admin.EventTicketsManageViewModel
+@{
+    ViewData["Title"] = $"Tickets — {Model.EventName}";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h5 class="fw-semibold mb-0">@Model.EventName</h5>
+        <small class="text-muted">Ticket manager &middot; @Model.RoomName &middot; @Model.EventStart.ToString("dd MMM yyyy HH:mm")</small>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-action="Pricing" asp-route-id="@Model.EventId" class="btn btn-outline-secondary btn-sm">Pricing</a>
+        <a asp-area="Admin" asp-controller="Events" asp-action="Index" class="btn btn-outline-secondary btn-sm">Back to Events</a>
+    </div>
+</div>
+
+@if (Model.HasZonesWithoutTier)
+{
+    <div class="alert alert-info d-flex justify-content-between align-items-center py-2 mb-3">
+        <span class="small mb-0">Some zones don't have a custom price tier — seats there fall back to the event's base price (@Model.BasePrice.ToString("0.00") @Model.Currency).</span>
+        <a asp-action="Pricing" asp-route-id="@Model.EventId" class="btn btn-sm btn-outline-dark">Customize pricing →</a>
+    </div>
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-sm-3">
+        <div class="card border"><div class="card-body py-2">
+            <div class="small text-muted">Total seats</div>
+            <div class="fw-semibold fs-5">@Model.TotalSeats</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="card border"><div class="card-body py-2">
+            <div class="small text-muted">Sold</div>
+            <div class="fw-semibold fs-5 text-success">@Model.SoldSeats</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="card border"><div class="card-body py-2">
+            <div class="small text-muted">Reserved</div>
+            <div class="fw-semibold fs-5 text-warning">@Model.ReservedSeats</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="card border"><div class="card-body py-2">
+            <div class="small text-muted">Revenue</div>
+            <div class="fw-semibold fs-5">
+                <span data-currency-amount="@Model.TotalRevenue.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@Model.TotalRevenue.ToString("0.00") @CurrencyOptionsAccessor.Value.BaseCurrency</span>
+            </div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-9">
+        <div class="card border">
+            <div class="card-body seat-grid-wrap">
+                <div id="ticketGrid" class="seat-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-3 layout-side">
+        <div class="card border mb-3">
+            <div class="card-header bg-white py-2">
+                <span class="small fw-semibold">Zones &amp; Pricing</span>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Zones.Count == 0)
+                {
+                    <div class="p-3 text-center text-muted small">No zones configured.</div>
+                }
+                else
+                {
+                    @foreach (var z in Model.Zones)
+                    {
+                        <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+                            <div class="zone-color" data-zone-type="@((int)z.ZoneType)"></div>
+                            <div class="flex-grow-1">
+                                <div class="small fw-medium">@z.Name</div>
+                                <div class="small text-muted">@z.ZoneType &middot; @z.SoldCount / @z.SeatCount sold</div>
+                            </div>
+                            <div class="text-end">
+                                @if (z.HasPricing)
+                                {
+                                    <div class="small fw-medium">@z.Price?.ToString("0.00") @z.Currency</div>
+                                }
+                                else
+                                {
+                                    <div class="small fw-medium">@Model.BasePrice.ToString("0.00") @Model.Currency</div>
+                                    <div class="text-muted" style="font-size:0.7rem">base price</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    @if (Model.UnzonedSeatCount > 0)
+                    {
+                        <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+                            <div class="zone-color" style="background:#212529"></div>
+                            <div class="flex-grow-1">
+                                <div class="small fw-medium">Unzoned</div>
+                                <div class="small text-muted">No zone &middot; @Model.UnzonedSoldCount / @Model.UnzonedSeatCount sold</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small fw-medium">@Model.BasePrice.ToString("0.00") @Model.Currency</div>
+                                <div class="text-muted" style="font-size:0.7rem">base price</div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="card border">
+            <div class="card-body py-2">
+                <div class="small fw-semibold mb-2">Legend</div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div style="width:18px;height:18px;background:#dee2e6;border:1px solid #adb5bd;border-radius:3px"></div>
+                    <span class="small text-muted">Empty cell</span>
+                </div>
+                @if (Model.UnzonedSeatCount > 0)
+                {
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <div style="width:18px;height:18px;background:#212529;border-radius:3px"></div>
+                        <span class="small text-muted">Unzoned (base price)</span>
+                    </div>
+                }
+                @foreach (var zoneType in Model.Zones.Select(z => z.ZoneType).Distinct().OrderBy(t => t))
+                {
+                    var color = zoneType switch
+                    {
+                        ZoneType.VIP => "#dc3545",
+                        ZoneType.Regular => "#0d6efd",
+                        ZoneType.Economy => "#198754",
+                        _ => "#6c757d"
+                    };
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <div style="width:18px;height:18px;background:@color;border-radius:3px"></div>
+                        <span class="small text-muted">@zoneType</span>
+                    </div>
+                }
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div style="width:18px;height:18px;background:#212529;border-radius:3px;opacity:.45"></div>
+                    <span class="small text-muted">Sold (dimmed)</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width:18px;height:18px;background:#ffc107;border-radius:3px"></div>
+                    <span class="small text-muted">Reserved</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border mt-3">
+    <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+        <span class="small fw-semibold">Tickets (@Model.Tickets.Count)</span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Tickets.Count == 0)
+        {
+            <div class="text-center text-muted small py-3">No tickets sold yet.</div>
+        }
+        else
+        {
+            <table class="table table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="small">Ticket #</th>
+                        <th class="small">Seat</th>
+                        <th class="small">Zone</th>
+                        <th class="small">Buyer</th>
+                        <th class="small">Status</th>
+                        <th class="small text-end">Price</th>
+                        <th class="small">Created</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.Tickets)
+                    {
+                        var bestDate = t.PurchasedAt > DateTime.MinValue ? t.PurchasedAt
+                                     : t.ReservedAt  > DateTime.MinValue ? t.ReservedAt
+                                     : (DateTime?)null;
+                        <tr>
+                            <td class="small">
+                                <div class="fw-semibold">@t.TicketNumber</div>
+                                @if (!string.IsNullOrWhiteSpace(t.HashedCode))
+                                {
+                                    <div class="text-muted" style="font-size:0.7rem; font-family: monospace;">@t.HashedCode</div>
+                                }
+                            </td>
+                            <td class="small">@(t.SeatNumber == 0 ? "—" : t.SeatNumber.ToString())</td>
+                            <td class="small text-muted">@(t.ZoneName ?? "—")</td>
+                            <td class="small">@t.BuyerDisplay</td>
+                            <td><span class="badge bg-@StatusBadge(t.Status) fw-normal">@t.Status</span></td>
+                            <td class="small text-end">
+                                <span data-currency-amount="@t.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@t.Price.ToString("0.00") @CurrencyOptionsAccessor.Value.BaseCurrency</span>
+                            </td>
+                            <td class="small text-muted">@(bestDate.HasValue ? bestDate.Value.ToString("dd MMM yyyy HH:mm") : "—")</td>
+                            <td class="text-end">
+                                <button class="btn btn-outline-secondary btn-sm"
+                                        onclick="openEditTicket('@t.Id')">
+                                    Edit
+                                </button>
+                                @if (t.Status == TicketStatus.Purchased || t.Status == TicketStatus.Reserved)
+                                {
+                                    <button class="btn btn-outline-danger btn-sm"
+                                            onclick="refundTicket('@t.Id', '@t.TicketNumber')">
+                                        Refund
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<link rel="stylesheet" href="~/css/seat-layout.css" asp-append-version="true" />
+
+<div class="modal fade" id="ticketEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="ticketEditModalContent"></div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@functions {
+    string StatusBadge(TicketStatus s) => s switch
+    {
+        TicketStatus.Purchased => "success",
+        TicketStatus.Used => "dark",
+        TicketStatus.Reserved => "warning",
+        TicketStatus.Refunded => "danger",
+        TicketStatus.Cancelled => "secondary",
+        TicketStatus.Expired => "secondary",
+        _ => "secondary"
+    };
+}
+
+@section Scripts {
+    <script>
+        const refundTicketUrl = '@Url.Action("RefundTicket")';
+        const editPartialUrl = '@Url.Action("EditPartial", "Tickets", new { area = "Admin" })';
+        const editUrl = '@Url.Action("Edit", "Tickets", new { area = "Admin" })';
+        const editModalEl = document.getElementById('ticketEditModal');
+        const editModal = new bootstrap.Modal(editModalEl);
+
+        function openEditTicket(ticketId) {
+            fetch(`${editPartialUrl}?id=${encodeURIComponent(ticketId)}`)
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById('ticketEditModalContent').innerHTML = html;
+                    editModal.show();
+                });
+        }
+
+        function submitTicketEdit() {
+            const ticketId = document.getElementById('editTicketId').value;
+            const status = document.getElementById('editTicketStatus').value;
+            const seatEl = document.getElementById('editTicketSeat');
+            const seatId = seatEl ? seatEl.value : '00000000-0000-0000-0000-000000000000';
+
+            const errEl = document.getElementById('editTicketError');
+            const saveBtn = document.getElementById('editTicketSaveBtn');
+            errEl.hidden = true;
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            fetch(editUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ ticketId, status, seatId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    editModal.hide();
+                    location.reload();
+                } else {
+                    errEl.textContent = data.message || 'Failed to save changes.';
+                    errEl.hidden = false;
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save changes';
+                }
+            });
+        }
+
+        const gridRows = @Model.GridRows;
+        const gridCols = @Model.GridColumns;
+        const seats = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Seats, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        const zoneColors = { 0: '#dc3545', 1: '#0d6efd', 2: '#198754' }; // VIP, Regular, Economy
+
+        const seatMap = {};
+        seats.forEach(s => seatMap[`${s.row},${s.column}`] = s);
+
+        const grid = document.getElementById('ticketGrid');
+        grid.style.gridTemplateColumns = `repeat(${gridCols}, max-content)`;
+
+        for (let r = 0; r < gridRows; r++) {
+            for (let c = 0; c < gridCols; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'seat-cell';
+                const seat = seatMap[`${r},${c}`];
+                if (seat) {
+                    cell.classList.add('seat-placed');
+                    cell.textContent = seat.seatNumber;
+
+                    const baseColor = (seat.zoneType !== null && seat.zoneType !== undefined)
+                        ? (zoneColors[seat.zoneType] || '#212529')
+                        : '#212529';
+
+                    if (seat.ticketStatus === 1 /* Purchased */ || seat.ticketStatus === 2 /* Used */) {
+                        cell.style.background = baseColor;
+                        cell.style.opacity = 0.45;
+                        cell.style.borderColor = baseColor;
+                        cell.title = `Sold to ${seat.buyerDisplay || 'someone'} — ${seat.price?.toFixed(2) ?? '?'} ${seat.currency || ''}`;
+                    } else if (seat.ticketStatus === 0 /* Reserved */) {
+                        cell.style.background = '#ffc107';
+                        cell.style.borderColor = '#ffc107';
+                        cell.style.color = '#000';
+                        cell.title = `Reserved — ${seat.price?.toFixed(2) ?? '?'} ${seat.currency || ''}`;
+                    } else {
+                        cell.style.background = baseColor;
+                        cell.style.borderColor = baseColor;
+                        const priceText = seat.price != null
+                            ? `${seat.price.toFixed(2)} ${seat.currency || ''}`
+                            : 'no price';
+                        const suffix = seat.usesBasePrice ? ' (base)' : '';
+                        cell.title = `Available — ${priceText}${suffix}`;
+                    }
+                }
+                grid.appendChild(cell);
+            }
+        }
+
+        // Color the legend zone chips
+        document.querySelectorAll('.zone-color[data-zone-type]').forEach(el => {
+            const t = parseInt(el.dataset.zoneType);
+            el.style.background = zoneColors[t] || '#6c757d';
+        });
+
+        // ── Refunds ──
+
+        function refundTicket(ticketId, ticketNumber) {
+            if (!confirm(`Refund ticket #${ticketNumber}? This marks the ticket and payment as Refunded.`)) return;
+
+            fetch(refundTicketUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticketId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) location.reload();
+                else alert('Refund failed.');
+            });
+        }
+    </script>
+}
