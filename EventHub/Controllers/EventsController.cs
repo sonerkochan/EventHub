@@ -41,9 +41,10 @@ namespace EventHub.Controllers
                 _logger.LogInformation("CACHE HIT — returning cached data for key: {Key}", cacheKey);
             }
 
-            return Ok(events!.Select(MapToApiResponse));
-        }
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
 
+            return Ok(events!.Select(e => MapToApiResponse(e, baseUrl)));
+        }
 
         [HttpGet("city")]
         public async Task<IActionResult> GetEventsByCity([FromQuery] string? city)
@@ -53,6 +54,7 @@ namespace EventHub.Controllers
 
             var cacheKey = $"events_city_{city.ToLowerInvariant()}";
             bool cacheHit = _cache.TryGetValue(cacheKey, out IEnumerable<EventListViewModel>? events);
+
             if (!cacheHit)
             {
                 _logger.LogInformation("CACHE MISS - fetching from DB for key: {Key}", cacheKey);
@@ -67,20 +69,15 @@ namespace EventHub.Controllers
                 _logger.LogInformation("CACHE HIT - returning cached data for key: {Key}", cacheKey);
             }
 
-            return Ok(events!.Select(MapToApiResponse));
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+            return Ok(events!.Select(e => MapToApiResponse(e, baseUrl)));
         }
-        private const string BaseUrl = "https://eventhub.tryasp.net";
 
-        private static EventApiResponse MapToApiResponse(EventListViewModel e)
+        private static EventApiResponse MapToApiResponse(
+            EventListViewModel e,
+            string baseUrl)
         {
-            string? coverImageUrl = e.CoverImageDisplayUrl;
-
-            if (!string.IsNullOrWhiteSpace(coverImageUrl) &&
-                !Uri.IsWellFormedUriString(coverImageUrl, UriKind.Absolute))
-            {
-                coverImageUrl = $"{BaseUrl}{coverImageUrl}";
-            }
-
             return new EventApiResponse
             {
                 Id = e.Id,
@@ -94,7 +91,7 @@ namespace EventHub.Controllers
                 TicketsSold = e.TicketsSold,
                 StartDateTime = e.StartDateTime,
                 EndDateTime = e.EndDateTime,
-                CoverImageUrl = coverImageUrl,
+                CoverImageUrl = GetAbsoluteImageUrl(e.CoverImageDisplayUrl, baseUrl),
                 RoomName = e.RoomName,
                 Location = new EventApiLocationResponse
                 {
@@ -105,6 +102,17 @@ namespace EventHub.Controllers
                     Address = e.Address
                 }
             };
+        }
+
+        private static string GetAbsoluteImageUrl(string? imageUrl, string baseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+                return string.Empty;
+
+            if (Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute))
+                return imageUrl;
+
+            return $"{baseUrl}{imageUrl}";
         }
     }
 }
