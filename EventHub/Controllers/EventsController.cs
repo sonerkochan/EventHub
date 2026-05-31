@@ -69,9 +69,18 @@ namespace EventHub.Controllers
 
             return Ok(events!.Select(MapToApiResponse));
         }
+        private const string BaseUrl = "https://eventhub.tryasp.net";
 
         private static EventApiResponse MapToApiResponse(EventListViewModel e)
         {
+            string? coverImageUrl = e.CoverImageDisplayUrl;
+
+            if (!string.IsNullOrWhiteSpace(coverImageUrl) &&
+                !Uri.IsWellFormedUriString(coverImageUrl, UriKind.Absolute))
+            {
+                coverImageUrl = $"{BaseUrl}{coverImageUrl}";
+            }
+
             return new EventApiResponse
             {
                 Id = e.Id,
@@ -85,7 +94,7 @@ namespace EventHub.Controllers
                 TicketsSold = e.TicketsSold,
                 StartDateTime = e.StartDateTime,
                 EndDateTime = e.EndDateTime,
-                CoverImageUrl = e.CoverImageDisplayUrl,
+                CoverImageUrl = coverImageUrl,
                 RoomName = e.RoomName,
                 Location = new EventApiLocationResponse
                 {
