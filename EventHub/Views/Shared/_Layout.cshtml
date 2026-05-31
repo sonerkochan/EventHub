@@ -226,15 +226,33 @@
                             <i class="fa fa-angle-down ml-1" style="font-size:0.75rem;color:#bbb;"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right eh-dropdown-menu">
-                            <a asp-area="Client" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                            @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Client"))
+                            {
+                                <a asp-area="Client" asp-controller="Home" asp-action="Index" class="dropdown-item">
                                 <i class="fa fa-th-large mr-2"></i> Client Dashboard
-                            </a>
-                            <a asp-area="Client" asp-controller="Events" asp-action="Index" class="dropdown-item">
+                                </a>
+                                
+                                <a asp-area="Client" asp-controller="Events" asp-action="Index" class="dropdown-item">
                                 <i class="fa fa-calendar mr-2"></i> Browse Events
-                            </a>
-                            <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="dropdown-item">
+                                </a>
+
+                                <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="dropdown-item">
                                 <i class="fa fa-ticket mr-2"></i> My Tickets
-                            </a>
+                                </a>
+                            }
+                            @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Admin"))
+                            {
+                                <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                <i class="fa fa-th-large mr-2"></i> Admin Dashboard
+                                </a>
+                            }
+                            @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Moderator"))
+                            {
+                                <a asp-area="Moderator" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                <i class="fa fa-th-large mr-2"></i> Moderator Dashboard
+                                </a>
+                            }  
+                            <div class="dropdown-divider"></div>
                             @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Organizer"))
                             {
                                 <div class="dropdown-divider"></div>
@@ -244,10 +262,7 @@
                             }
                             @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Supplier"))
                             {
-                                @if (!(currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Organizer")))
-                                {
-                                    <div class="dropdown-divider"></div>
-                                }
+                               
                                 <a asp-area="Supplier" asp-controller="Home" asp-action="Index" class="dropdown-item">
                                     <i class="fa fa-briefcase mr-2"></i> Supplier Panel
                                 </a>
