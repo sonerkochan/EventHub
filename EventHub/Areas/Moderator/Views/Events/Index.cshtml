@@ -1,0 +1,171 @@
+@using EventHub.Infrastructure.Data.Models
+@model IEnumerable<EventHub.Core.Models.Event.EventListViewModel>
+@{
+    ViewData["Title"] = "Events";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-semibold mb-0">Events</h5>
+    <button class="btn btn-dark btn-sm" onclick="openModal('@Url.Action("CreatePartial")')">+ New Event</button>
+</div>
+
+<div class="card border">
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="small">Name</th>
+                    <th class="small">Room</th>
+                    <th class="small">Type</th>
+                    <th class="small">Status</th>
+                    <th class="small">Start</th>
+                    <th class="small">Tickets</th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td class="small fw-medium">@e.EventName</td>
+                        <td class="small text-muted">@e.RoomName</td>
+                        <td class="small">@e.EventType</td>
+                        <td>
+                            <span class="badge bg-@StatusBadge(e.EventStatus) fw-normal">@e.EventStatus</span>
+                        </td>
+                        <td class="small">@e.StartDateTime.ToString("dd MMM yyyy HH:mm")</td>
+                        <td class="small">@e.TicketsSold / @e.TotalTickets</td>
+                        <td class="text-end">
+                            <button class="btn btn-outline-primary btn-sm"
+                                    onclick="openModal('@Url.Action("DetailsPartial", new { id = e.Id })')">
+                                View
+                            </button>
+                            <a asp-controller="EventTickets" asp-action="Pricing" asp-route-id="@e.Id"
+                               class="btn btn-outline-info btn-sm">Pricing</a>
+                            <a asp-controller="EventTickets" asp-action="Manage" asp-route-id="@e.Id"
+                               class="btn btn-outline-info btn-sm">Sell</a>
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    onclick="openModal('@Url.Action("EditPartial", new { id = e.Id })')">
+                                Edit
+                            </button>
+                            @if (e.EventStatus == EventStatus.Draft)
+                            {
+                                <button class="btn btn-outline-success btn-sm"
+                                        onclick="publishEvent('@Url.Action("Publish", new { id = e.Id })')">
+                                    Publish
+                                </button>
+                            }
+                            <button class="btn btn-outline-danger btn-sm"
+                                    onclick="deactivateEvent('@Url.Action("Deactivate", new { id = e.Id })')">
+                                Deactivate
+                            </button>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted small py-4">No events yet.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal container -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="eventModalContent">
+        </div>
+    </div>
+</div>
+
+@functions {
+    string StatusBadge(EventStatus s) => s switch
+    {
+        EventStatus.Active => "success",
+        EventStatus.Published => "info",
+        EventStatus.Draft => "secondary",
+        EventStatus.Cancelled => "danger",
+        EventStatus.Finished => "dark",
+        _ => "secondary"
+    };
+}
+
+@section Scripts {
+    <script>
+        const modalEl = document.getElementById('eventModal');
+        const modal = new bootstrap.Modal(modalEl);
+
+        function openModal(url) {
+            fetch(url)
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById('eventModalContent').innerHTML = html;
+                    modal.show();
+                });
+        }
+
+        modalEl.addEventListener('shown.bs.modal', wireRefundToggle);
+
+        function wireRefundToggle() {
+            const cb = document.getElementById('allowRefunds');
+            const group = document.getElementById('refundDeadlineGroup');
+            if (!cb || !group) return;
+            const toggle = () => group.style.display = cb.checked ? 'block' : 'none';
+            cb.addEventListener('change', toggle);
+            toggle();
+        }
+
+        function postWithToken(url) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                || '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1];
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: '__RequestVerificationToken=' + encodeURIComponent(token)
+            }).then(r => r.json());
+        }
+
+        function deactivateEvent(url) {
+            if (!confirm('Deactivate this event?')) return;
+            postWithToken(url).then(data => { if (data.success) location.reload(); });
+        }
+
+        function publishEvent(url) {
+            if (!confirm('Publish this event?')) return;
+            postWithToken(url).then(data => { if (data.success) location.reload(); });
+        }
+
+        function submitModalForm(form) {
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => {
+                const ct = r.headers.get('content-type') || '';
+                if (ct.includes('application/json')) return r.json();
+                return r.text().then(html => ({ html }));
+            })
+            .then(result => {
+                if (result.success) {
+                    modal.hide();
+                    location.reload();
+                } else if (result.html) {
+                    document.getElementById('eventModalContent').innerHTML = result.html;
+                    wireRefundToggle();
+                }
+            });
+
+            return false;
+        }
+    </script>
+}
+
+@Html.AntiForgeryToken()
