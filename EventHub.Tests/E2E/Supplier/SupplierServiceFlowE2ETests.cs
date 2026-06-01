@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 
 namespace EventHub.Tests.E2E.Supplier;
@@ -6,401 +5,406 @@ namespace EventHub.Tests.E2E.Supplier;
 [Trait("Category", "E2E")]
 public class SupplierServiceFlowE2ETests
 {
-    [Fact(Skip = "Requires local environment")]
-    public async Task SupplierCreatesService_ClientRequestsIt_SupplierApprovesEditsAndDeletesIt()
+    private const string BaseUrl = "https://staging-eventhub.tryasp.net";
+
+    private const string SupplierEmail = "supplier@test.com";
+    private const string SupplierPassword = "Supplier123!";
+
+    private const string ClientEmail = "client@test.com";
+    private const string ClientPassword = "Client123!";
+
+    [Fact]
+    public async Task SupplierCreatesService_ClientRentsIt_SupplierAcceptsEditsAndDeletesIt()
     {
-        var baseUrl = GetRequiredEnv("EVENTHUB_BASE_URL");
-
-        var clientEmail = GetRequiredEnv("EVENTHUB_CLIENT_EMAIL");
-        var clientPassword = GetRequiredEnv("EVENTHUB_CLIENT_PASSWORD");
-
-        var supplierEmail = GetRequiredEnv("EVENTHUB_SUPPLIER_EMAIL");
-        var supplierPassword = GetRequiredEnv("EVENTHUB_SUPPLIER_PASSWORD");
-
         var unique = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
         var serviceName = $"TestService_{unique}";
-        var editedName = $"TestServiceEdited_{unique}";
+        var editedServiceName = $"TestServiceEdited_{unique}";
 
         using var playwright = await Playwright.CreateAsync();
 
         await using var browser = await playwright.Chromium.LaunchAsync(new()
         {
-            Headless = false,
-            SlowMo = 150
+            Headless = false
         });
 
-        var supplierCreateContext = await browser.NewContextAsync(new()
-        {
-            IgnoreHTTPSErrors = true
-        });
+        // SUPPLIER CREATES SERVICE
 
-        var supplierCreatePage = await supplierCreateContext.NewPageAsync();
+        var supplierContext = await CreateContextAsync(browser);
+        var supplierPage = await supplierContext.NewPageAsync();
 
-        await LoginAsync(supplierCreatePage, baseUrl, supplierEmail, supplierPassword);
+        await LoginAsync(
+            supplierPage,
+            SupplierEmail,
+            SupplierPassword);
 
-        await supplierCreatePage.GotoAsync($"{baseUrl}/Supplier/Services/Create", new()
-        {
-            WaitUntil = WaitUntilState.DOMContentLoaded
-        });
+        await CreateSupplierServiceAsync(
+            supplierPage,
+            serviceName,
+            "Created by automated E2E test",
+            "300");
 
-        await WaitForPageReadyAsync(supplierCreatePage);
-        await ExpectVisibleTextAsync(supplierCreatePage, "Create a new service");
+        await ExpectVisibleTextAsync(
+            supplierPage,
+            serviceName);
 
-        await supplierCreatePage.Locator("input[name='Name']").FillAsync(serviceName);
-        await supplierCreatePage.Locator("textarea[name='Description']").FillAsync("Created by automated E2E test");
-        await supplierCreatePage.Locator("input[name='Price']").FillAsync("300");
+        await supplierContext.CloseAsync();
 
-        await ClickButtonAsync(supplierCreatePage, "Create");
-        await WaitForPageReadyAsync(supplierCreatePage);
+        // CLIENT RENTS SERVICE
 
-        await ExpectVisibleTextAsync(supplierCreatePage, serviceName);
-
-        await supplierCreateContext.CloseAsync();
-
-        var clientContext = await browser.NewContextAsync(new()
-        {
-            IgnoreHTTPSErrors = true
-        });
-
+        var clientContext = await CreateContextAsync(browser);
         var clientPage = await clientContext.NewPageAsync();
 
-        await LoginAsync(clientPage, baseUrl, clientEmail, clientPassword);
-
-        await OpenClientServicesPageAsync(clientPage, baseUrl, serviceName);
-        await ExpectVisibleTextAsync(clientPage, serviceName);
-
-        var serviceTitle = clientPage.GetByText(serviceName, new()
-        {
-            Exact = false
-        }).First;
-
-        await serviceTitle.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-            Timeout = 15000
-        });
-
-        var serviceCard = serviceTitle.Locator("xpath=ancestor::*[contains(@class, 'card')][1]");
-
-        var messageBox = serviceCard.Locator("textarea").First;
-
-        await messageBox.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-            Timeout = 15000
-        });
-
-        await messageBox.FillAsync($"E2E request created at {DateTime.UtcNow:O}");
-
-        var rentButton = serviceCard.Locator("button", new()
-        {
-            HasTextString = "Rent Service"
-        }).First;
-
-        await rentButton.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-            Timeout = 15000
-        });
-
-        await rentButton.ClickAsync();
-        await WaitForPageReadyAsync(clientPage);
-
-        await ExpectAnyVisibleTextAsync(
+        await LoginAsync(
             clientPage,
-            "Service request sent to the supplier.",
-            "Request pending",
-            "Pending");
+            ClientEmail,
+            ClientPassword);
+
+        await ClientRentsServiceAsync(
+            clientPage,
+            serviceName,
+            $"E2E request for {serviceName}");
 
         await clientContext.CloseAsync();
 
-        var supplierApproveContext = await browser.NewContextAsync(new()
-        {
-            IgnoreHTTPSErrors = true
-        });
+        // SUPPLIER ACCEPTS REQUEST, EDITS SERVICE AND DELETES IT
 
-        var supplierApprovePage = await supplierApproveContext.NewPageAsync();
+        var supplierFinalContext = await CreateContextAsync(browser);
+        var supplierFinalPage = await supplierFinalContext.NewPageAsync();
 
-        await LoginAsync(supplierApprovePage, baseUrl, supplierEmail, supplierPassword);
+        await LoginAsync(
+            supplierFinalPage,
+            SupplierEmail,
+            SupplierPassword);
 
-        await supplierApprovePage.GotoAsync($"{baseUrl}/Supplier/Services/Index", new()
-        {
-            WaitUntil = WaitUntilState.DOMContentLoaded
-        });
+        await SupplierAcceptsRequestAsync(
+            supplierFinalPage,
+            serviceName,
+            "Accepted by automated E2E test");
 
-        await WaitForPageReadyAsync(supplierApprovePage);
+        await SupplierEditsAndDeletesServiceAsync(
+            supplierFinalPage,
+            serviceName,
+            editedServiceName,
+            "Edited by automated E2E test",
+            "350");
 
-        await supplierApprovePage.GetByText("Requests", new()
-        {
-            Exact = true
-        }).ClickAsync();
-
-        await WaitForPageReadyAsync(supplierApprovePage);
-
-        await ExpectVisibleTextAsync(supplierApprovePage, serviceName);
-
-        var requestRow = supplierApprovePage.Locator("tr", new()
-        {
-            HasTextString = serviceName
-        }).First;
-
-        await requestRow.WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-            Timeout = 15000
-        });
-
-        var commentInput = requestRow.Locator("input[name='responseComment'], textarea[name='responseComment']").First;
-
-        if (await commentInput.CountAsync() > 0)
-        {
-            await commentInput.FillAsync("Accepted by automated E2E test");
-        }
-
-        await requestRow.GetByRole(AriaRole.Button, new()
-        {
-            NameRegex = new Regex("Accept|Approve", RegexOptions.IgnoreCase)
-        }).First.ClickAsync();
-
-        await WaitForPageReadyAsync(supplierApprovePage);
-
-        await ExpectAnyVisibleTextAsync(
-            supplierApprovePage,
-            "Service request accepted.",
-            "Accepted");
-
-        await supplierApproveContext.CloseAsync();
-
-        var supplierEditContext = await browser.NewContextAsync(new()
-        {
-            IgnoreHTTPSErrors = true
-        });
-
-        var supplierEditPage = await supplierEditContext.NewPageAsync();
-
-        await LoginAsync(supplierEditPage, baseUrl, supplierEmail, supplierPassword);
-
-        await supplierEditPage.GotoAsync($"{baseUrl}/Supplier/Services/Index", new()
-        {
-            WaitUntil = WaitUntilState.DOMContentLoaded
-        });
-
-        await WaitForPageReadyAsync(supplierEditPage);
-        await ExpectVisibleTextAsync(supplierEditPage, serviceName);
-
-        var createdRow = supplierEditPage.Locator("tr", new()
-        {
-            HasTextString = serviceName
-        }).First;
-
-        await createdRow.GetByRole(AriaRole.Link, new()
-        {
-            NameRegex = new Regex("Edit", RegexOptions.IgnoreCase)
-        }).First.ClickAsync();
-
-        await WaitForPageReadyAsync(supplierEditPage);
-
-        await ExpectVisibleTextAsync(supplierEditPage, "Edit Service");
-
-        await supplierEditPage.Locator("input[name='Name']").FillAsync(editedName);
-        await supplierEditPage.Locator("textarea[name='Description']").FillAsync("Edited by automated E2E test");
-        await supplierEditPage.Locator("input[name='Price']").FillAsync("350");
-
-        await ClickButtonAsync(supplierEditPage, "Save");
-        await WaitForPageReadyAsync(supplierEditPage);
-
-        await ExpectVisibleTextAsync(supplierEditPage, editedName);
-
-        var editedRow = supplierEditPage.Locator("tr", new()
-        {
-            HasTextString = editedName
-        }).First;
-
-        await editedRow.GetByRole(AriaRole.Link, new()
-        {
-            NameRegex = new Regex("Delete", RegexOptions.IgnoreCase)
-        }).First.ClickAsync();
-
-        await WaitForPageReadyAsync(supplierEditPage);
-
-        await ExpectVisibleTextAsync(supplierEditPage, "Delete Service");
-        await ExpectVisibleTextAsync(supplierEditPage, editedName);
-
-        await ClickButtonAsync(supplierEditPage, "Delete");
-        await WaitForPageReadyAsync(supplierEditPage);
-
-        Assert.Equal(0, await supplierEditPage.GetByText(editedName, new()
-        {
-            Exact = false
-        }).CountAsync());
-
-        await supplierEditContext.CloseAsync();
+        await supplierFinalContext.CloseAsync();
     }
 
-    private static async Task OpenClientServicesPageAsync(IPage page, string baseUrl, string serviceSearch)
+    private static async Task<IBrowserContext> CreateContextAsync(IBrowser browser)
     {
-        var url = $"{baseUrl}/Client/Services/Index?searchTerm={Uri.EscapeDataString(serviceSearch)}";
-
-        var response = await page.GotoAsync(url, new()
+        return await browser.NewContextAsync(new()
         {
-            WaitUntil = WaitUntilState.DOMContentLoaded,
-            Timeout = 30000
-        });
-
-        var status = response?.Status ?? 0;
-
-        if (status < 200 || status >= 400)
-        {
-            throw new InvalidOperationException(
-                $"Client services page failed. URL: {url}, HTTP status: {status}.");
-        }
-
-        await WaitForPageReadyAsync(page);
-    }
-
-    private static async Task LoginAsync(IPage page, string baseUrl, string email, string password)
-    {
-        await page.GotoAsync($"{baseUrl}/Identity/Account/Login", new()
-        {
-            WaitUntil = WaitUntilState.DOMContentLoaded
-        });
-
-        await WaitForPageReadyAsync(page);
-
-        await FillFirstExistingAsync(
-            page,
-            email,
-            "input[name='Input.Email']",
-            "input[name='Email']",
-            "input[type='email']",
-            "#Input_Email",
-            "#Email");
-
-        await FillFirstExistingAsync(
-            page,
-            password,
-            "input[name='Input.Password']",
-            "input[name='Password']",
-            "input[type='password']",
-            "#Input_Password",
-            "#Password");
-
-        await ClickButtonAsync(page, "Log in", "Login", "Вход");
-        await WaitForPageReadyAsync(page);
-
-        var bodyText = await page.Locator("body").InnerTextAsync();
-
-        if (bodyText.Contains("Invalid login attempt", StringComparison.OrdinalIgnoreCase) ||
-            bodyText.Contains("Login failed", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new InvalidOperationException($"Login failed for {email}");
-        }
-    }
-
-    private static async Task FillFirstExistingAsync(IPage page, string value, params string[] selectors)
-    {
-        foreach (var selector in selectors)
-        {
-            var locator = page.Locator(selector);
-
-            if (await locator.CountAsync() > 0)
+            IgnoreHTTPSErrors = true,
+            ViewportSize = new()
             {
-                await locator.First.FillAsync(value);
-                return;
+                Width = 1366,
+                Height = 768
             }
-        }
-
-        throw new InvalidOperationException($"Could not find any selector: {string.Join(", ", selectors)}");
+        });
     }
 
-    private static async Task ClickButtonAsync(IPage page, params string[] buttonNames)
+    private static async Task LoginAsync(
+        IPage page,
+        string username,
+        string password)
     {
-        foreach (var buttonName in buttonNames)
-        {
-            var button = page.GetByRole(AriaRole.Button, new()
+        await page.GotoAsync(
+            $"{BaseUrl}/User/Login",
+            new()
             {
-                NameRegex = new Regex($"^{Regex.Escape(buttonName)}$", RegexOptions.IgnoreCase)
+                WaitUntil = WaitUntilState.DOMContentLoaded,
+                Timeout = 30000
             });
 
-            if (await button.CountAsync() > 0)
-            {
-                await button.First.ClickAsync();
-                return;
-            }
-        }
+        await WaitForPageReadyAsync(page);
 
-        throw new InvalidOperationException($"Could not find button: {string.Join(" / ", buttonNames)}");
+        await page.Locator(
+                "input[name='Username'], input[name='UserName'], #Username, #UserName, input[type='text']")
+            .First
+            .FillAsync(username);
+
+        await page.Locator(
+                "input[name='Password'], #Password, input[type='password']")
+            .First
+            .FillAsync(password);
+
+        await page.GetByRole(AriaRole.Button, new()
+            {
+                Name = "Log in"
+            })
+            .ClickAsync();
+
+        await WaitForPageReadyAsync(page);
     }
 
-    private static async Task ExpectVisibleTextAsync(IPage page, string text)
+    private static async Task CreateSupplierServiceAsync(
+        IPage page,
+        string serviceName,
+        string description,
+        string price)
     {
-        await page.GetByText(text, new()
-        {
-            Exact = false
-        }).First.WaitForAsync(new()
+        await page.GotoAsync(
+            $"{BaseUrl}/Supplier/Services/Index",
+            new()
+            {
+                WaitUntil = WaitUntilState.DOMContentLoaded
+            });
+
+        await WaitForPageReadyAsync(page);
+
+        await page
+            .Locator("[data-target='#createServiceModal']")
+            .First
+            .ClickAsync();
+
+        var modal = page.Locator("#createServiceModal");
+
+        await modal.WaitForAsync(new()
         {
             State = WaitForSelectorState.Visible,
             Timeout = 15000
         });
+
+        await modal.Locator("#createName")
+            .FillAsync(serviceName);
+
+        await modal.Locator("#createDescription")
+            .FillAsync(description);
+
+        await modal.Locator("#createPrice")
+            .FillAsync(price);
+
+        await modal
+            .Locator("form[action='/Supplier/Services/Create'] button[type='submit']")
+            .ClickAsync();
+
+        await WaitForPageReadyAsync(page);
     }
 
-    private static async Task ExpectAnyVisibleTextAsync(IPage page, params string[] possibleTexts)
+    private static async Task ClientRentsServiceAsync(
+        IPage page,
+        string serviceName,
+        string message)
     {
-        var deadline = DateTime.UtcNow.AddSeconds(15);
-
-        while (DateTime.UtcNow < deadline)
-        {
-            foreach (var text in possibleTexts)
+        await page.GotoAsync(
+            $"{BaseUrl}/Client/Services/Index",
+            new()
             {
-                var locator = page.GetByText(text, new()
-                {
-                    Exact = false
-                });
+                WaitUntil = WaitUntilState.DOMContentLoaded
+            });
 
-                if (await locator.CountAsync() > 0)
-                {
-                    return;
-                }
-            }
+        await WaitForPageReadyAsync(page);
 
-            await page.WaitForTimeoutAsync(250);
-        }
+        await page.Locator("#SearchTerm, input[name='SearchTerm']")
+            .First
+            .FillAsync(serviceName);
 
-        throw new TimeoutException($"None of these texts appeared: {string.Join(" / ", possibleTexts)}");
+        await page.Locator("button[type='submit'].eh-btn-search, button:has-text('Search')")
+            .First
+            .ClickAsync();
+
+        await WaitForPageReadyAsync(page);
+
+        await ExpectVisibleTextAsync(page, serviceName);
+
+        var serviceCard = page.Locator(".eh-service-card", new()
+        {
+            HasTextString = serviceName
+        }).First;
+
+        await serviceCard.ScrollIntoViewIfNeededAsync();
+
+        await serviceCard.Locator("textarea[name='message']")
+            .First
+            .FillAsync(message);
+
+        await serviceCard.Locator("form[action='/Client/Services/Rent'] button[type='submit']")
+            .First
+            .ClickAsync();
+
+        await WaitForPageReadyAsync(page);
     }
 
-    private static async Task WaitForPageReadyAsync(IPage page)
+    private static async Task SupplierAcceptsRequestAsync(
+        IPage page,
+        string serviceName,
+        string responseComment)
     {
-        await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+        await page.GotoAsync(
+            $"{BaseUrl}/Supplier/Requests/Index",
+            new()
+            {
+                WaitUntil = WaitUntilState.DOMContentLoaded
+            });
+
+        await WaitForPageReadyAsync(page);
+
+        await ExpectVisibleTextAsync(page, serviceName);
+
+        var requestRow = page.Locator("tr", new()
+        {
+            HasTextString = serviceName
+        }).First;
+
+        await requestRow.ScrollIntoViewIfNeededAsync();
+
+        await requestRow
+            .Locator(".item-action.dropdown a[data-toggle='dropdown'], .item-action.dropdown .icon")
+            .First
+            .ClickAsync();
+
+        var acceptForm = requestRow
+            .Locator("form[action='/Supplier/Requests/Accept']")
+            .First;
+
+        await acceptForm.Locator("input[name='responseComment']")
+            .First
+            .FillAsync(responseComment);
+
+        await acceptForm.Locator("button[type='submit']")
+            .First
+            .ClickAsync();
+
+        await WaitForPageReadyAsync(page);
+
+        await ExpectVisibleTextAsync(page, "Accepted");
+    }
+
+    private static async Task SupplierEditsAndDeletesServiceAsync(
+        IPage page,
+        string originalServiceName,
+        string editedServiceName,
+        string editedDescription,
+        string editedPrice)
+    {
+        await page.GotoAsync(
+            $"{BaseUrl}/Supplier/Services/Index",
+            new()
+            {
+                WaitUntil = WaitUntilState.DOMContentLoaded
+            });
+
+        await WaitForPageReadyAsync(page);
+
+        await ExpectVisibleTextAsync(page, originalServiceName);
+
+        var serviceCard = page.Locator(".card", new()
+        {
+            HasTextString = originalServiceName
+        }).First;
+
+        await serviceCard.ScrollIntoViewIfNeededAsync();
+
+        await serviceCard.Locator(".btn-edit-modern, a:has-text('Edit'), button:has-text('Edit')")
+            .First
+            .ClickAsync();
+
+        var editModal = page.Locator(".modal.show", new()
+        {
+            HasTextString = "Edit Service"
+        }).First;
+
+        await editModal.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+
+        await editModal.Locator("form[action='/Supplier/Services/Edit'] input[name='Name']")
+            .First
+            .FillAsync(editedServiceName);
+
+        await editModal.Locator("form[action='/Supplier/Services/Edit'] input[name='Price']")
+            .First
+            .FillAsync(editedPrice);
+
+        await editModal.Locator("form[action='/Supplier/Services/Edit'] textarea[name='Description']")
+            .First
+            .FillAsync(editedDescription);
+
+        await editModal.Locator("form[action='/Supplier/Services/Edit'] button[type='submit']")
+            .First
+            .ClickAsync();
+
+        await WaitForPageReadyAsync(page);
+
+        await ExpectVisibleTextAsync(page, editedServiceName);
+
+        var editedCard = page.Locator(".card", new()
+        {
+            HasTextString = editedServiceName
+        }).First;
+
+        await editedCard.ScrollIntoViewIfNeededAsync();
+
+        await editedCard.Locator(".btn-delete-modern, button:has-text('Delete')")
+            .First
+            .ClickAsync();
+
+        var deleteModal = page.Locator(".modal.show", new()
+        {
+            HasTextString = "Confirm Delete"
+        }).First;
+
+        await deleteModal.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 15000
+        });
+
+        await deleteModal.Locator("form[action='/Supplier/Services/Delete'] button[type='submit']")
+            .First
+            .ClickAsync();
+
+        await WaitForPageReadyAsync(page);
+
+        await ExpectTextNotVisibleAsync(page, editedServiceName);
+    }
+
+    private static async Task ExpectVisibleTextAsync(
+        IPage page,
+        string text)
+    {
+        await page.GetByText(text)
+            .First
+            .WaitForAsync(new()
+            {
+                State = WaitForSelectorState.Visible,
+                Timeout = 15000
+            });
+    }
+
+    private static async Task ExpectTextNotVisibleAsync(
+        IPage page,
+        string text)
+    {
+        await page.GetByText(text)
+            .First
+            .WaitForAsync(new()
+            {
+                State = WaitForSelectorState.Detached,
+                Timeout = 15000
+            });
+    }
+
+    private static async Task WaitForPageReadyAsync(
+        IPage page)
+    {
+        await page.WaitForLoadStateAsync(
+            LoadState.DOMContentLoaded);
 
         try
         {
-            await page.WaitForLoadStateAsync(LoadState.NetworkIdle, new()
-            {
-                Timeout = 10000
-            });
+            await page.WaitForLoadStateAsync(
+                LoadState.NetworkIdle,
+                new()
+                {
+                    Timeout = 10000
+                });
         }
         catch
         {
-            // Some pages keep background requests alive.
         }
-
-        await page.Locator("body").WaitForAsync(new()
-        {
-            State = WaitForSelectorState.Visible,
-            Timeout = 15000
-        });
-    }
-
-    private static string GetRequiredEnv(string key)
-    {
-        var value = Environment.GetEnvironmentVariable(key);
-
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            throw new InvalidOperationException($"Missing environment variable: {key}");
-        }
-
-        return value;
     }
 }
