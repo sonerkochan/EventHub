@@ -25,6 +25,9 @@ jobs:
       - name: Build (Fail on warnings)
         run: dotnet build --configuration Release --no-restore
 
+      - name: Install Playwright Browsers
+        run: pwsh EventHub.Tests/bin/Release/net10.0/playwright.ps1 install
+
       - name: Run Tests
         run: dotnet test --configuration Release --no-build
 
