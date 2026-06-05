@@ -1,6 +1,12 @@
 @model EventHub.Core.Models.Venue.AddVenueViewModel
 
-<form asp-action="Create" method="post" onsubmit="return submitModalForm(this)">
+<style>
+    .leaflet-container {
+        z-index: 1 !important;
+    }
+</style>
+
+<form id="venueForm" asp-action="Create" method="post" onsubmit="return submitModalForm(this)">
     @Html.AntiForgeryToken()
 
     <div class="modal-header">
@@ -32,30 +38,17 @@
         <div class="row g-3 mb-3">
             <div class="col-sm-5">
                 <label asp-for="City" class="form-label small fw-medium">City</label>
-                <input asp-for="City" class="form-control form-control-sm" />
+                <input asp-for="City" id="cityInput" class="form-control form-control-sm" />
                 <span asp-validation-for="City" class="text-danger small"></span>
             </div>
             <div class="col-sm-5">
                 <label asp-for="Country" class="form-label small fw-medium">Country</label>
-                <input asp-for="Country" class="form-control form-control-sm" />
+                <input asp-for="Country" id="countryInput" class="form-control form-control-sm" />
                 <span asp-validation-for="Country" class="text-danger small"></span>
             </div>
             <div class="col-sm-2">
                 <label asp-for="PostalCode" class="form-label small fw-medium">Postal</label>
-                <input asp-for="PostalCode" class="form-control form-control-sm" />
-            </div>
-        </div>
-
-        <div class="row g-3 mb-3">
-            <div class="col-sm-6">
-                <label asp-for="Latitude" class="form-label small fw-medium">Latitude</label>
-                <input asp-for="Latitude" class="form-control form-control-sm" type="number" step="any" />
-                <span asp-validation-for="Latitude" class="text-danger small"></span>
-            </div>
-            <div class="col-sm-6">
-                <label asp-for="Longitude" class="form-label small fw-medium">Longitude</label>
-                <input asp-for="Longitude" class="form-control form-control-sm" type="number" step="any" />
-                <span asp-validation-for="Longitude" class="text-danger small"></span>
+                <input asp-for="PostalCode" id="postalInput" class="form-control form-control-sm" />
             </div>
         </div>
 
@@ -68,6 +61,26 @@
             <div class="col-sm-6">
                 <label asp-for="ContactPhone" class="form-label small fw-medium">Contact Phone</label>
                 <input asp-for="ContactPhone" class="form-control form-control-sm" />
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-12">
+                <label class="form-label small fw-medium">Pick Location on Map</label>
+                <div id="locationMap" style="height:300px; border-radius:8px; border:1px solid #dee2e6; width: 100%;"></div>
+                <small class="text-muted d-block mt-1">Click the map to place a pin and fill in coordinates automatically.</small>
+            </div>
+
+            <div class="col-sm-6">
+                <label asp-for="Latitude" class="form-label small fw-medium">Latitude</label>
+                <input asp-for="Latitude" id="latInput" class="form-control form-control-sm" type="number" min="-90" max="90" step="any" />
+                <span asp-validation-for="Latitude" class="text-danger small"></span>
+            </div>
+
+            <div class="col-sm-6">
+                <label asp-for="Longitude" class="form-label small fw-medium">Longitude</label>
+                <input asp-for="Longitude" id="lngInput" class="form-control form-control-sm" type="number" min="-180" max="180" step="any" />
+                <span asp-validation-for="Longitude" class="text-danger small"></span>
             </div>
         </div>
     </div>
