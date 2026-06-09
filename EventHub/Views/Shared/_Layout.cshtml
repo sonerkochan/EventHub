@@ -57,15 +57,33 @@
         }
         .eh-nav-link {
             font-size: 0.82rem;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--tr-text) !important;
-            padding: 1.15rem 1rem !important;
+            padding: 0.5rem 1rem !important;
+            margin: 0.65rem 0.2rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            transition: color 0.2s;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1;
         }
-        .eh-nav-link:hover { color: var(--tr-accent) !important; }
-        .eh-nav-link.active { color: var(--tr-accent) !important; border-bottom: 2px solid var(--tr-accent); }
+        .eh-nav-link i {
+            font-size: 1.25em;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+        .eh-nav-link:hover { 
+            color: var(--tr-accent) !important; 
+            background: rgba(0,0,0,0.04);
+        }
+        .eh-nav-link.active { 
+            color: #fff !important; 
+            background: var(--tr-accent);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
 
         /* ── Hamburger fix (travelista strips Bootstrap's built-in SVG) ── */
         .navbar-toggler {
@@ -183,19 +201,19 @@
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
                     <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link eh-nav-link">
-                        Home
+                        <i class="fa fa-home"></i> Home
                     </a>
                 </li>
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Events" asp-action="Index" class="nav-link eh-nav-link">
-                            <i class="fa fa-calendar mr-1"></i> Events
+                            <i class="fa fa-calendar"></i> Events
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="nav-link eh-nav-link">
-                            <i class="fa fa-ticket mr-1"></i> My Tickets
+                            <i class="fa fa-ticket"></i> My Tickets
                         </a>
                     </li>
                 }

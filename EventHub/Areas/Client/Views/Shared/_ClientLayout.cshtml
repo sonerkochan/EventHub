@@ -39,19 +39,37 @@
         }
         .eh-nav-link {
             font-family: 'Poppins', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 500;
+            font-size: 0.82rem;
+            font-weight: 600;
             color: #555 !important;
-            padding: 1.2rem 1rem !important;
+            padding: 0.5rem 1rem !important;
+            margin: 0.7rem 0.2rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            transition: color 0.2s;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1;
         }
-        .eh-nav-link:hover, .eh-nav-link.active {
-            color: #55a5d2 !important;
+        .eh-nav-link i {
+            font-size: 1.25em;
+            line-height: 1;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .eh-nav-link:hover {
+            color: #2b5876 !important;
+            background: #eef5fa;
+            transform: translateY(-2px);
+        }
+        .eh-nav-link:hover i {
+            transform: scale(1.2) translateY(-1px);
         }
         .eh-nav-link.active {
-            border-bottom: 2px solid #55a5d2;
+            color: #fff !important;
+            background: linear-gradient(135deg, #55a5d2, #2b5876);
+            box-shadow: 0 6px 15px rgba(85, 165, 210, 0.35);
         }
         .eh-page-wrapper {
             min-height: calc(100vh - 140px);
@@ -154,37 +172,37 @@
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Home" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Home"))">
-                            Dashboard
+                            <i class="fa fa-th-large"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Events" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Events"))">
-                            Events
+                            <i class="fa fa-calendar"></i> Events
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Services" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Services"))">
-                            Services
+                            <i class="fa fa-cubes"></i> Services
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Tickets" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Tickets"))">
-                            Tickets
+                            <i class="fa fa-ticket"></i> Tickets
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Payment" asp-action="History"
                            class="nav-link eh-nav-link @(IsActive("Payment"))">
-                            Payments
+                            <i class="fa fa-credit-card"></i> Payments
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Application" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Application"))">
-                            Applications
+                            <i class="fa fa-list-alt"></i> Applications
                         </a>
                     </li>
                 </ul>
