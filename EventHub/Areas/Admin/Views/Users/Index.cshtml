@@ -3,6 +3,27 @@
     ViewData["Title"] = "Users";
     var roleFilter = ViewBag.RoleFilter as string;
     var roleChips = new[] { "Client", "Organizer", "Supplier", "Moderator", "Admin" };
+
+    var page = (int)(ViewBag.Page ?? 1);
+    var pageSize = (int)(ViewBag.PageSize ?? 10);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var totalCount = (int)(ViewBag.TotalCount ?? 0);
+    var pageSizeOptions = ViewBag.PageSizeOptions as int[] ?? new[] { 10, 25, 50, 100, 200 };
+    var allUsers = ViewBag.AllUsers as List<EventHub.Core.Models.User.UserListViewModel> ?? Model.ToList();
+
+    string BuildUrl(int? pageOverride, int? sizeOverride)
+    {
+        var parts = new List<string>
+        {
+            $"size={sizeOverride ?? pageSize}",
+            $"page={pageOverride ?? page}"
+        };
+        if (!string.IsNullOrEmpty(roleFilter))
+        {
+            parts.Add($"role={Uri.EscapeDataString(roleFilter)}");
+        }
+        return "/Admin/Users/Index?" + string.Join("&", parts);
+    }
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -19,33 +40,33 @@
     <button class="btn btn-dark btn-sm" onclick="openModal('@Url.Action("CreatePartial")')">+ New User</button>
 </div>
 
-@if (roleFilter == "Organizer" && Model.Any())
+@if (roleFilter == "Organizer" && allUsers.Any())
 {
-    var totalEvents = Model.Sum(u => u.OrganizerEventCount);
-    var totalTickets = Model.Sum(u => u.OrganizerTicketsSold);
-    var totalRevenue = Model.Sum(u => u.OrganizerRevenue);
+    var totalEvents = allUsers.Sum(u => u.OrganizerEventCount);
+    var totalTickets = allUsers.Sum(u => u.OrganizerTicketsSold);
+    var totalRevenue = allUsers.Sum(u => u.OrganizerRevenue);
     <div class="row g-2 mb-3">
-        <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Organizers</div><div class="fw-semibold fs-5">@Model.Count()</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Organizers</div><div class="fw-semibold fs-5">@allUsers.Count</div></div></div></div>
         <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Active events</div><div class="fw-semibold fs-5">@totalEvents</div></div></div></div>
         <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Tickets sold</div><div class="fw-semibold fs-5">@totalTickets</div></div></div></div>
         <div class="col-6 col-md-3"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Revenue</div><div class="fw-semibold fs-5"><span data-currency-amount="@totalRevenue.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@totalRevenue.ToString("0.00") @CurrencyOptionsAccessor.Value.BaseCurrency</span></div></div></div></div>
     </div>
 }
-else if (roleFilter == "Supplier" && Model.Any())
+else if (roleFilter == "Supplier" && allUsers.Any())
 {
-    var totalServices = Model.Sum(u => u.SupplierServiceCount);
-    var totalPending = Model.Sum(u => u.SupplierPendingRequests);
+    var totalServices = allUsers.Sum(u => u.SupplierServiceCount);
+    var totalPending = allUsers.Sum(u => u.SupplierPendingRequests);
     <div class="row g-2 mb-3">
-        <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Suppliers</div><div class="fw-semibold fs-5">@Model.Count()</div></div></div></div>
+        <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Suppliers</div><div class="fw-semibold fs-5">@allUsers.Count</div></div></div></div>
         <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Services listed</div><div class="fw-semibold fs-5">@totalServices</div></div></div></div>
         <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Pending requests</div><div class="fw-semibold fs-5 text-warning">@totalPending</div></div></div></div>
     </div>
 }
-else if (roleFilter == "Client" && Model.Any())
+else if (roleFilter == "Client" && allUsers.Any())
 {
-    var totalBought = Model.Sum(u => u.ClientTicketsBought);
+    var totalBought = allUsers.Sum(u => u.ClientTicketsBought);
     <div class="row g-2 mb-3">
-        <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Clients</div><div class="fw-semibold fs-5">@Model.Count()</div></div></div></div>
+        <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Clients</div><div class="fw-semibold fs-5">@allUsers.Count</div></div></div></div>
         <div class="col-6 col-md-4"><div class="card border"><div class="card-body py-2"><div class="small text-muted">Tickets bought</div><div class="fw-semibold fs-5">@totalBought</div></div></div></div>
     </div>
 }
@@ -177,6 +198,72 @@ else if (roleFilter == "Client" && Model.Any())
         </table>
     </div>
 </div>
+
+@if (totalCount > 0)
+{
+    var firstShown = (page - 1) * pageSize + 1;
+    var lastShown = Math.Min(page * pageSize, totalCount);
+    <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 gap-2">
+        <div class="small text-muted">
+            Showing <strong>@firstShown</strong>–<strong>@lastShown</strong> of <strong>@totalCount</strong>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(page <= 1 ? "disabled" : "")">
+                        <a class="page-link" href="@BuildUrl(page - 1, null)">«</a>
+                    </li>
+                    @{
+                        var windowStart = Math.Max(1, page - 2);
+                        var windowEnd = Math.Min(totalPages, page + 2);
+                        if (windowStart > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@BuildUrl(1, null)">1</a>
+                            </li>
+                            if (windowStart > 2)
+                            {
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            }
+                        }
+                    }
+                    @for (int p = windowStart; p <= windowEnd; p++)
+                    {
+                        <li class="page-item @(p == page ? "active" : "")">
+                            <a class="page-link" href="@BuildUrl(p, null)">@p</a>
+                        </li>
+                    }
+                    @if (windowEnd < totalPages)
+                    {
+                        if (windowEnd < totalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" href="@BuildUrl(totalPages, null)">@totalPages</a>
+                        </li>
+                    }
+                    <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@BuildUrl(page + 1, null)">»</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted">Per page:</span>
+            @foreach (var sizeOpt in pageSizeOptions)
+            {
+                <a href="@BuildUrl(1, sizeOpt)"
+                   class="btn btn-sm @(sizeOpt == pageSize ? "btn-dark" : "btn-outline-secondary")">
+                    @sizeOpt
+                </a>
+            }
+        </div>
+    </div>
+}
 
 <!-- Modal container -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
