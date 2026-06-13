@@ -109,6 +109,11 @@
 
         modalEl.addEventListener('shown.bs.modal', wireRefundToggle);
 
+    @if (Context.Request.Query["create"] == "true")
+    {
+        <text>openModal('@Url.Action("CreatePartial")');</text>
+    }
+
         function wireRefundToggle() {
             const cb = document.getElementById('allowRefunds');
             const group = document.getElementById('refundDeadlineGroup');

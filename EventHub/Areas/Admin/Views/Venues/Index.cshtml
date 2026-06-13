@@ -75,6 +75,11 @@
                 });
         }
 
+    @if (Context.Request.Query["create"] == "true")
+    {
+        <text>openModal('@Url.Action("CreatePartial")');</text>
+    }
+
         function deactivateVenue(url) {
             if (!confirm('Deactivate this venue?')) return;
 
