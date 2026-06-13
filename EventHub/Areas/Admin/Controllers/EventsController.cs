@@ -9,6 +9,9 @@ namespace EventHub.Areas.Admin.Controllers
 {
     public class EventsController : BaseController
     {
+        private const int DefaultPageSize = 10;
+        private static readonly int[] PageSizeOptions = { 10, 25, 50, 100, 200 };
+
         private readonly IEventService eventService;
         private readonly IRoomService roomService;
         private readonly IPhotoService photoService;
@@ -23,10 +26,23 @@ namespace EventHub.Areas.Admin.Controllers
             photoService = _photoService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int size = DefaultPageSize)
         {
-            var model = await eventService.GetAllEventsAsync();
-            return View(model);
+            var all = (await eventService.GetAllEventsAsync()).ToList();
+
+            var totalCount = all.Count;
+            size = PageSizeOptions.Contains(size) ? size : DefaultPageSize;
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)size));
+            page = Math.Clamp(page, 1, totalPages);
+            var pageItems = all.Skip((page - 1) * size).Take(size).ToList();
+
+            ViewBag.Page = page;
+            ViewBag.PageSize = size;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.PageSizeOptions = PageSizeOptions;
+
+            return View(pageItems);
         }
 
         [HttpGet]
