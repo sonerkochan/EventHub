@@ -3,9 +3,35 @@
     ViewData["Title"] = "Supplier Services";
     var status = (ViewBag.StatusFilter as string)?.ToLowerInvariant();
     var q = ViewBag.SearchTerm as string;
-    var visibleCount = Model.Count(s => !s.IsHidden);
-    var hiddenCount = Model.Count(s => s.IsHidden);
-    var totalPending = Model.Sum(s => s.PendingRequestCount);
+
+    var page = (int)(ViewBag.Page ?? 1);
+    var pageSize = (int)(ViewBag.PageSize ?? 10);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var totalCount = (int)(ViewBag.TotalCount ?? 0);
+    var pageSizeOptions = ViewBag.PageSizeOptions as int[] ?? new[] { 10, 25, 50, 100, 200 };
+    var allRows = ViewBag.AllRows as List<EventHub.Core.Models.Admin.AdminSupplierServiceListItem> ?? Model.ToList();
+
+    var visibleCount = allRows.Count(s => !s.IsHidden);
+    var hiddenCount = allRows.Count(s => s.IsHidden);
+    var totalPending = allRows.Sum(s => s.PendingRequestCount);
+
+    string BuildUrl(int? pageOverride, int? sizeOverride)
+    {
+        var parts = new List<string>
+        {
+            $"size={sizeOverride ?? pageSize}",
+            $"page={pageOverride ?? page}"
+        };
+        if (!string.IsNullOrEmpty(status))
+        {
+            parts.Add($"status={Uri.EscapeDataString(status)}");
+        }
+        if (!string.IsNullOrEmpty(q))
+        {
+            parts.Add($"q={Uri.EscapeDataString(q)}");
+        }
+        return "/Admin/SupplierServices/Index?" + string.Join("&", parts);
+    }
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -25,7 +51,7 @@
     <div class="col-6 col-md-3">
         <div class="card border"><div class="card-body py-2">
             <div class="small text-muted">Total services</div>
-            <div class="fw-semibold fs-5">@Model.Count()</div>
+            <div class="fw-semibold fs-5">@totalCount</div>
         </div></div>
     </div>
     <div class="col-6 col-md-3">
@@ -157,6 +183,72 @@
         </table>
     </div>
 </div>
+
+@if (totalCount > 0)
+{
+    var firstShown = (page - 1) * pageSize + 1;
+    var lastShown = Math.Min(page * pageSize, totalCount);
+    <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 gap-2">
+        <div class="small text-muted">
+            Showing <strong>@firstShown</strong>–<strong>@lastShown</strong> of <strong>@totalCount</strong>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(page <= 1 ? "disabled" : "")">
+                        <a class="page-link" href="@BuildUrl(page - 1, null)">«</a>
+                    </li>
+                    @{
+                        var windowStart = Math.Max(1, page - 2);
+                        var windowEnd = Math.Min(totalPages, page + 2);
+                        if (windowStart > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@BuildUrl(1, null)">1</a>
+                            </li>
+                            if (windowStart > 2)
+                            {
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            }
+                        }
+                    }
+                    @for (int p = windowStart; p <= windowEnd; p++)
+                    {
+                        <li class="page-item @(p == page ? "active" : "")">
+                            <a class="page-link" href="@BuildUrl(p, null)">@p</a>
+                        </li>
+                    }
+                    @if (windowEnd < totalPages)
+                    {
+                        if (windowEnd < totalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" href="@BuildUrl(totalPages, null)">@totalPages</a>
+                        </li>
+                    }
+                    <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@BuildUrl(page + 1, null)">»</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted">Per page:</span>
+            @foreach (var sizeOpt in pageSizeOptions)
+            {
+                <a href="@BuildUrl(1, sizeOpt)"
+                   class="btn btn-sm @(sizeOpt == pageSize ? "btn-dark" : "btn-outline-secondary")">
+                    @sizeOpt
+                </a>
+            }
+        </div>
+    </div>
+}
 
 @Html.AntiForgeryToken()
 
