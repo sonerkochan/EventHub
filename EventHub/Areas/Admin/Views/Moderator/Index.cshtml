@@ -10,64 +10,62 @@
     <a asp-action="Create" class="btn btn-dark btn-sm">Add moderator</a>
 </div>
 
-@if (!Model.Any())
-{
-    <div class="text-muted">No moderators found.</div>
-}
-else
-{
-    <table class="table table-bordered table-hover bg-white align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Username</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Created</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var mod in Model)
-            {
+<div class="card border">
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
                 <tr>
-                    <td>@mod.Username</td>
-                    <td>@mod.FirstName @mod.LastName</td>
-                    <td>@mod.Email</td>
-                    <td>@mod.CreatedAt.ToString("dd MMM yyyy")</td>
-                    <td>
-                        @if (mod.IsActive)
-                        {
-                            <span class="badge bg-success">Active</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">Disabled</span>
-                        }
-                    </td>
-                    <td class="text-end">
-                        <a asp-action="Edit" asp-route-id="@mod.Id"
-                           class="btn btn-outline-secondary btn-sm">Edit</a>
-
-                        @if (mod.IsActive)
-                        {
-                            <form asp-action="Disable" asp-route-id="@mod.Id"
-                                  method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-danger btn-sm">Disable</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <form asp-action="Enable" asp-route-id="@mod.Id"
-                                  method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-success btn-sm">Enable</button>
-                            </form>
-                        }
-                    </td>
+                    <th class="small">Username</th>
+                    <th class="small">Name</th>
+                    <th class="small">Email</th>
+                    <th class="small">Created</th>
+                    <th class="small">Status</th>
+                    <th class="text-end"></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var mod in Model)
+                {
+                    <tr class="@(!mod.IsActive ? "table-secondary" : "")">
+                        <td class="small fw-medium">@mod.Username</td>
+                        <td class="small">@mod.FirstName @mod.LastName</td>
+                        <td class="small">@mod.Email</td>
+                        <td class="small">@mod.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <span class="badge bg-@(mod.IsActive ? "success" : "secondary") fw-normal">
+                                @(mod.IsActive ? "Active" : "Disabled")
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@mod.Id"
+                               class="btn btn-outline-secondary btn-sm">Edit</a>
+
+                            @if (mod.IsActive)
+                            {
+                                <form asp-action="Disable" asp-route-id="@mod.Id"
+                                      method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Disable</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="Enable" asp-route-id="@mod.Id"
+                                      method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-success btn-sm">Enable</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted small py-4">No moderators found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
