@@ -39,14 +39,14 @@ public class ModeratorControllerTests
     }
 
     [Fact]
-    public void CreateModeratorGet_ReturnsViewWithAddModeratorViewModel()
+    public void CreateModeratorGet_ReturnsPartialViewWithAddModeratorViewModel()
     {
         var moderatorService = new Mock<IModeratorService>();
         var controller = new ModeratorController(moderatorService.Object);
 
-        var result = controller.Create();
+        var result = controller.CreatePartial();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
+        var viewResult = Assert.IsType<PartialViewResult>(result);
         Assert.IsType<AddModeratorViewModel>(viewResult.Model);
         moderatorService.VerifyNoOtherCalls();
     }
@@ -61,13 +61,13 @@ public class ModeratorControllerTests
 
         var result = await controller.Create(model);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
+        var viewResult = Assert.IsType<PartialViewResult>(result);
         Assert.Same(model, viewResult.Model);
         moderatorService.Verify(s => s.CreateModeratorAsync(It.IsAny<AddModeratorViewModel>()), Times.Never);
     }
 
     [Fact]
-    public async Task CreateModeratorPost_WhenServiceSucceeds_RedirectsToIndex()
+    public async Task CreateModeratorPost_WhenServiceSucceeds_ReturnsJsonSuccess()
     {
         var model = CreateAddModel();
         var moderatorService = new Mock<IModeratorService>();
@@ -78,8 +78,7 @@ public class ModeratorControllerTests
 
         var result = await controller.Create(model);
 
-        var redirect = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal(nameof(ModeratorController.Index), redirect.ActionName);
+        Assert.IsType<JsonResult>(result);
         moderatorService.Verify(s => s.CreateModeratorAsync(model), Times.Once);
     }
 
@@ -95,7 +94,7 @@ public class ModeratorControllerTests
 
         var result = await controller.Create(model);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
+        var viewResult = Assert.IsType<PartialViewResult>(result);
         Assert.Same(model, viewResult.Model);
         Assert.False(controller.ModelState.IsValid);
         Assert.Contains(
@@ -115,9 +114,9 @@ public class ModeratorControllerTests
             .ReturnsAsync(model);
         var controller = new ModeratorController(moderatorService.Object);
 
-        var result = await controller.Edit(id);
+        var result = await controller.EditPartial(id);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
+        var viewResult = Assert.IsType<PartialViewResult>(result);
         Assert.Same(model, viewResult.Model);
         moderatorService.Verify(s => s.GetModeratorByIdAsync(id), Times.Once);
     }
@@ -132,7 +131,7 @@ public class ModeratorControllerTests
             .ReturnsAsync((EditModeratorViewModel?)null);
         var controller = new ModeratorController(moderatorService.Object);
 
-        var result = await controller.Edit(id);
+        var result = await controller.EditPartial(id);
 
         Assert.IsType<NotFoundResult>(result);
         moderatorService.Verify(s => s.GetModeratorByIdAsync(id), Times.Once);
@@ -148,13 +147,13 @@ public class ModeratorControllerTests
 
         var result = await controller.Edit(model);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
+        var viewResult = Assert.IsType<PartialViewResult>(result);
         Assert.Same(model, viewResult.Model);
         moderatorService.Verify(s => s.EditModeratorAsync(It.IsAny<EditModeratorViewModel>()), Times.Never);
     }
 
     [Fact]
-    public async Task EditModeratorPost_WhenServiceSucceeds_RedirectsToIndex()
+    public async Task EditModeratorPost_WhenServiceSucceeds_ReturnsJsonSuccess()
     {
         var model = CreateEditModel("moderator-id");
         var moderatorService = new Mock<IModeratorService>();
@@ -165,8 +164,7 @@ public class ModeratorControllerTests
 
         var result = await controller.Edit(model);
 
-        var redirect = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal(nameof(ModeratorController.Index), redirect.ActionName);
+        Assert.IsType<JsonResult>(result);
         moderatorService.Verify(s => s.EditModeratorAsync(model), Times.Once);
     }
 
@@ -182,7 +180,7 @@ public class ModeratorControllerTests
 
         var result = await controller.Edit(model);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
+        var viewResult = Assert.IsType<PartialViewResult>(result);
         Assert.Same(model, viewResult.Model);
         Assert.False(controller.ModelState.IsValid);
         Assert.Contains(
