@@ -8,21 +8,21 @@ namespace EzyShape.Core.Models.User
     /// </summary>
     public class ClientRegisterViewModel
     {
-        [Required(ErrorMessage = "The username field is required!")]
+        [Required(ErrorMessage = "Validation.User.Username.Required")]
         public string UserName { get; set; } = null!;
 
-        [Required(ErrorMessage = "The email field is required!")]
+        [Required(ErrorMessage = "Validation.User.Email.Required")]
         [EmailAddress]
 
         public string Email { get; set; } = null!;
 
-        [Required(ErrorMessage = "The password field is required!")]
+        [Required(ErrorMessage = "Validation.User.Password.Required")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
 
-        [Required(ErrorMessage = "Please confirm your password!")]
+        [Required(ErrorMessage = "Validation.User.ConfirmPassword.Required")]
         [DataType(DataType.Password)]
-        [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
+        [Compare(nameof(Password), ErrorMessage = "Validation.Passwords.DoNotMatch")]
         public string ConfirmPassword { get; set; } = null!;
     }
 }

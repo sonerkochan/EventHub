@@ -2,9 +2,12 @@
 @using Microsoft.AspNetCore.Identity
 @model IEnumerable<EventHub.Core.Models.Event.EventListViewModel>
 @inject SignInManager<User> SignInManager
+@inject IStringLocalizer<PublicResource> PublicLocalizer
+@inject IStringLocalizer<ClientResource> ClientLocalizer
+@inject IStringLocalizer<EnumResource> EnumLocalizer
 
 @{
-    ViewData["Title"] = "EventHub - Your Event Marketplace";
+    ViewData["Title"] = PublicLocalizer["Public.Home.Title"];
 }
 
 <style>
@@ -174,24 +177,23 @@
         <div class="row align-items-center">
             <div class="col-lg-7">
                 <h1 class="eh-hero-title">
-                    Discover <span>Amazing</span><br>Events Near You
+                    @PublicLocalizer["Public.Home.Hero.BeforeAccent"] <span>@PublicLocalizer["Public.Home.Hero.Accent"]</span><br>@PublicLocalizer["Public.Home.Hero.AfterAccent"]
                 </h1>
                 <p class="eh-hero-sub">
-                    From concerts to conferences, workshops to sports &mdash; find and book
-                    tickets for events that inspire you.
+                    @PublicLocalizer["Public.Home.Hero.Subtitle"]
                 </p>
                 @if (!SignInManager.IsSignedIn(User))
                 {
                     <div>
-                        <a asp-controller="User" asp-action="Register" class="eh-hero-btn eh-hero-btn-primary">Get Started</a>
-                        <a asp-controller="User" asp-action="Login" class="eh-hero-btn eh-hero-btn-outline">Sign In</a>
+                        <a asp-controller="User" asp-action="Register" class="eh-hero-btn eh-hero-btn-primary">@PublicLocalizer["Public.Home.GetStarted"]</a>
+                        <a asp-controller="User" asp-action="Login" class="eh-hero-btn eh-hero-btn-outline">@PublicLocalizer["Public.Home.SignIn"]</a>
                     </div>
                 }
                 else
                 {
                     <div>
-                        <a asp-area="Client" asp-controller="Events" asp-action="Index" class="eh-hero-btn eh-hero-btn-primary">Browse Events</a>
-                        <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="eh-hero-btn eh-hero-btn-outline">My Tickets</a>
+                        <a asp-area="Client" asp-controller="Events" asp-action="Index" class="eh-hero-btn eh-hero-btn-primary">@PublicLocalizer["Public.Home.BrowseEvents"]</a>
+                        <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="eh-hero-btn eh-hero-btn-outline">@PublicLocalizer["Public.Home.MyTickets"]</a>
                     </div>
                 }
             </div>
@@ -209,25 +211,25 @@
             <div class="col-6 col-md-3 mb-3 mb-md-0">
                 <div class="eh-stat">
                     <div class="num">@Model.Count()</div>
-                    <div class="lbl">Live Events</div>
+                    <div class="lbl">@PublicLocalizer["Public.Home.LiveEvents"]</div>
                 </div>
             </div>
             <div class="col-6 col-md-3 mb-3 mb-md-0">
                 <div class="eh-stat">
                     <div class="num">@Model.Sum(e => e.TotalTickets)</div>
-                    <div class="lbl">Total Tickets</div>
+                    <div class="lbl">@PublicLocalizer["Public.Home.TotalTickets"]</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="eh-stat">
                     <div class="num">@Model.Sum(e => e.TicketsSold)</div>
-                    <div class="lbl">Tickets Sold</div>
+                    <div class="lbl">@PublicLocalizer["Public.Home.TicketsSold"]</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="eh-stat">
                     <div class="num">@Model.Select(e => e.EventType).Distinct().Count()</div>
-                    <div class="lbl">Categories</div>
+                    <div class="lbl">@PublicLocalizer["Public.Home.Categories"]</div>
                 </div>
             </div>
         </div>
@@ -241,12 +243,12 @@
         {
             <div class="d-flex justify-content-between align-items-end mb-4">
                 <div>
-                    <div class="eh-section-title">Upcoming Events</div>
-                    <div class="eh-section-sub">Don&rsquo;t miss what&rsquo;s happening around you</div>
+                    <div class="eh-section-title">@PublicLocalizer["Public.Home.UpcomingEvents"]</div>
+                    <div class="eh-section-sub">@PublicLocalizer["Public.Home.UpcomingSubtitle"]</div>
                 </div>
                 <a asp-area="Client" asp-controller="Events" asp-action="Index"
                    style="font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:700;color:var(--tr-accent);text-transform:uppercase;letter-spacing:0.5px;text-decoration:none;">
-                    View All <i class="fa fa-arrow-right ml-1"></i>
+                    @PublicLocalizer["Public.Home.ViewAll"] <i class="fa fa-arrow-right ml-1"></i>
                 </a>
             </div>
 
@@ -267,7 +269,7 @@
                             }
                             <div class="card-body">
                                 <div>
-                                    <span class="eh-type-pill pill-@e.EventType.ToString().ToLower()">@e.EventType</span>
+                                    <span class="eh-type-pill pill-@e.EventType.ToString().ToLower()">@EnumLocalizer.LocalizeEnum(e.EventType)</span>
                                     <span class="eh-type-pill pill-venue">@e.RoomName</span>
                                 </div>
                                 <div class="eh-event-title">@e.EventName</div>
@@ -278,16 +280,16 @@
                                     @if (!e.IsFree)
                                     {
                                         <span class="eh-price" data-currency-amount="@e.PriceAmount?.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@e.PriceText</span>
-                                        <small style="color:#aaa;"> / ticket</small>
+                                        <small style="color:#aaa;"> @ClientLocalizer["Client.Events.TicketSuffix"]</small>
                                     }
                                     else
                                     {
-                                        <span class="eh-free-pill">Free</span>
+                                        <span class="eh-free-pill">@ClientLocalizer["Client.Events.Free"]</span>
                                     }
                                 </div>
                                 <div class="d-flex justify-content-between mb-1" style="font-size:0.77rem;color:#aaa;">
-                                    <span>@(e.TotalTickets - e.TicketsSold) / @e.TotalTickets left</span>
-                                    <span style="color:@(isLow ? "#e74c3c" : "#27ae60");">@(isLow ? "Low stock" : "Available")</span>
+                                    <span>@ClientLocalizer["Client.Events.Left", e.TotalTickets - e.TicketsSold, e.TotalTickets]</span>
+                                    <span style="color:@(isLow ? "#e74c3c" : "#27ae60");">@(isLow ? ClientLocalizer["Client.Events.LowStock"] : ClientLocalizer["Client.Events.Available"])</span>
                                 </div>
                                 <div class="eh-avail-track mb-3">
                                     <div class="eh-avail-fill @(isLow ? "fill-low" : "fill-ok")" style="width:@pct%;"></div>
@@ -296,12 +298,12 @@
                                 @if (SignInManager.IsSignedIn(User))
                                 {
                                     <a asp-area="Client" asp-controller="Events" asp-action="Details"
-                                       asp-route-id="@e.Id" class="eh-card-btn">View Details</a>
+                                       asp-route-id="@e.Id" class="eh-card-btn">@ClientLocalizer["Client.Events.ViewDetails"]</a>
                                 }
                                 else
                                 {
                                     <a asp-controller="User" asp-action="Login" class="eh-card-btn">
-                                        <i class="fa fa-lock mr-1"></i> Sign In to Book
+                                        <i class="fa fa-lock mr-1"></i> @PublicLocalizer["Public.Home.SignInToBook"]
                                     </a>
                                 }
                             </div>
@@ -314,8 +316,8 @@
         {
             <div class="text-center py-5">
                 <i class="fa fa-calendar-o" style="font-size:72px;color:#e0e0e0;display:block;margin-bottom:20px;"></i>
-                <h4 style="font-family:'Poppins',sans-serif;font-weight:700;color:#bbb;">No events available right now</h4>
-                <p style="color:#ccc;font-size:0.88rem;">Check back soon for upcoming events!</p>
+                <h4 style="font-family:'Poppins',sans-serif;font-weight:700;color:#bbb;">@PublicLocalizer["Public.Home.NoEvents"]</h4>
+                <p style="color:#ccc;font-size:0.88rem;">@PublicLocalizer["Public.Home.NoEventsHint"]</p>
             </div>
         }
     </div>
@@ -325,8 +327,8 @@
 <section class="eh-section eh-section-alt">
     <div class="container">
         <div class="text-center mb-4">
-            <div class="eh-section-title">Browse by Category</div>
-            <div class="eh-section-sub">Something for every interest</div>
+            <div class="eh-section-title">@PublicLocalizer["Public.Home.BrowseByCategory"]</div>
+            <div class="eh-section-sub">@PublicLocalizer["Public.Home.CategorySubtitle"]</div>
         </div>
         <div class="row">
             @foreach (var type in Enum.GetValues<EventType>())
@@ -334,7 +336,7 @@
                 <div class="col-6 col-md-4 col-lg-2 mb-3">
                     <a asp-area="Client" asp-controller="Events" asp-action="Index" class="eh-cat-card">
                         <span class="eh-cat-icon">@GetEventIcon(type)</span>
-                        <span class="eh-cat-label">@type</span>
+                        <span class="eh-cat-label">@EnumLocalizer.LocalizeEnum(type)</span>
                     </a>
                 </div>
             }
@@ -347,17 +349,17 @@
 {
     <section class="eh-cta-band">
         <div class="container">
-            <h2>Want to Host Events?</h2>
-            <p>Join EventHub as an organizer and reach thousands of potential attendees.</p>
+            <h2>@PublicLocalizer["Public.Home.HostTitle"]</h2>
+            <p>@PublicLocalizer["Public.Home.HostSubtitle"]</p>
             @if (SignInManager.IsSignedIn(User))
             {
                 <a asp-area="Client" asp-controller="Application" asp-action="Apply" asp-route-type="1" class="eh-cta-btn">
-                    Apply as Organizer
+                    @PublicLocalizer["Public.Home.ApplyOrganizer"]
                 </a>
             }
             else
             {
-                <a asp-controller="User" asp-action="Register" class="eh-cta-btn">Get Started Free</a>
+                <a asp-controller="User" asp-action="Register" class="eh-cta-btn">@PublicLocalizer["Public.Home.GetStartedFree"]</a>
             }
         </div>
     </section>

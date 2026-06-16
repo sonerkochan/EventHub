@@ -1,25 +1,27 @@
 @using EventHub.Infrastructure.Data.Models
+@using EventHub.Localization
 @model EventHub.Core.Models.Admin.EventTicketsManageViewModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AdminResource> AdminLocalizer
 @{
-    ViewData["Title"] = $"Tickets — {Model.EventName}";
+    ViewData["Title"] = $"Tickets â€” {Model.EventName}";
 }
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
         <h5 class="fw-semibold mb-0">@Model.EventName</h5>
-        <small class="text-muted">Ticket manager &middot; @Model.RoomName &middot; @Model.EventStart.ToString("dd MMM yyyy HH:mm")</small>
+        <small class="text-muted">@AdminLocalizer["Admin.Tickets.Manager"] &middot; @Model.RoomName &middot; @Model.EventStart.ToString("dd MMM yyyy HH:mm")</small>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-        <a asp-action="Pricing" asp-route-id="@Model.EventId" class="btn btn-outline-secondary btn-sm">Pricing</a>
-        <a asp-area="Admin" asp-controller="Events" asp-action="Index" class="btn btn-outline-secondary btn-sm">Back to Events</a>
+        <a asp-action="Pricing" asp-route-id="@Model.EventId" class="btn btn-outline-secondary btn-sm">@AdminLocalizer["Admin.Events.Pricing"]</a>
+        <a asp-area="Admin" asp-controller="Events" asp-action="Index" class="btn btn-outline-secondary btn-sm">@AdminLocalizer["Admin.Events.BackToEvents"]</a>
     </div>
 </div>
 
 @if (Model.HasZonesWithoutTier)
 {
     <div class="alert alert-info d-flex justify-content-between align-items-center py-2 mb-3">
-        <span class="small mb-0">Some zones don't have a custom price tier — seats there fall back to the event's base price (@Model.BasePrice.ToString("0.00") @Model.Currency).</span>
-        <a asp-action="Pricing" asp-route-id="@Model.EventId" class="btn btn-sm btn-outline-dark">Customize pricing →</a>
+        <span class="small mb-0">Some zones don't have a custom price tier â€” seats there fall back to the event's base price (@Model.BasePrice.ToString("0.00") @Model.Currency).</span>
+        <a asp-action="Pricing" asp-route-id="@Model.EventId" class="btn btn-sm btn-outline-dark">Customize pricing â†’</a>
     </div>
 }
 
@@ -191,14 +193,14 @@
                                     <div class="text-muted" style="font-size:0.7rem; font-family: monospace;">@t.HashedCode</div>
                                 }
                             </td>
-                            <td class="small">@(t.SeatNumber == 0 ? "—" : t.SeatNumber.ToString())</td>
-                            <td class="small text-muted">@(t.ZoneName ?? "—")</td>
+                            <td class="small">@(t.SeatNumber == 0 ? "â€”" : t.SeatNumber.ToString())</td>
+                            <td class="small text-muted">@(t.ZoneName ?? "â€”")</td>
                             <td class="small">@t.BuyerDisplay</td>
                             <td><span class="badge bg-@StatusBadge(t.Status) fw-normal">@t.Status</span></td>
                             <td class="small text-end">
                                 <span data-currency-amount="@t.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@t.Price.ToString("0.00") @CurrencyOptionsAccessor.Value.BaseCurrency</span>
                             </td>
-                            <td class="small text-muted">@(bestDate.HasValue ? bestDate.Value.ToString("dd MMM yyyy HH:mm") : "—")</td>
+                            <td class="small text-muted">@(bestDate.HasValue ? bestDate.Value.ToString("dd MMM yyyy HH:mm") : "â€”")</td>
                             <td class="text-end">
                                 <button class="btn btn-outline-secondary btn-sm"
                                         onclick="openEditTicket('@t.Id')">
@@ -323,12 +325,12 @@
                         cell.style.background = baseColor;
                         cell.style.opacity = 0.45;
                         cell.style.borderColor = baseColor;
-                        cell.title = `Sold to ${seat.buyerDisplay || 'someone'} — ${seat.price?.toFixed(2) ?? '?'} ${seat.currency || ''}`;
+                        cell.title = `Sold to ${seat.buyerDisplay || 'someone'} â€” ${seat.price?.toFixed(2) ?? '?'} ${seat.currency || ''}`;
                     } else if (seat.ticketStatus === 0 /* Reserved */) {
                         cell.style.background = '#ffc107';
                         cell.style.borderColor = '#ffc107';
                         cell.style.color = '#000';
-                        cell.title = `Reserved — ${seat.price?.toFixed(2) ?? '?'} ${seat.currency || ''}`;
+                        cell.title = `Reserved â€” ${seat.price?.toFixed(2) ?? '?'} ${seat.currency || ''}`;
                     } else {
                         cell.style.background = baseColor;
                         cell.style.borderColor = baseColor;
@@ -336,7 +338,7 @@
                             ? `${seat.price.toFixed(2)} ${seat.currency || ''}`
                             : 'no price';
                         const suffix = seat.usesBasePrice ? ' (base)' : '';
-                        cell.title = `Available — ${priceText}${suffix}`;
+                        cell.title = `Available â€” ${priceText}${suffix}`;
                     }
                 }
                 grid.appendChild(cell);
@@ -349,7 +351,7 @@
             el.style.background = zoneColors[t] || '#6c757d';
         });
 
-        // ── Refunds ──
+        // â”€â”€ Refunds â”€â”€
 
         function refundTicket(ticketId, ticketNumber) {
             if (!confirm(`Refund ticket #${ticketNumber}? This marks the ticket and payment as Refunded.`)) return;

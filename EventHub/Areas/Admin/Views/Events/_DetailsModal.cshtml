@@ -1,13 +1,15 @@
 @using EventHub.Infrastructure.Data.Models
+@using EventHub.Localization
 @model EventHub.Core.Models.Event.EventDetailViewModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<EnumResource> EnumLocalizer
 
 <div class="modal-header">
     <div>
         <h6 class="modal-title fw-semibold mb-1">@Model.EventName</h6>
         <div>
-            <span class="badge bg-secondary fw-normal">@Model.EventType</span>
-            <span class="badge bg-@StatusBadge(Model.EventStatus) fw-normal ms-1">@Model.EventStatus</span>
-            <span class="badge bg-warning text-dark fw-normal ms-1">@Model.EventPriority</span>
+            <span class="badge bg-secondary fw-normal">@EnumLocalizer.LocalizeEnum(Model.EventType)</span>
+            <span class="badge bg-@StatusBadge(Model.EventStatus) fw-normal ms-1">@EnumLocalizer.LocalizeEnum(Model.EventStatus)</span>
+            <span class="badge bg-warning text-dark fw-normal ms-1">@EnumLocalizer.LocalizeEnum(Model.EventPriority)</span>
         </div>
     </div>
     <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>

@@ -9,7 +9,7 @@ namespace EventHub.Core.Models.Refund
         public Guid PaymentId { get; set; }
 
         [Required]
-        [Range(0.01f, float.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
+        [Range(0.01f, float.MaxValue, ErrorMessage = "Validation.Refund.Amount.Range")]
         public float Amount { get; set; }
 
         [StringLength(500)]

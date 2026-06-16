@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Organizer.Events.CreateTitle" xml:space="preserve"><value>Създай събитие</value></data>
+  <data name="Organizer.Events.EditTitle" xml:space="preserve"><value>Редактирай събитие</value></data>
+  <data name="Organizer.Events.NewEvent" xml:space="preserve"><value>Ново събитие</value></data>
+  <data name="Organizer.Events.EventName" xml:space="preserve"><value>Име на събитието</value></data>
+  <data name="Organizer.Events.Description" xml:space="preserve"><value>Описание</value></data>
+  <data name="Organizer.Events.BulgarianEventName" xml:space="preserve"><value>Име на български</value></data>
+  <data name="Organizer.Events.BulgarianDescription" xml:space="preserve"><value>Описание на български</value></data>
+  <data name="Organizer.Events.Type" xml:space="preserve"><value>Тип</value></data>
+  <data name="Organizer.Events.Status" xml:space="preserve"><value>Статус</value></data>
+  <data name="Organizer.Events.Priority" xml:space="preserve"><value>Приоритет</value></data>
+  <data name="Organizer.Events.Room" xml:space="preserve"><value>Зала</value></data>
+  <data name="Organizer.Events.SelectRoom" xml:space="preserve"><value>изберете зала</value></data>
+  <data name="Organizer.Events.Start" xml:space="preserve"><value>Начало</value></data>
+  <data name="Organizer.Events.End" xml:space="preserve"><value>Край</value></data>
+  <data name="Organizer.Events.TotalTickets" xml:space="preserve"><value>Общо билети</value></data>
+  <data name="Organizer.Events.TicketPrice" xml:space="preserve"><value>Цена на билет ({0})</value></data>
+  <data name="Organizer.Events.FreeHint" xml:space="preserve"><value>Задайте 0 за безплатни събития</value></data>
+  <data name="Organizer.Events.CoverImageUrl" xml:space="preserve"><value>URL на корична снимка</value></data>
+  <data name="Organizer.Events.UploadCoverPhoto" xml:space="preserve"><value>Качи корична снимка</value></data>
+  <data name="Organizer.Events.UploadNewCoverPhoto" xml:space="preserve"><value>Качи нова корична снимка</value></data>
+  <data name="Organizer.Events.UploadHint" xml:space="preserve"><value>Качената снимка се използва вместо URL адреса.</value></data>
+  <data name="Organizer.Events.Location" xml:space="preserve"><value>Локация</value></data>
+  <data name="Organizer.Events.LocationHint" xml:space="preserve"><value>Използва се за картата в детайлите на събитието и външния API за събития.</value></data>
+  <data name="Organizer.Events.Address" xml:space="preserve"><value>Адрес</value></data>
+  <data name="Organizer.Events.AddressPlaceholder" xml:space="preserve"><value>Улица или вход на мястото</value></data>
+  <data name="Organizer.Events.City" xml:space="preserve"><value>Град</value></data>
+  <data name="Organizer.Events.CountryCode" xml:space="preserve"><value>Код на държава</value></data>
+  <data name="Organizer.Events.PickLocation" xml:space="preserve"><value>Изберете локация на картата</value></data>
+  <data name="Organizer.Events.PickLocationHint" xml:space="preserve"><value>Кликнете върху картата, за да поставите маркер и да попълните координатите автоматично.</value></data>
+  <data name="Organizer.Events.Latitude" xml:space="preserve"><value>Географска ширина</value></data>
+  <data name="Organizer.Events.Longitude" xml:space="preserve"><value>Географска дължина</value></data>
+  <data name="Organizer.Events.AllowRefunds" xml:space="preserve"><value>Позволи възстановяване</value></data>
+  <data name="Organizer.Events.RefundDeadline" xml:space="preserve"><value>Краен срок за възстановяване</value></data>
+  <data name="Organizer.Events.CreateButton" xml:space="preserve"><value>Създай събитие</value></data>
+  <data name="Organizer.Events.SaveButton" xml:space="preserve"><value>Запази промените</value></data>
+</root>

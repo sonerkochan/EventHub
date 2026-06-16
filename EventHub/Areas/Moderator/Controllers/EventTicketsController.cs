@@ -1,7 +1,9 @@
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.Admin;
+using EventHub.Localization;
 using EventHub.Infrastructure.Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Moderator.Controllers
@@ -13,19 +15,22 @@ namespace EventHub.Areas.Moderator.Controllers
         private readonly IEventPricingTierService pricingTierService;
         private readonly ISeatService seatService;
         private readonly ITicketService ticketService;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         public EventTicketsController(
             IEventService _eventService,
             IZoneService _zoneService,
             IEventPricingTierService _pricingTierService,
             ISeatService _seatService,
-            ITicketService _ticketService)
+            ITicketService _ticketService,
+            IStringLocalizer<MessagesResource>? messagesLocalizer = null)
         {
             eventService = _eventService;
             zoneService = _zoneService;
             pricingTierService = _pricingTierService;
             seatService = _seatService;
             ticketService = _ticketService;
+            this.messagesLocalizer = messagesLocalizer ?? new FallbackStringLocalizer<MessagesResource>();
         }
 
         [HttpGet]
@@ -84,7 +89,7 @@ namespace EventHub.Areas.Moderator.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { success = false, message = "Invalid price input." });
+                return Json(new { success = false, message = messagesLocalizer["Messages.Pricing.InvalidInput"].Value });
             }
 
             try

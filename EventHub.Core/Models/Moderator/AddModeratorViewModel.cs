@@ -30,7 +30,7 @@ namespace EventHub.Core.Models.Moderator
 
         [Required]
         [DataType(DataType.Password)]
-        [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
+        [Compare(nameof(Password), ErrorMessage = "Validation.Passwords.DoNotMatch")]
         public string ConfirmPassword { get; set; } = null!;
     }
 }

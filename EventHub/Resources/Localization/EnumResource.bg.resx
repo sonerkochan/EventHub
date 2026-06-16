@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Enum.EventPriority.GoodReputation" xml:space="preserve"><value>Добра репутация</value></data>
+  <data name="Enum.EventPriority.Normal" xml:space="preserve"><value>Нормален</value></data>
+  <data name="Enum.EventPriority.Paid" xml:space="preserve"><value>Платен</value></data>
+  <data name="Enum.EventStatus.Active" xml:space="preserve"><value>Активно</value></data>
+  <data name="Enum.EventStatus.Cancelled" xml:space="preserve"><value>Отменено</value></data>
+  <data name="Enum.EventStatus.Draft" xml:space="preserve"><value>Чернова</value></data>
+  <data name="Enum.EventStatus.Finished" xml:space="preserve"><value>Приключило</value></data>
+  <data name="Enum.EventStatus.Published" xml:space="preserve"><value>Публикувано</value></data>
+  <data name="Enum.EventType.Concert" xml:space="preserve"><value>Концерт</value></data>
+  <data name="Enum.EventType.Conference" xml:space="preserve"><value>Конференция</value></data>
+  <data name="Enum.EventType.Other" xml:space="preserve"><value>Друго</value></data>
+  <data name="Enum.EventType.Seminar" xml:space="preserve"><value>Семинар</value></data>
+  <data name="Enum.EventType.Sports" xml:space="preserve"><value>Спорт</value></data>
+  <data name="Enum.EventType.Workshop" xml:space="preserve"><value>Работилница</value></data>
+  <data name="Enum.ApplicationStatus.Approved" xml:space="preserve"><value>Одобрена</value></data>
+  <data name="Enum.ApplicationStatus.Pending" xml:space="preserve"><value>Изчаква</value></data>
+  <data name="Enum.ApplicationStatus.Rejected" xml:space="preserve"><value>Отхвърлена</value></data>
+  <data name="Enum.ApplicationType.Organizer" xml:space="preserve"><value>Организатор</value></data>
+  <data name="Enum.ApplicationType.Supplier" xml:space="preserve"><value>Доставчик</value></data>
+  <data name="Enum.PaymentMethod.ApplePay" xml:space="preserve"><value>Apple Pay</value></data>
+  <data name="Enum.PaymentMethod.BankTransfer" xml:space="preserve"><value>Банков превод</value></data>
+  <data name="Enum.PaymentMethod.Card" xml:space="preserve"><value>Карта</value></data>
+  <data name="Enum.PaymentMethod.GooglePay" xml:space="preserve"><value>Google Pay</value></data>
+  <data name="Enum.PaymentMethod.Other" xml:space="preserve"><value>Друго</value></data>
+  <data name="Enum.PaymentMethod.PayPal" xml:space="preserve"><value>PayPal</value></data>
+  <data name="Enum.PaymentStatus.Accepted" xml:space="preserve"><value>Прието</value></data>
+  <data name="Enum.PaymentStatus.Declined" xml:space="preserve"><value>Отказано</value></data>
+  <data name="Enum.PaymentStatus.OnHold" xml:space="preserve"><value>Задържано</value></data>
+  <data name="Enum.PaymentStatus.Pending" xml:space="preserve"><value>Изчаква</value></data>
+  <data name="Enum.PaymentStatus.Refunded" xml:space="preserve"><value>Възстановено</value></data>
+  <data name="Enum.RoomType.Arena" xml:space="preserve"><value>Арена</value></data>
+  <data name="Enum.RoomType.Auditorium" xml:space="preserve"><value>Аудитория</value></data>
+  <data name="Enum.RoomType.Banquet" xml:space="preserve"><value>Банкет</value></data>
+  <data name="Enum.RoomType.Boardroom" xml:space="preserve"><value>Заседателна зала</value></data>
+  <data name="Enum.RoomType.Classroom" xml:space="preserve"><value>Класна стая</value></data>
+  <data name="Enum.RoomType.Theatre" xml:space="preserve"><value>Театър</value></data>
+  <data name="Enum.ServiceRentalRequestStatus.Accepted" xml:space="preserve"><value>Приета</value></data>
+  <data name="Enum.ServiceRentalRequestStatus.Declined" xml:space="preserve"><value>Отказана</value></data>
+  <data name="Enum.ServiceRentalRequestStatus.Pending" xml:space="preserve"><value>Изчаква</value></data>
+  <data name="Enum.TicketStatus.Cancelled" xml:space="preserve"><value>Отменен</value></data>
+  <data name="Enum.TicketStatus.Expired" xml:space="preserve"><value>Изтекъл</value></data>
+  <data name="Enum.TicketStatus.Purchased" xml:space="preserve"><value>Купен</value></data>
+  <data name="Enum.TicketStatus.Refunded" xml:space="preserve"><value>Възстановен</value></data>
+  <data name="Enum.TicketStatus.Reserved" xml:space="preserve"><value>Резервиран</value></data>
+  <data name="Enum.TicketStatus.Used" xml:space="preserve"><value>Използван</value></data>
+  <data name="Enum.ZoneType.Economy" xml:space="preserve"><value>Икономична</value></data>
+  <data name="Enum.ZoneType.Regular" xml:space="preserve"><value>Стандартна</value></data>
+  <data name="Enum.ZoneType.VIP" xml:space="preserve"><value>VIP</value></data>
+</root>

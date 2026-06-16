@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Js.Confirm.DeactivateEvent" xml:space="preserve"><value>Deactivate this event?</value></data>
+  <data name="Js.Confirm.PublishEvent" xml:space="preserve"><value>Publish this event?</value></data>
+  <data name="Js.Confirm.DeactivateRoom" xml:space="preserve"><value>Deactivate this room?</value></data>
+  <data name="Js.Confirm.RemovePricing" xml:space="preserve"><value>Remove pricing for this zone? Existing tickets stay intact.</value></data>
+  <data name="Js.Alert.InvalidPrice" xml:space="preserve"><value>Enter a valid price (0 or more).</value></data>
+  <data name="Js.Alert.SavePriceFailed" xml:space="preserve"><value>Failed to save price.</value></data>
+  <data name="Js.Alert.RefundFailed" xml:space="preserve"><value>Refund failed.</value></data>
+  <data name="Js.Alert.ActionFailed" xml:space="preserve"><value>Action failed.</value></data>
+  <data name="Js.Seats.NoneSelected" xml:space="preserve"><value>No seats selected.</value></data>
+  <data name="Js.Seats.Taken" xml:space="preserve"><value>Taken</value></data>
+  <data name="Js.Seats.Seat" xml:space="preserve"><value>Seat</value></data>
+  <data name="Js.Seats.Base" xml:space="preserve"><value>base</value></data>
+</root>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Validation.Event.TotalTickets.Range" xml:space="preserve"><value>Трябва да има поне 1 билет.</value></data>
+  <data name="Validation.Event.Price.Range" xml:space="preserve"><value>Цената трябва да е 0 или повече.</value></data>
+  <data name="Validation.Event.Latitude.Range" xml:space="preserve"><value>Географската ширина трябва да е между -90 и 90.</value></data>
+  <data name="Validation.Event.Longitude.Range" xml:space="preserve"><value>Географската дължина трябва да е между -180 и 180.</value></data>
+  <data name="Validation.Ticket.Quantity.Range" xml:space="preserve"><value>Можете да закупите между 1 и 10 билета.</value></data>
+  <data name="Validation.Refund.Amount.Range" xml:space="preserve"><value>Сумата трябва да е по-голяма от 0.</value></data>
+  <data name="Validation.Passwords.DoNotMatch" xml:space="preserve"><value>Паролите не съвпадат.</value></data>
+  <data name="Validation.User.Username.Required" xml:space="preserve"><value>Полето за потребителско име е задължително!</value></data>
+  <data name="Validation.User.Email.Required" xml:space="preserve"><value>Полето за имейл е задължително!</value></data>
+  <data name="Validation.User.Password.Required" xml:space="preserve"><value>Полето за парола е задължително!</value></data>
+  <data name="Validation.User.ConfirmPassword.Required" xml:space="preserve"><value>Моля, потвърдете паролата си!</value></data>
+</root>

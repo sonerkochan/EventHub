@@ -1,7 +1,9 @@
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.Event;
 using EventHub.Models.Api;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace EventHub.Controllers
@@ -13,12 +15,18 @@ namespace EventHub.Controllers
         private readonly IEventService _eventsService;
         private readonly IMemoryCache _cache;
         private readonly ILogger<EventsController> _logger;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
-        public EventsController(IEventService eventService, IMemoryCache cache, ILogger<EventsController> logger    )
+        public EventsController(
+            IEventService eventService,
+            IMemoryCache cache,
+            ILogger<EventsController> logger,
+            IStringLocalizer<MessagesResource> messagesLocalizer)
         {
             _eventsService = eventService;
             _cache = cache;
             _logger = logger;
+            this.messagesLocalizer = messagesLocalizer;
         }
 
         [HttpGet]
@@ -29,7 +37,7 @@ namespace EventHub.Controllers
 
             if (!cacheHit)
             {
-                _logger.LogInformation("CACHE MISS — fetching from DB for key: {Key}", cacheKey);
+                _logger.LogInformation("CACHE MISS â€” fetching from DB for key: {Key}", cacheKey);
                 events = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
@@ -38,7 +46,7 @@ namespace EventHub.Controllers
             }
             else
             {
-                _logger.LogInformation("CACHE HIT — returning cached data for key: {Key}", cacheKey);
+                _logger.LogInformation("CACHE HIT â€” returning cached data for key: {Key}", cacheKey);
             }
 
             var baseUrl = $"{Request.Scheme}://{Request.Host}";
@@ -50,7 +58,7 @@ namespace EventHub.Controllers
         public async Task<IActionResult> GetEventsByCity([FromQuery] string? city)
         {
             if (string.IsNullOrWhiteSpace(city))
-                return BadRequest(new { error = "The city query parameter is required." });
+                return BadRequest(new { error = messagesLocalizer["Messages.Event.CityRequired"].Value });
 
             var cacheKey = $"events_city_{city.ToLowerInvariant()}";
             bool cacheHit = _cache.TryGetValue(cacheKey, out IEnumerable<EventListViewModel>? events);

@@ -1,13 +1,16 @@
 ﻿@model EventHub.Core.Models.Event.CreateEventViewModel
+@inject IStringLocalizer<OrganizerResource> OrganizerLocalizer
+@inject IStringLocalizer<EnumResource> EnumLocalizer
+@inject IStringLocalizer<CommonResource> CommonLocalizer
 @{
-    ViewData["Title"] = "Create Event";
+    ViewData["Title"] = OrganizerLocalizer["Organizer.Events.CreateTitle"];
 }
 
 <head>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
-<h2>Create Event</h2>
+<h2>@OrganizerLocalizer["Organizer.Events.CreateTitle"]</h2>
 
 <form asp-action="Create" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
@@ -15,54 +18,65 @@
 
     <div class="row g-3">
         <div class="col-md-8">
-            <label asp-for="EventName" class="form-label"></label>
+            <label asp-for="EventName" class="form-label">@OrganizerLocalizer["Organizer.Events.EventName"]</label>
             <input asp-for="EventName" class="form-control" />
             <span asp-validation-for="EventName" class="text-danger"></span>
         </div>
 
         <div class="col-md-4">
-            <label asp-for="RoomId" class="form-label">Room</label>
+            <label asp-for="RoomId" class="form-label">@OrganizerLocalizer["Organizer.Events.Room"]</label>
             <select asp-for="RoomId" asp-items="Model.AvailableRooms" class="form-select">
-                <option value="">— select a room —</option>
+                <option value="">- @OrganizerLocalizer["Organizer.Events.SelectRoom"] -</option>
             </select>
             <span asp-validation-for="RoomId" class="text-danger"></span>
         </div>
 
         <div class="col-12">
-            <label asp-for="Description" class="form-label"></label>
+            <label asp-for="Description" class="form-label">@OrganizerLocalizer["Organizer.Events.Description"]</label>
             <textarea asp-for="Description" class="form-control" rows="3"></textarea>
         </div>
 
-        <div class="col-md-4">
-            <label asp-for="EventType" class="form-label"></label>
-            <select asp-for="EventType" asp-items="Html.GetEnumSelectList<EventHub.Infrastructure.Data.Models.EventType>()" class="form-select"></select>
+        <div class="col-md-8">
+            <label asp-for="BulgarianEventName" class="form-label">@OrganizerLocalizer["Organizer.Events.BulgarianEventName"]</label>
+            <input asp-for="BulgarianEventName" class="form-control" />
+            <span asp-validation-for="BulgarianEventName" class="text-danger"></span>
+        </div>
+
+        <div class="col-12">
+            <label asp-for="BulgarianDescription" class="form-label">@OrganizerLocalizer["Organizer.Events.BulgarianDescription"]</label>
+            <textarea asp-for="BulgarianDescription" class="form-control" rows="3"></textarea>
         </div>
 
         <div class="col-md-4">
-            <label asp-for="EventPriority" class="form-label"></label>
-            <select asp-for="EventPriority" asp-items="Html.GetEnumSelectList<EventHub.Infrastructure.Data.Models.EventPriority>()" class="form-select"></select>
+            <label asp-for="EventType" class="form-label">@OrganizerLocalizer["Organizer.Events.Type"]</label>
+            <select asp-for="EventType" asp-items="Html.LocalizedEnumSelectList<EventHub.Infrastructure.Data.Models.EventType>(EnumLocalizer)" class="form-select"></select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="EventPriority" class="form-label">@OrganizerLocalizer["Organizer.Events.Priority"]</label>
+            <select asp-for="EventPriority" asp-items="Html.LocalizedEnumSelectList<EventHub.Infrastructure.Data.Models.EventPriority>(EnumLocalizer)" class="form-select"></select>
         </div>
 
         <div class="col-md-3">
-            <label asp-for="TotalTickets" class="form-label"></label>
+            <label asp-for="TotalTickets" class="form-label">@OrganizerLocalizer["Organizer.Events.TotalTickets"]</label>
             <input asp-for="TotalTickets" class="form-control" type="number" min="1" />
             <span asp-validation-for="TotalTickets" class="text-danger"></span>
         </div>
 
         <div class="col-md-3">
-            <label asp-for="BasePrice" class="form-label">Ticket Price (@CurrencyOptionsAccessor.Value.BaseCurrency)</label>
+            <label asp-for="BasePrice" class="form-label">@OrganizerLocalizer["Organizer.Events.TicketPrice", CurrencyOptionsAccessor.Value.BaseCurrency]</label>
             <input asp-for="BasePrice" class="form-control" type="number" min="0" step="0.01" placeholder="0.00" />
             <span asp-validation-for="BasePrice" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
-            <label asp-for="StartDateTime" class="form-label"></label>
+            <label asp-for="StartDateTime" class="form-label">@OrganizerLocalizer["Organizer.Events.Start"]</label>
             <input asp-for="StartDateTime" class="form-control" type="datetime-local" />
             <span asp-validation-for="StartDateTime" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
-            <label asp-for="EndDateTime" class="form-label"></label>
+            <label asp-for="EndDateTime" class="form-label">@OrganizerLocalizer["Organizer.Events.End"]</label>
             <input asp-for="EndDateTime" class="form-control" type="datetime-local" />
             <span asp-validation-for="EndDateTime" class="text-danger"></span>
         </div>
@@ -70,72 +84,72 @@
         <div class="col-md-4">
             <div class="form-check mt-4">
                 <input asp-for="AllowRefunds" class="form-check-input" type="checkbox" id="allowRefunds" />
-                <label class="form-check-label" for="allowRefunds">Allow Refunds</label>
+                <label class="form-check-label" for="allowRefunds">@OrganizerLocalizer["Organizer.Events.AllowRefunds"]</label>
             </div>
         </div>
 
         <div class="col-md-4" id="refundDeadlineGroup" style="display:none">
-            <label asp-for="RefundDeadline" class="form-label"></label>
+            <label asp-for="RefundDeadline" class="form-label">@OrganizerLocalizer["Organizer.Events.RefundDeadline"]</label>
             <input asp-for="RefundDeadline" class="form-control" type="datetime-local" />
         </div>
 
         <div class="col-md-8">
-            <label asp-for="CoverImageUrl" class="form-label">Cover Image URL</label>
+            <label asp-for="CoverImageUrl" class="form-label">@OrganizerLocalizer["Organizer.Events.CoverImageUrl"]</label>
             <input asp-for="CoverImageUrl" class="form-control" placeholder="https://..." />
             <span asp-validation-for="CoverImageUrl" class="text-danger"></span>
         </div>
         <div class="col-md-4">
-            <label asp-for="CoverPhotoUpload" class="form-label">Upload Cover Photo</label>
+            <label asp-for="CoverPhotoUpload" class="form-label">@OrganizerLocalizer["Organizer.Events.UploadCoverPhoto"]</label>
             <input asp-for="CoverPhotoUpload" type="file" class="form-control" accept="image/jpeg,image/png,image/webp,image/heic" />
             <span asp-validation-for="CoverPhotoUpload" class="text-danger"></span>
-            <small class="text-muted d-block mt-1">Uploaded photo is used instead of the URL.</small>
+            <small class="text-muted d-block mt-1">@OrganizerLocalizer["Organizer.Events.UploadHint"]</small>
         </div>
 
         <div class="col-12">
-            <h5 class="fw-semibold mt-3 mb-0">Location</h5>
-            <p class="text-muted small mb-0">Used for the event details map and external events API.</p>
+            <h5 class="fw-semibold mt-3 mb-0">@OrganizerLocalizer["Organizer.Events.Location"]</h5>
+            <p class="text-muted small mb-0">@OrganizerLocalizer["Organizer.Events.LocationHint"]</p>
         </div>
 
         <div class="col-md-6">
-            <label asp-for="Address" class="form-label">Address</label>
-            <input asp-for="Address" class="form-control" placeholder="Street address or venue entrance" />
+            <label asp-for="Address" class="form-label">@OrganizerLocalizer["Organizer.Events.Address"]</label>
+            <input asp-for="Address" class="form-control" placeholder="@OrganizerLocalizer["Organizer.Events.AddressPlaceholder"]" />
             <span asp-validation-for="Address" class="text-danger"></span>
         </div>
 
         <div class="col-md-3">
-            <label asp-for="City" class="form-label">City</label>
+            <label asp-for="City" class="form-label">@OrganizerLocalizer["Organizer.Events.City"]</label>
             <input asp-for="City" class="form-control" />
             <span asp-validation-for="City" class="text-danger"></span>
         </div>
 
         <div class="col-md-3">
-            <label asp-for="CountryCode" class="form-label">Country Code</label>
+            <label asp-for="CountryCode" class="form-label">@OrganizerLocalizer["Organizer.Events.CountryCode"]</label>
             <input asp-for="CountryCode" class="form-control" maxlength="2" placeholder="BG" />
             <span asp-validation-for="CountryCode" class="text-danger"></span>
         </div>
 
         <div class="col-12">
-            <label class="form-label">Pick Location on Map</label>
+            <label class="form-label">@OrganizerLocalizer["Organizer.Events.PickLocation"]</label>
             <div id="locationMap" style="height:350px; border-radius:8px; border:1px solid #dee2e6;"></div>
-            <small class="text-muted">Click the map to place a pin and fill in coordinates automatically.</small>
+            <small class="text-muted">@OrganizerLocalizer["Organizer.Events.PickLocationHint"]</small>
         </div>
 
         <div class="col-md-3">
-            <label asp-for="Latitude" class="form-label">Latitude</label>
+            <label asp-for="Latitude" class="form-label">@OrganizerLocalizer["Organizer.Events.Latitude"]</label>
             <input asp-for="Latitude" id="latInput" class="form-control" type="number" min="-90" max="90" step="any" />
             <span asp-validation-for="Latitude" class="text-danger"></span>
         </div>
 
         <div class="col-md-3">
-            <label asp-for="Longitude" class="form-label">Longitude</label>
+            <label asp-for="Longitude" class="form-label">@OrganizerLocalizer["Organizer.Events.Longitude"]</label>
             <input asp-for="Longitude" id="lngInput" class="form-control" type="number" min="-180" max="180" step="any" />
             <span asp-validation-for="Longitude" class="text-danger"></span>
         </div>
     </div>
 
     <div class="mt-4">
-        <button type="submit" class="btn btn-primary">Create Event</button>
-        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+        <button type="submit" class="btn btn-primary">@OrganizerLocalizer["Organizer.Events.CreateButton"]</button>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">@CommonLocalizer["Common.Action.Cancel"]</a>
     </div>
 </form>
 

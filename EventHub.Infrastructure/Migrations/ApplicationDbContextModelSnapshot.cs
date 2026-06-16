@@ -335,6 +335,43 @@ namespace EventHub.Infrastructure.Migrations
                     b.ToTable("EventPricingTiers");
                 });
 
+            modelBuilder.Entity("EventHub.Infrastructure.Data.Models.EventTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Culture")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId", "Culture")
+                        .IsUnique();
+
+                    b.ToTable("EventTranslations");
+                });
+
             modelBuilder.Entity("EventHub.Infrastructure.Data.Models.EventTrustScore", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1383,6 +1420,17 @@ namespace EventHub.Infrastructure.Migrations
                     b.Navigation("CoverImage");
                 });
 
+            modelBuilder.Entity("EventHub.Infrastructure.Data.Models.EventTranslation", b =>
+                {
+                    b.HasOne("EventHub.Infrastructure.Data.Models.Event", "Event")
+                        .WithMany("Translations")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+                });
+
             modelBuilder.Entity("EventHub.Infrastructure.Data.Models.ServiceRentalRequest", b =>
                 {
                     b.HasOne("EventHub.Infrastructure.Data.Models.User", "Requester")
@@ -1458,6 +1506,11 @@ namespace EventHub.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("EventHub.Infrastructure.Data.Models.Event", b =>
+                {
+                    b.Navigation("Translations");
                 });
 #pragma warning restore 612, 618
         }

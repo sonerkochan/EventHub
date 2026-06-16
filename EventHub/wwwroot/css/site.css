@@ -81,7 +81,8 @@ body.dark {
   text-align: start;
 }
 
-.eh-currency-switcher {
+.eh-currency-switcher,
+.eh-culture-switcher {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -89,7 +90,13 @@ body.dark {
   white-space: nowrap;
 }
 
-.eh-currency-switcher-label {
+.eh-culture-switcher-form {
+  display: inline-flex;
+  margin: 0;
+}
+
+.eh-currency-switcher-label,
+.eh-culture-switcher-label {
   color: #6b7280;
   font-size: 0.72rem;
   font-weight: 700;
@@ -97,7 +104,8 @@ body.dark {
   text-transform: uppercase;
 }
 
-.eh-currency-select {
+.eh-currency-select,
+.eh-culture-select {
   min-width: 76px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
@@ -108,7 +116,8 @@ body.dark {
   padding: 5px 8px;
 }
 
-.eh-currency-select:focus {
+.eh-currency-select:focus,
+.eh-culture-select:focus {
   border-color: #55a5d2;
   outline: none;
 }

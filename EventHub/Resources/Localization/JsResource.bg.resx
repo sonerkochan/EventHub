@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Js.Confirm.DeactivateEvent" xml:space="preserve"><value>Да деактивирам ли това събитие?</value></data>
+  <data name="Js.Confirm.PublishEvent" xml:space="preserve"><value>Да публикувам ли това събитие?</value></data>
+  <data name="Js.Confirm.DeactivateRoom" xml:space="preserve"><value>Да деактивирам ли тази зала?</value></data>
+  <data name="Js.Confirm.RemovePricing" xml:space="preserve"><value>Да премахна ли цената за тази зона? Съществуващите билети остават непроменени.</value></data>
+  <data name="Js.Alert.InvalidPrice" xml:space="preserve"><value>Въведете валидна цена (0 или повече).</value></data>
+  <data name="Js.Alert.SavePriceFailed" xml:space="preserve"><value>Цената не може да бъде запазена.</value></data>
+  <data name="Js.Alert.RefundFailed" xml:space="preserve"><value>Възстановяването е неуспешно.</value></data>
+  <data name="Js.Alert.ActionFailed" xml:space="preserve"><value>Действието е неуспешно.</value></data>
+  <data name="Js.Seats.NoneSelected" xml:space="preserve"><value>Няма избрани места.</value></data>
+  <data name="Js.Seats.Taken" xml:space="preserve"><value>Заето</value></data>
+  <data name="Js.Seats.Seat" xml:space="preserve"><value>Място</value></data>
+  <data name="Js.Seats.Base" xml:space="preserve"><value>базова</value></data>
+</root>

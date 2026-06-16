@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Layout.Area.Admin" xml:space="preserve"><value>Admin</value></data>
+  <data name="Layout.Area.Moderator" xml:space="preserve"><value>Moderator</value></data>
+  <data name="Layout.Area.Organizer" xml:space="preserve"><value>Organizer</value></data>
+  <data name="Layout.Area.Supplier" xml:space="preserve"><value>Supplier</value></data>
+  <data name="Layout.Footer.Tagline" xml:space="preserve"><value>Your marketplace for discovering and booking amazing events.</value></data>
+  <data name="Layout.Footer.PrivacyPolicy" xml:space="preserve"><value>Privacy Policy</value></data>
+  <data name="Layout.Footer.TermsOfService" xml:space="preserve"><value>Terms of Service</value></data>
+  <data name="Layout.Footer.Rights" xml:space="preserve"><value>All rights reserved.</value></data>
+  <data name="Layout.Nav.AdminDashboard" xml:space="preserve"><value>Admin Dashboard</value></data>
+  <data name="Layout.Nav.Applications" xml:space="preserve"><value>Applications</value></data>
+  <data name="Layout.Nav.BackToSite" xml:space="preserve"><value>Back to site</value></data>
+  <data name="Layout.Nav.BrowseEvents" xml:space="preserve"><value>Browse Events</value></data>
+  <data name="Layout.Nav.ClientArea" xml:space="preserve"><value>Client area</value></data>
+  <data name="Layout.Nav.ClientDashboard" xml:space="preserve"><value>Client Dashboard</value></data>
+  <data name="Layout.Nav.Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Layout.Nav.Events" xml:space="preserve"><value>Events</value></data>
+  <data name="Layout.Nav.Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Layout.Nav.Login" xml:space="preserve"><value>Login</value></data>
+  <data name="Layout.Nav.ModeratorDashboard" xml:space="preserve"><value>Moderator Dashboard</value></data>
+  <data name="Layout.Nav.Moderators" xml:space="preserve"><value>Moderators</value></data>
+  <data name="Layout.Nav.MyEvents" xml:space="preserve"><value>My Events</value></data>
+  <data name="Layout.Nav.MyServices" xml:space="preserve"><value>My Services</value></data>
+  <data name="Layout.Nav.MyTickets" xml:space="preserve"><value>My Tickets</value></data>
+  <data name="Layout.Nav.NewEvent" xml:space="preserve"><value>New Event</value></data>
+  <data name="Layout.Nav.OrganizerPanel" xml:space="preserve"><value>Organizer Panel</value></data>
+  <data name="Layout.Nav.OrganizerPanelLower" xml:space="preserve"><value>Organizer panel</value></data>
+  <data name="Layout.Nav.Payments" xml:space="preserve"><value>Payments</value></data>
+  <data name="Layout.Nav.Requests" xml:space="preserve"><value>Requests</value></data>
+  <data name="Layout.Nav.Rooms" xml:space="preserve"><value>Rooms</value></data>
+  <data name="Layout.Nav.Services" xml:space="preserve"><value>Services</value></data>
+  <data name="Layout.Nav.SignUp" xml:space="preserve"><value>Sign Up</value></data>
+  <data name="Layout.Nav.SupplierPanel" xml:space="preserve"><value>Supplier Panel</value></data>
+  <data name="Layout.Nav.SupplierPanelLower" xml:space="preserve"><value>Supplier panel</value></data>
+  <data name="Layout.Nav.Tickets" xml:space="preserve"><value>Tickets</value></data>
+  <data name="Layout.Nav.Users" xml:space="preserve"><value>Users</value></data>
+  <data name="Layout.Nav.Venues" xml:space="preserve"><value>Venues</value></data>
+  <data name="Layout.Supplier.CreateService.Title" xml:space="preserve"><value>Create New Service</value></data>
+  <data name="Layout.Supplier.CreateService.Name" xml:space="preserve"><value>Service Name</value></data>
+  <data name="Layout.Supplier.CreateService.NamePlaceholder" xml:space="preserve"><value>e.g. Premium Catering</value></data>
+  <data name="Layout.Supplier.CreateService.Price" xml:space="preserve"><value>Base Price (EUR)</value></data>
+  <data name="Layout.Supplier.CreateService.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Layout.Supplier.CreateService.DescriptionPlaceholder" xml:space="preserve"><value>Describe what you offer...</value></data>
+  <data name="Layout.Supplier.CreateService.Submit" xml:space="preserve"><value>Create Service</value></data>
+</root>

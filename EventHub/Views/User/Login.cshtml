@@ -1,56 +1,55 @@
-﻿@model LoginViewModel
+@model LoginViewModel
+@inject IStringLocalizer<AuthResource> AuthLocalizer
+
 @{
-    ViewData["Title"] = "EventHub | Login";
+    ViewData["Title"] = AuthLocalizer["Auth.Login.Title"];
     Layout = null;
 }
 
-<link rel = "stylesheet" href="~/css/loginRegisterPage.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/loginRegisterPage.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
 
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EventHub | Login</title>
-    
+    <title>@AuthLocalizer["Auth.Login.Title"]</title>
 </head>
-
-
 <body class="bg-light">
     <div class="form-wrapper">
         <div class="form-box">
             <h3 class="heading">EventHub</h3>
-            <p class="text-center text-muted mb-4">Sign in to your account</p>
+            <div class="text-center mb-3">
+                @await Html.PartialAsync("~/Views/Shared/_CultureSelector.cshtml")
+            </div>
+            <p class="text-center text-muted mb-4">@AuthLocalizer["Auth.Login.Subtitle"]</p>
             <form asp-action="Login" method="post" class="form">
                 @Html.AntiForgeryToken()
-                
-                
+
                 <div class="input-group">
-                    <label class="form-label">Username</label>
+                    <label class="form-label">@AuthLocalizer["Auth.Field.Username"]</label>
                     <input asp-for="Username" type="text" class="input" autocomplete="username">
                     <span asp-validation-for="Username" class="text-danger small"></span>
                 </div>
 
                 <div class="input-group">
-                    <label class="form-label">Password</label>
+                    <label class="form-label">@AuthLocalizer["Auth.Field.Password"]</label>
                     <input asp-for="Password" type="password" class="input" autocomplete="current-password">
                     <span asp-validation-for="Password" class="text-danger small"></span>
                 </div>
 
                 <div class="input-group checkbox-row">
                     <input type="checkbox" class="input-checkbox" id="remember">
-                    <label class="form-label" for="remember">Remember me</label>
+                    <label class="form-label" for="remember">@AuthLocalizer["Auth.Login.RememberMe"]</label>
                 </div>
-                
-                <div asp-validation-summary="ModelOnly" class="custom-validation-summary"></div>
-                <button type="submit" class="form-button">Log in</button>
 
+                <div asp-validation-summary="ModelOnly" class="custom-validation-summary"></div>
+                <button type="submit" class="form-button">@AuthLocalizer["Auth.Login.Submit"]</button>
             </form>
 
             <p class="text-center mt-3 mb-0 small">
-                Don't have an account? <a href="/User/Register">Sign up</a>
+                @AuthLocalizer["Auth.Login.NoAccount"] <a href="/User/Register">@AuthLocalizer["Auth.Login.SignUp"]</a>
             </p>
         </div>
     </div>

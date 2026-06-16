@@ -1,6 +1,9 @@
 @using EventHub.Core.Models.Currency
+@using EventHub.Localization
 @using Microsoft.Extensions.Options
+@using Microsoft.Extensions.Localization
 @inject IOptions<CurrencyOptions> CurrencyOptionsAccessor
+@inject IStringLocalizer<CommonResource> CommonLocalizer
 
 @{
     var currencies = CurrencyOptionsAccessor.Value.SupportedCurrencies?.Length > 0
@@ -11,9 +14,9 @@
         : CurrencyOptionsAccessor.Value.DisplayCurrency.Trim().ToUpperInvariant();
 }
 
-<label class="eh-currency-switcher" title="Display and pay in selected currency">
-    <span class="eh-currency-switcher-label">Currency</span>
-    <select class="eh-currency-select" data-currency-selector aria-label="Currency">
+<label class="eh-currency-switcher" title="@CommonLocalizer["Common.Currency.Label"]">
+    <span class="eh-currency-switcher-label">@CommonLocalizer["Common.Currency.Label"]</span>
+    <select class="eh-currency-select" data-currency-selector aria-label="@CommonLocalizer["Common.Currency.Label"]">
         @foreach (var currency in currencies.Select(c => c.Trim().ToUpperInvariant()).Distinct())
         {
             <option value="@currency" selected="@(currency == selectedCurrency)">@currency</option>

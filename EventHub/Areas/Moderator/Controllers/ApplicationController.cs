@@ -1,5 +1,7 @@
-﻿using EventHub.Core.Contracts;
+using EventHub.Core.Contracts;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Moderator.Controllers
@@ -7,10 +9,14 @@ namespace EventHub.Areas.Moderator.Controllers
     public class ApplicationController : BaseController
     {
         private readonly IApplicationService applicationService;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
-        public ApplicationController(IApplicationService _applicationService)
+        public ApplicationController(
+            IApplicationService _applicationService,
+            IStringLocalizer<MessagesResource>? messagesLocalizer = null)
         {
             applicationService = _applicationService;
+            this.messagesLocalizer = messagesLocalizer ?? new FallbackStringLocalizer<MessagesResource>();
         }
 
         public async Task<IActionResult> Index()
@@ -25,7 +31,7 @@ namespace EventHub.Areas.Moderator.Controllers
         {
             var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             await applicationService.ApproveAsync(id, adminId);
-            TempData["Success"] = "Application approved.";
+            TempData["Success"] = messagesLocalizer["Messages.Application.Approved"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -35,7 +41,7 @@ namespace EventHub.Areas.Moderator.Controllers
         {
             var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             await applicationService.RejectAsync(id, adminId, comment);
-            TempData["Success"] = "Application rejected.";
+            TempData["Success"] = messagesLocalizer["Messages.Application.Rejected"].Value;
             return RedirectToAction(nameof(Index));
         }
     }

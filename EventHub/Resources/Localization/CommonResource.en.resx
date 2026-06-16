@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Common.Action.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Common.Action.Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="Common.Action.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Common.Action.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="Common.Action.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Common.Action.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Common.Action.Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Common.Action.SignOut" xml:space="preserve"><value>Sign out</value></data>
+  <data name="Common.Currency.Label" xml:space="preserve"><value>Currency</value></data>
+  <data name="Common.Language.Label" xml:space="preserve"><value>Language</value></data>
+  <data name="Common.Language.English" xml:space="preserve"><value>English</value></data>
+  <data name="Common.Language.Bulgarian" xml:space="preserve"><value>Bulgarian</value></data>
+  <data name="Common.Role.Admin" xml:space="preserve"><value>Admin</value></data>
+  <data name="Common.Role.Administrator" xml:space="preserve"><value>Administrator</value></data>
+  <data name="Common.Role.Client" xml:space="preserve"><value>Client</value></data>
+  <data name="Common.Role.Moderator" xml:space="preserve"><value>Moderator</value></data>
+  <data name="Common.Role.Organizer" xml:space="preserve"><value>Organizer</value></data>
+  <data name="Common.Role.Supplier" xml:space="preserve"><value>Supplier</value></data>
+  <data name="Common.Status.Accepted" xml:space="preserve"><value>Accepted</value></data>
+  <data name="Common.Status.Available" xml:space="preserve"><value>Available</value></data>
+  <data name="Common.Status.Declined" xml:space="preserve"><value>Declined</value></data>
+  <data name="Common.Status.Hidden" xml:space="preserve"><value>Hidden</value></data>
+  <data name="Common.Status.Pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Common.Status.Visible" xml:space="preserve"><value>Visible</value></data>
+</root>
