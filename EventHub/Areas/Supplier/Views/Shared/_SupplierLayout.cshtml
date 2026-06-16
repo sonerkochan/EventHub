@@ -26,7 +26,7 @@
             --card-hover-transform: translateY(-4px);
         }
         body { 
-            font-family: 'Source Sans Pro', sans-serif; 
+            font-family: 'Source Sans Pro', sans-serif;
             background-color: #f6f8fb;
         }
         .page { 
@@ -126,14 +126,14 @@
             border-radius: 20px;
             border: none; 
             box-shadow: 0 25px 50px -12px rgba(30, 60, 114, 0.25); 
-            overflow: hidden; 
+            overflow: hidden;
         }
         .modal-header { 
             background: #f8fafc;
             border-bottom: 1px solid rgba(0,0,0,0.05); 
         }
         .alert { 
-            border-radius: 12px; 
+            border-radius: 12px;
             border: none; 
             backdrop-filter: blur(8px);
         }
@@ -164,8 +164,8 @@
         }
 
         .header .dropdown-menu {
-            z-index: 1050 !important;
-            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.15) !important;
+            z-index: 1070 !important;
+            box-shadow: 0 10px 30px rgba(30, 60, 114, 0.18) !important;
             border: 1px solid rgba(0, 0, 0, 0.08) !important;
             margin-top: 5px;
         }
@@ -180,15 +180,8 @@
             z-index: 1040 !important;
         }
 
-        .header .dropdown-menu {
-            z-index: 1070 !important;
-            box-shadow: 0 10px 30px rgba(30, 60, 114, 0.18) !important;
-            border: 1px solid rgba(0, 0, 0, 0.08) !important;
-            margin-top: 5px;
-        }
-
         .page-main { 
-            animation: fadeIn 0.4s ease-out; 
+            animation: fadeIn 0.4s ease-out;
         }
 
         .btn-edit-service {
@@ -254,9 +247,120 @@
             margin-right: 6px !important;
         }
 
-        @@media (min-width: 768px) {
-            .border-left-md {
-                border-left: 1px solid #f1f5f9 !important;
+        @@media (min-width: 992px) {
+            .desktop-only-controls {
+                display: flex !important;
+            }
+            .mobile-supplier-controls {
+                display: none !important;
+            }
+        }
+
+        @@media (max-width: 991.98px) {
+            .header .desktop-only-controls {
+                display: none !important;
+            }
+
+            .header.py-4 {
+                height: 75px !important;
+                padding: 0 20px !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+
+            #headerMenuCollapse {
+                background: #fff !important;
+                position: absolute !important;
+                top: 75px !important; 
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                border-radius: 0 0 16px 16px !important;
+                box-shadow: 0 15px 25px rgba(30, 60, 114, 0.1) !important;
+                border: 1px solid rgba(0, 0, 0, 0.05) !important;
+                border-top: none !important;
+
+                padding: 12px 20px !important; 
+                margin: 0 !important;
+                
+                z-index: 9999 !important;
+                display: none;
+                overflow: visible !important;
+            }
+
+            .nav-tabs {
+                gap: 4px !important;
+            }
+            .nav-link {
+                display: flex !important;
+                width: 100% !important;
+                padding: 0.8rem 1.1rem !important;
+            }
+
+            .mobile-supplier-controls {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 12px;
+                margin-top: 12px;
+                padding-top: 16px;
+                border-top: 1px dashed #e2e8f0;
+            }
+            .mobile-supplier-controls .nav-item {
+                width: 100% !important;
+            }
+            .mobile-supplier-controls .dropdown-menu {
+                position: static !important;
+                float: none !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: 1px solid #e2e8f0 !important;
+                background: #f8fafc !important;
+                margin-top: 8px !important;
+                transform: none !important;
+                padding: 4px !important;
+            }
+
+            .mobile-supplier-controls .dropdown-item {
+                padding: 0.7rem 1rem !important;
+                display: flex !important;
+                align-items: center;
+                gap: 8px;
+                background: transparent !important;
+            }
+            
+            .mobile-supplier-controls .dropdown-item:hover {
+                background: rgba(30, 60, 114, 0.05) !important;
+            }
+
+
+            .header .container-fluid,
+            .page-main .container-fluid {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .style-mobile-scroll {
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                display: block !important;
+                width: 100% !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .style-mobile-scroll table {
+                min-width: 850px !important;
+                width: 100% !important;
+            }
+
+            .style-mobile-scroll td, 
+            .style-mobile-scroll th {
+                white-space: nowrap !important;
+            }
+
+            .style-mobile-scroll .text-wrap {
+                white-space: normal !important;
             }
         }
 
@@ -271,19 +375,20 @@
         <div class="page-main">
             <div class="header py-4">
                 <div class="container-fluid">
-                    <div class="d-flex">
-                    
+                    <div class="d-flex align-items-center">
+                   
                         <a class="header-brand" asp-area="Supplier" asp-controller="Home" asp-action="Index" style="text-decoration: none; display: inline-flex; align-items: center;">
-    <span style="font-size: 24px; font-weight: 700; color: #1e293b; letter-spacing: -0.5px;">
-        Event<span style="color: #4facfe;">Hub</span>
-    </span>
-    <small class="text-muted ml-2" style="font-size: 14px; font-weight: 400; align-self: flex-end; margin-bottom: 8px;">Supplier</small>
-</a>
+                            <span style="font-size: 24px; font-weight: 700; color: #1e293b; letter-spacing: -0.5px;">
+                                Event<span style="color: #4facfe;">Hub</span>
+                            </span>
+                            <small class="text-muted ml-2" style="font-size: 14px; font-weight: 400; align-self: flex-end; margin-bottom: 8px;">Supplier</small>
+                        </a>
 
-                        <div class="d-flex order-lg-2 ml-auto align-items-center">
+                        <div class="d-flex order-lg-2 ml-auto align-items-center desktop-only-controls">
                             <div class="mr-3">
                                 @await Html.PartialAsync("~/Views/Shared/_CurrencySelector.cshtml")
                             </div>
+       
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 var currentUser = await UserManager.GetUserAsync(User);
@@ -299,6 +404,7 @@
                                         <a asp-area="Client" asp-controller="Home" asp-action="Index" class="dropdown-item">
                                             <i class="dropdown-icon fa fa-user"></i> Client area
                                         </a>
+                                 
                                         @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Organizer"))
                                         {
                                             <a asp-area="Organizer" asp-controller="Home" asp-action="Index" class="dropdown-item">
@@ -318,7 +424,7 @@
                             }
                         </div>
 
-                        <a href="#" class="header-toggler d-lg-none ml-3" data-toggle="collapse" data-target="#headerMenuCollapse">
+                        <a href="javascript:void(0)" class="header-toggler d-lg-none ml-auto" id="mobileMenuBtn">
                             <span class="header-toggler-icon"></span>
                         </a>
                     </div>
@@ -346,6 +452,44 @@
                                     </a>
                                 </li>
                             </ul>
+
+                            <div class="mobile-supplier-controls">
+                                <div class="nav-item">
+                                    @await Html.PartialAsync("~/Views/Shared/_CurrencySelector.cshtml")
+                                </div>
+                                @if (SignInManager.IsSignedIn(User))
+                                {
+                                    var currentUser = await UserManager.GetUserAsync(User);
+                                    <div class="nav-item dropdown">
+                                        <a href="#" class="nav-link d-flex align-items-center" data-toggle="dropdown">
+                                            <span class="avatar">@GetInitial(User.Identity?.Name)</span>
+                                            <span class="ml-2" style="color: #6e7687; font-weight: 500;">@User.Identity?.Name (Supplier)</span>
+                                            <i class="fa fa-angle-down ml-auto" style="font-size:0.8rem;color:#999;"></i>
+                                        </a>
+                                        <div class="dropdown-menu">
+                                            <a asp-area="Client" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                                <i class="fa fa-user mr-2"></i> Client area
+                                            </a>
+                                            @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Organizer"))
+                                            {
+                                                <a asp-area="Organizer" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                                    <i class="fa fa-calendar mr-2"></i> Organizer panel
+                                                </a>
+                                            }
+                                            <a asp-area="" asp-controller="Home" asp-action="Index" class="dropdown-item">
+                                                <i class="fa fa-home mr-2"></i> Back to site
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="fa fa-sign-out mr-2"></i> Sign out
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -408,6 +552,32 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/currency.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toggler = document.getElementById("mobileMenuBtn");
+            var menu = document.getElementById("headerMenuCollapse");
+
+            if (toggler && menu) {
+                toggler.onclick = function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (menu.style.display === "block") {
+                        menu.style.setProperty("display", "none", "important");
+                    } else {
+                        menu.style.setProperty("display", "block", "important");
+                    }
+                };
+
+                document.addEventListener("click", function (e) {
+                    if (!menu.contains(e.target) && !toggler.contains(e.target)) {
+                        menu.style.setProperty("display", "none", "important");
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 
