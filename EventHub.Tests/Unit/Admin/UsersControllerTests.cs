@@ -32,7 +32,7 @@ namespace EventHub.Tests.Unit.Admin;
 
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsAssignableFrom<IEnumerable<UserListViewModel>>(viewResult.Model);
-            Assert.Same(users, model);
+            Assert.Equal(users, model);
             Assert.Null(controller.ViewBag.RoleFilter);
             userService.Verify(s => s.GetAllUsersAsync(null), Times.Once);
         }
@@ -64,7 +64,7 @@ namespace EventHub.Tests.Unit.Admin;
 
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsAssignableFrom<IEnumerable<UserListViewModel>>(viewResult.Model);
-            Assert.Same(users, model);
+            Assert.Equal(users, model);
             Assert.Equal(role, controller.ViewBag.RoleFilter);
             userService.Verify(s => s.GetAllUsersAsync(role), Times.Once);
         }

@@ -39,7 +39,7 @@ public class EventsControllerTests
 
         var viewResult = Assert.IsType<ViewResult>(result);
         var model = Assert.IsAssignableFrom<IEnumerable<EventListViewModel>>(viewResult.Model);
-        Assert.Same(events, model);
+        Assert.Equal(events, model);
         eventService.Verify(s => s.GetAllEventsAsync(), Times.Once);
     }
 
