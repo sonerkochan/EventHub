@@ -28,9 +28,9 @@ namespace EventHub.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult CreatePartial()
         {
-            return View(new AddModeratorViewModel());
+            return PartialView("_CreateModal", new AddModeratorViewModel());
         }
 
         [HttpPost]
@@ -38,28 +38,28 @@ namespace EventHub.Areas.Admin.Controllers
         public async Task<IActionResult> Create(AddModeratorViewModel model)
         {
             if (!ModelState.IsValid)
-                return View(model);
+                return PartialView("_CreateModal", model);
 
             var success = await moderatorService.CreateModeratorAsync(model);
 
             if (!success)
             {
                 ModelState.AddModelError("", "Failed to create moderator. Username or email may already be taken.");
-                return View(model);
+                return PartialView("_CreateModal", model);
             }
 
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = true });
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> EditPartial(string id)
         {
             var model = await moderatorService.GetModeratorByIdAsync(id);
 
             if (model == null)
                 return NotFound();
 
-            return View(model);
+            return PartialView("_EditModal", model);
         }
 
         [HttpPost]
@@ -67,17 +67,17 @@ namespace EventHub.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(EditModeratorViewModel model)
         {
             if (!ModelState.IsValid)
-                return View(model);
+                return PartialView("_EditModal", model);
 
             var success = await moderatorService.EditModeratorAsync(model);
 
             if (!success)
             {
                 ModelState.AddModelError("", "Failed to update moderator.");
-                return View(model);
+                return PartialView("_EditModal", model);
             }
 
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = true });
         }
 
         [HttpPost]

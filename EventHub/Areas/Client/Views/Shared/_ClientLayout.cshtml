@@ -21,118 +21,257 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <style>
-        /* EventHub Client Area overrides */
-        .eh-navbar {
-            background: #fff;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            padding: 0;
-        }
-        .eh-navbar .navbar-brand {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 1.4rem;
-            color: #1a1a2e;
-            letter-spacing: -0.5px;
-        }
-        .eh-navbar .navbar-brand span {
-            color: #55a5d2;
-        }
-        .eh-nav-link {
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #555 !important;
-            padding: 1.2rem 1rem !important;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: color 0.2s;
-        }
-        .eh-nav-link:hover, .eh-nav-link.active {
-            color: #55a5d2 !important;
-        }
-        .eh-nav-link.active {
-            border-bottom: 2px solid #55a5d2;
-        }
-        .eh-page-wrapper {
-            min-height: calc(100vh - 140px);
-            padding: 40px 0 60px;
-        }
-        .eh-footer {
-            background: #1a1a2e;
-            padding: 20px 0;
-        }
-        .eh-footer p {
-            color: #aaa;
-            font-size: 0.8rem;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-        .eh-user-avatar {
-            width: 36px; height: 36px;
-            background: #55a5d2;
-            color: #fff;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-        .eh-dropdown-menu {
-            border: none;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-            border-radius: 6px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.85rem;
-            min-width: 200px;
-        }
-        .eh-dropdown-menu .dropdown-item {
-            padding: 0.6rem 1.2rem;
-            color: #555;
-        }
-        .eh-dropdown-menu .dropdown-item:hover {
-            background: #f0f8ff;
-            color: #55a5d2;
-        }
-        .eh-dropdown-menu .dropdown-item.text-danger:hover {
-            background: #fff5f5;
-            color: #dc3545;
-        }
-        /* Primary button matching travelista */
-        .primary-btn {
-            background: #55a5d2;
-            color: #fff;
-        }
-        .primary-btn:hover {
-            background: #1a1a2e;
-            color: #fff;
-        }
-        /* Card overrides */
-        .card {
-            border-radius: 6px;
-            border: 1px solid #e8ecf0;
-        }
-        /* Toast */
-        .toast-area {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 9999;
-        }
+    /* EventHub Client Area overrides */
+    .eh-navbar {
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    padding: 0 15px;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+}
+    .eh-navbar .navbar-brand {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.4rem;
+        color: #1a1a2e;
+        letter-spacing: -0.5px;
+    }
+    .eh-navbar .navbar-brand span {
+        color: #55a5d2;
+    }
+    .eh-nav-link {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #555 !important;
+        padding: 0.5rem 1rem !important;
+        margin: 0.7rem 0.2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        line-height: 1;
+    }
+    .eh-nav-link i {
+        font-size: 1.25em;
+        line-height: 1;
+        width: 20px;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .eh-nav-link:hover {
+        color: #2b5876 !important;
+        background: #eef5fa;
+        transform: translateY(-2px);
+    }
+    .eh-nav-link:hover i {
+        transform: scale(1.2) translateY(-1px);
+    }
+    .eh-nav-link.active {
+        color: #fff !important;
+        background: linear-gradient(135deg, #55a5d2, #2b5876);
+        box-shadow: 0 6px 15px rgba(85, 165, 210, 0.35);
+    }
+    .eh-page-wrapper {
+        min-height: calc(100vh - 140px);
+        padding: 40px 0 60px;
+    }
+    .eh-footer {
+        background: #1a1a2e;
+        padding: 20px 0;
+    }
+    .eh-footer p {
+        color: #aaa;
+        font-size: 0.8rem;
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+    .eh-user-avatar {
+        width: 36px; height: 36px;
+        background: #55a5d2;
+        color: #fff;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    .eh-dropdown-menu {
+        border: none;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        border-radius: 6px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.85rem;
+        min-width: 200px;
+    }
+    .eh-dropdown-menu .dropdown-item {
+        padding: 0.6rem 1.2rem;
+        color: #555;
+    }
+    .eh-dropdown-menu .dropdown-item:hover {
+        background: #f0f8ff;
+        color: #55a5d2;
+    }
+    .eh-dropdown-menu .dropdown-item.text-danger:hover {
+        background: #fff5f5;
+        color: #dc3545;
+    }
+    .primary-btn {
+        background: #55a5d2;
+        color: #fff;
+    }
+    .primary-btn:hover {
+        background: #1a1a2e;
+        color: #fff;
+    }
+    .card {
+        border-radius: 6px;
+        border: 1px solid #e8ecf0;
+    }
+    .toast-area {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 9999;
+    }
+    .navbar-toggler {
+        border: 1px solid rgba(0,0,0,0.15);
+        padding: 0.4rem 0.6rem;
+    }
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0,0,0,0.5)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        width: 1.5em;
+        height: 1.5em;
+        background-size: contain;
+        display: inline-block;
+    }
 
-        /* NAVBAR burgerche */
-        .navbar-toggler {
-            border: 1px solid rgba(0,0,0,0.15);
-            padding: 0.4rem 0.6rem;
-        }
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0,0,0,0.5)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-            width: 1.5em;
-            height: 1.5em;
-            background-size: contain;
-            display: inline-block;
-        }
-    </style>
+    /* Mobile styles */
+    @@media (max-width: 991.98px) {
+            .eh-navbar {
+                padding: 0 20px !important;
+                height: 75px !important;
+                min-height: 75px !important;
+                display: flex !important;
+                align-items: center !important;
+                position: relative !important;
+            }
+
+            .navbar-collapse {
+                background: #fff !important;
+                padding: 24px 20px !important;
+                position: absolute !important;
+                top: 100% !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+
+                border-radius: 0 0 24px 24px !important; 
+                box-shadow: 0 15px 25px rgba(0,0,0,0.08) !important;
+                z-index: 999 !important;
+                overflow: hidden;
+                border: 1px solid rgba(0,0,0,0.05) !important;
+                border-top: none !important;
+            }
+
+            .navbar-collapse.show {
+                overflow: visible !important;
+            }
+    
+
+            .eh-navbar .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .eh-nav-link {
+                display: flex !important;
+                width: 100%;
+                margin: 4px 0 !important;
+                padding: 0.9rem 1.2rem !important;
+                justify-content: flex-start;
+                font-size: 0.9rem;
+            }
+            .eh-nav-link i {
+                width: 24px;
+                text-align: left;
+                font-size: 1.1rem;
+            }
+
+            .eh-nav-link:hover {
+                transform: translateX(5px);
+            }
+        
+            .navbar-nav.ml-auto {
+                margin-top: -4px !important;
+                padding-top: 16px !important;
+                border-top: 1px dashed #e8ecf0;
+                width: 100%;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px;
+                padding-left: 0 !important;
+            }
+
+            .navbar-nav.ml-auto .nav-item {
+                margin: 0 !important;
+                width: 100% !important;
+            }
+            .navbar-nav.ml-auto .nav-item:not(:first-child) {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .navbar-nav.ml-auto .nav-item:first-child {
+                margin-bottom: 4px !important;
+            }
+
+            .eh-nav-btn {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                padding: 12px 20px !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: 46px;
+                border-radius: 8px !important;
+                font-size: 0.85rem;
+                white-space: nowrap;
+            }
+
+            .navbar-nav.ml-auto .nav-item:first-child {
+                order: 2; 
+                display: flex;
+                align-items: center;
+            }
+
+            .navbar-nav.ml-auto .nav-item.dropdown {
+                order: 1; 
+            }
+
+            .navbar-nav.ml-auto .nav-link.d-flex {
+                padding: 0 !important;
+                width: auto !important;
+            }
+
+            .navbar-nav.ml-auto .dropdown-menu {
+                position: static !important;
+                float: none !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: 1px solid #e8ecf0 !important;
+                margin-top: 8px !important;
+                background: #f9fafb !important;
+                padding: 8px !important;
+            }
+    }
+</style>
 </head>
 <body>
 
@@ -154,37 +293,37 @@
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Home" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Home"))">
-                            Dashboard
+                            <i class="fa fa-th-large"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Events" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Events"))">
-                            Events
+                            <i class="fa fa-calendar"></i> Events
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Services" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Services"))">
-                            Services
+                            <i class="fa fa-cubes"></i> Services
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Tickets" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Tickets"))">
-                            Tickets
+                            <i class="fa fa-ticket"></i> Tickets
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Payment" asp-action="History"
                            class="nav-link eh-nav-link @(IsActive("Payment"))">
-                            Payments
+                            <i class="fa fa-credit-card"></i> Payments
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Application" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Application"))">
-                            Applications
+                            <i class="fa fa-list-alt"></i> Applications
                         </a>
                     </li>
                 </ul>

@@ -8,6 +8,9 @@ namespace EventHub.Areas.Admin.Controllers
     [Authorize(Roles = "Admin")]
     public class UsersController : BaseController
     {
+        private const int DefaultPageSize = 10;
+        private static readonly int[] PageSizeOptions = { 10, 25, 50, 100, 200 };
+
         private readonly IUserService userService;
 
         public UsersController(IUserService _userService)
@@ -15,11 +18,25 @@ namespace EventHub.Areas.Admin.Controllers
             userService = _userService;
         }
 
-        public async Task<IActionResult> Index(string? role = null)
+        public async Task<IActionResult> Index(string? role = null, int page = 1, int size = DefaultPageSize)
         {
-            var users = await userService.GetAllUsersAsync(role);
+            var all = (await userService.GetAllUsersAsync(role)).ToList();
+
+            var totalCount = all.Count;
+            size = PageSizeOptions.Contains(size) ? size : DefaultPageSize;
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)size));
+            page = Math.Clamp(page, 1, totalPages);
+            var pageItems = all.Skip((page - 1) * size).Take(size).ToList();
+
             ViewBag.RoleFilter = role;
-            return View(users);
+            ViewBag.Page = page;
+            ViewBag.PageSize = size;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.PageSizeOptions = PageSizeOptions;
+            ViewBag.AllUsers = all; // for summary cards (full filtered set, not just the page)
+
+            return View(pageItems);
         }
 
         [HttpGet]

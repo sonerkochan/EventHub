@@ -42,6 +42,7 @@
             position: sticky;
             top: 0;
             z-index: 1030;
+            min-height: 70px;
         }
         .eh-navbar .navbar-brand {
             font-family: 'Poppins', sans-serif;
@@ -57,15 +58,33 @@
         }
         .eh-nav-link {
             font-size: 0.82rem;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--tr-text) !important;
-            padding: 1.15rem 1rem !important;
+            padding: 0.5rem 1rem !important;
+            margin: 0.65rem 0.2rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            transition: color 0.2s;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1;
         }
-        .eh-nav-link:hover { color: var(--tr-accent) !important; }
-        .eh-nav-link.active { color: var(--tr-accent) !important; border-bottom: 2px solid var(--tr-accent); }
+        .eh-nav-link i {
+            font-size: 1.25em;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+        .eh-nav-link:hover { 
+            color: var(--tr-accent) !important; 
+            background: rgba(0,0,0,0.04);
+        }
+        .eh-nav-link.active { 
+            color: #fff !important; 
+            background: var(--tr-accent);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
 
         /* ── Hamburger fix (travelista strips Bootstrap's built-in SVG) ── */
         .navbar-toggler {
@@ -128,9 +147,106 @@
         }
         .eh-nav-btn-primary:hover { background: var(--tr-dark); border-color: var(--tr-dark); color: #fff; text-decoration: none; }
 
-        /* on mobile, give auth buttons a little breathing room */
-        @@media (max-width: 991px) {
-            .eh-nav-btn { display: block; margin: 4px 0; text-align: center; }
+        /* Mobile styles */
+        @@media (max-width: 991.98px) {
+            .eh-navbar {
+                padding: 0 20px !important;
+                height: 75px !important;
+                min-height: 75px !important;
+                display: flex !important;
+                align-items: center !important;
+                position: relative !important;
+            }
+
+            .navbar-collapse {
+                background: #fff !important;
+                padding: 24px 20px !important;
+                position: absolute !important;
+                top: 100%;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                border-radius: 0 0 16px 16px; 
+                box-shadow: 0 15px 25px rgba(0,0,0,0.08);
+                z-index: 999;
+                overflow: hidden;
+                border: 1px solid rgba(0,0,0,0.05);
+                border-top: none !important; 
+            }
+            
+            .navbar-collapse.show {
+                overflow: visible !important;
+            }
+
+            .eh-nav-link {
+                display: flex !important;
+                width: 100%;
+                margin: 4px 0 !important;
+                padding: 0.9rem 1.2rem !important;
+                justify-content: flex-start;
+                font-size: 0.9rem;
+            }
+            .eh-nav-link i {
+                width: 24px;
+                text-align: left;
+                font-size: 1.1rem;
+            }
+
+            .navbar-nav.ml-auto {
+                margin-top: -4px !important;
+                padding-top: 16px !important;
+                border-top: 1px dashed #e8ecf0;
+                width: 100%;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px;
+                padding-left: 0 !important;
+            }
+
+            .navbar-nav.ml-auto .nav-item {
+                margin: 0 !important;
+                width: 100% !important;
+            }
+
+            .navbar-nav.ml-auto .nav-item:not(:first-child) {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .navbar-nav.ml-auto .nav-item:first-child {
+                margin-bottom: 4px !important;
+            }
+
+            .eh-nav-btn {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                padding: 12px 20px !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: 46px;
+                border-radius: 8px !important;
+                font-size: 0.85rem;
+                white-space: nowrap;
+            }
+
+            .navbar-nav.ml-auto .dropdown-menu {
+                position: static !important;
+                float: none !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: 1px solid #e8ecf0 !important;
+                margin-top: 8px !important;
+                background: #f9fafb !important;
+                padding: 8px !important;
+            }
+            
+            .eh-dropdown-menu .dropdown-item {
+                padding: 0.8rem 1rem;
+                border-radius: 6px;
+            }
+
         }
 
         /* ── Footer ── */
@@ -181,21 +297,21 @@
         <!-- FIX 3: auth section moved INSIDE the collapse so it hides/shows with the menu on mobile -->
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item">
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link eh-nav-link">
-                        Home
-                    </a>
-                </li>
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <li class="nav-item">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link eh-nav-link">
+                            <i class="fa fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a asp-area="Client" asp-controller="Events" asp-action="Index" class="nav-link eh-nav-link">
-                            <i class="fa fa-calendar mr-1"></i> Events
+                            <i class="fa fa-calendar"></i> Events
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Tickets" asp-action="Index" class="nav-link eh-nav-link">
-                            <i class="fa fa-ticket mr-1"></i> My Tickets
+                            <i class="fa fa-ticket"></i> My Tickets
                         </a>
                     </li>
                 }
