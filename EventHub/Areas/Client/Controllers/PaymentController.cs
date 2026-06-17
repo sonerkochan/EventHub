@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Client.Controllers
@@ -217,13 +215,16 @@ namespace EventHub.Areas.Client.Controllers
     {
         private readonly IPaymentService paymentService;
         private readonly StripeOptions stripeOptions;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         public StripeWebhookController(
             IPaymentService _paymentService,
-            IOptions<StripeOptions> _stripeOptions)
+            IOptions<StripeOptions> _stripeOptions,
+            IStringLocalizer<MessagesResource>? messagesLocalizer = null)
         {
             paymentService = _paymentService;
             stripeOptions = _stripeOptions.Value;
+            this.messagesLocalizer = messagesLocalizer ?? new FallbackStringLocalizer<MessagesResource>();
         }
 
         [HttpPost]
