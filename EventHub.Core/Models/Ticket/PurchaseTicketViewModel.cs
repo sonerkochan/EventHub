@@ -14,7 +14,7 @@ namespace EventHub.Core.Models.Ticket
         public int AvailableTickets { get; set; }
 
         [Required]
-        [Range(1, 10, ErrorMessage = "You can purchase between 1 and 10 tickets.")]
+        [Range(1, 10, ErrorMessage = "Validation.Ticket.Quantity.Range")]
         public int Quantity { get; set; } = 1;
 
         public Guid RoomId { get; set; }

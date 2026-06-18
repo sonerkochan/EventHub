@@ -27,7 +27,7 @@ namespace EventHub.Core.Models.User
         public string Password { get; set; } = null!;
 
         [Required]
-        [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
+        [Compare(nameof(Password), ErrorMessage = "Validation.Passwords.DoNotMatch")]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; } = null!;
 

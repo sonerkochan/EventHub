@@ -2,9 +2,11 @@
 using EventHub.Core.Models.Event;
 using EventHub.Core.Services;
 using EventHub.Infrastructure.Data.Models;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Organizer.Controllers
@@ -15,17 +17,20 @@ namespace EventHub.Areas.Organizer.Controllers
         private readonly IEventService eventService;
         private readonly IRoomService roomService;
         private readonly IPhotoService photoService;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         public EventsController(
             UserManager<User> _userManager,
             IEventService _eventService,
             IRoomService _roomService,
-            IPhotoService _photoService)
+            IPhotoService _photoService,
+            IStringLocalizer<MessagesResource>? messagesLocalizer = null)
         {
             userManager = _userManager;
             eventService = _eventService;
             roomService = _roomService;
             photoService = _photoService;
+            this.messagesLocalizer = messagesLocalizer ?? new FallbackStringLocalizer<MessagesResource>();
         }
         public async Task<IActionResult> Index()
         {
@@ -129,7 +134,7 @@ namespace EventHub.Areas.Organizer.Controllers
         public async Task<IActionResult> Publish(Guid id)
         {
             await eventService.PublishAsync(id);
-            TempData["Success"] = "Event published successfully!";
+            TempData["Success"] = messagesLocalizer["Messages.Event.Published"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -190,7 +195,7 @@ namespace EventHub.Areas.Organizer.Controllers
                 return;
             }
 
-            ModelState.AddModelError("CoverImageUrl", "Cover image URL must be an absolute http or https URL.");
+            ModelState.AddModelError("CoverImageUrl", messagesLocalizer["Messages.Event.CoverUrlInvalid"]);
         }
     }
 }

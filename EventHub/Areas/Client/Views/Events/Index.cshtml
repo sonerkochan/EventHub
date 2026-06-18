@@ -1,8 +1,11 @@
 @using EventHub.Infrastructure.Data.Models
+@using EventHub.Localization
 @model IEnumerable<EventHub.Core.Models.Event.EventListViewModel>
+@inject Microsoft.Extensions.Localization.IStringLocalizer<ClientResource> ClientLocalizer
+@inject Microsoft.Extensions.Localization.IStringLocalizer<EnumResource> EnumLocalizer
 
 @{
-    ViewData["Title"] = "Browse Events";
+    ViewData["Title"] = ClientLocalizer["Client.Events.BrowseTitle"];
 }
 
 <style>
@@ -149,16 +152,16 @@
 </style>
 
 <div class="eh-page-header">
-    <h4><i class="fa fa-calendar mr-2" style="color:#55a5d2;"></i>Browse Events</h4>
-    <p>@Model.Count() events available for booking</p>
+    <h4><i class="fa fa-calendar mr-2" style="color:#55a5d2;"></i>@ClientLocalizer["Client.Events.BrowseTitle"]</h4>
+    <p>@ClientLocalizer["Client.Events.BookingCount", Model.Count()]</p>
 </div>
 
 @if (!Model.Any())
 {
     <div class="eh-empty">
         <div class="empty-icon"><i class="fa fa-calendar-o"></i></div>
-        <h5>No events published yet</h5>
-        <p>Check back soon for upcoming events!</p>
+        <h5>@ClientLocalizer["Client.Events.NoEvents"]</h5>
+        <p>@ClientLocalizer["Client.Events.NoEventsHint"]</p>
     </div>
 }
 else
@@ -180,7 +183,7 @@ else
                     }
                     <div class="card-body">
                         <div>
-                            <span class="eh-type-badge badge-@e.EventType.ToString().ToLower()">@e.EventType</span>
+                            <span class="eh-type-badge badge-@e.EventType.ToString().ToLower()">@EnumLocalizer.LocalizeEnum(e.EventType)</span>
                             <span class="eh-type-badge badge-venue">@e.RoomName</span>
                         </div>
                         <div class="eh-event-title">@e.EventName</div>
@@ -191,23 +194,23 @@ else
                             @if (!e.IsFree)
                             {
                                 <span class="eh-price" data-currency-amount="@e.PriceAmount?.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-currency-source="EUR">@e.PriceText</span>
-                                <small style="color:#aaa;"> / ticket</small>
+                                <small style="color:#aaa;"> @ClientLocalizer["Client.Events.TicketSuffix"]</small>
                             }
                             else
                             {
-                                <span class="eh-free-badge">Free</span>
+                                <span class="eh-free-badge">@ClientLocalizer["Client.Events.Free"]</span>
                             }
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:0.78rem;color:#aaa;">
-                            <span>@(e.TotalTickets - e.TicketsSold) / @e.TotalTickets left</span>
-                            <span style="color:@(isLow ? "#e74c3c" : "#27ae60");">@(isLow ? "Low stock" : "Available")</span>
+                            <span>@ClientLocalizer["Client.Events.Left", e.TotalTickets - e.TicketsSold, e.TotalTickets]</span>
+                            <span style="color:@(isLow ? "#e74c3c" : "#27ae60");">@(isLow ? ClientLocalizer["Client.Events.LowStock"] : ClientLocalizer["Client.Events.Available"])</span>
                         </div>
                         <div class="eh-avail-progress mb-3">
                             <div class="fill @(isLow ? "fill-low" : "fill-good")" style="width:@pct%;"></div>
                         </div>
 
-                        <a asp-action="Details" asp-route-id="@e.Id" class="eh-detail-btn">View Details</a>
+                        <a asp-action="Details" asp-route-id="@e.Id" class="eh-detail-btn">@ClientLocalizer["Client.Events.ViewDetails"]</a>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Public.Home.Title" xml:space="preserve"><value>EventHub - Your Event Marketplace</value></data>
+  <data name="Public.Home.Hero.BeforeAccent" xml:space="preserve"><value>Discover</value></data>
+  <data name="Public.Home.Hero.Accent" xml:space="preserve"><value>Amazing</value></data>
+  <data name="Public.Home.Hero.AfterAccent" xml:space="preserve"><value>Events Near You</value></data>
+  <data name="Public.Home.Hero.Subtitle" xml:space="preserve"><value>From concerts to conferences, workshops to sports — find and book tickets for events that inspire you.</value></data>
+  <data name="Public.Home.GetStarted" xml:space="preserve"><value>Get Started</value></data>
+  <data name="Public.Home.GetStartedFree" xml:space="preserve"><value>Get Started Free</value></data>
+  <data name="Public.Home.SignIn" xml:space="preserve"><value>Sign In</value></data>
+  <data name="Public.Home.BrowseEvents" xml:space="preserve"><value>Browse Events</value></data>
+  <data name="Public.Home.MyTickets" xml:space="preserve"><value>My Tickets</value></data>
+  <data name="Public.Home.LiveEvents" xml:space="preserve"><value>Live Events</value></data>
+  <data name="Public.Home.TotalTickets" xml:space="preserve"><value>Total Tickets</value></data>
+  <data name="Public.Home.TicketsSold" xml:space="preserve"><value>Tickets Sold</value></data>
+  <data name="Public.Home.Categories" xml:space="preserve"><value>Categories</value></data>
+  <data name="Public.Home.UpcomingEvents" xml:space="preserve"><value>Upcoming Events</value></data>
+  <data name="Public.Home.UpcomingSubtitle" xml:space="preserve"><value>Do not miss what is happening around you</value></data>
+  <data name="Public.Home.ViewAll" xml:space="preserve"><value>View All</value></data>
+  <data name="Public.Home.BrowseByCategory" xml:space="preserve"><value>Browse by Category</value></data>
+  <data name="Public.Home.CategorySubtitle" xml:space="preserve"><value>Something for every interest</value></data>
+  <data name="Public.Home.SignInToBook" xml:space="preserve"><value>Sign In to Book</value></data>
+  <data name="Public.Home.NoEvents" xml:space="preserve"><value>No events available right now</value></data>
+  <data name="Public.Home.NoEventsHint" xml:space="preserve"><value>Check back soon for upcoming events!</value></data>
+  <data name="Public.Home.HostTitle" xml:space="preserve"><value>Want to Host Events?</value></data>
+  <data name="Public.Home.HostSubtitle" xml:space="preserve"><value>Join EventHub as an organizer and reach thousands of potential attendees.</value></data>
+  <data name="Public.Home.ApplyOrganizer" xml:space="preserve"><value>Apply as Organizer</value></data>
+</root>

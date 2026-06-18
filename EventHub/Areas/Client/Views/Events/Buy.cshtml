@@ -1,6 +1,9 @@
 @using EventHub.Infrastructure.Data.Models
 @using System.Globalization
 @model EventHub.Core.Models.Ticket.PurchaseTicketViewModel
+@inject IStringLocalizer<ClientResource> ClientLocalizer
+@inject IStringLocalizer<EnumResource> EnumLocalizer
+@inject IStringLocalizer<JsResource> JsLocalizer
 
 <style>
     .btn-primary   { background: #55a5d2 !important; border-color: #55a5d2 !important; font-family: 'Poppins',sans-serif; font-weight: 600; }
@@ -17,7 +20,7 @@
 </style>
 
 @{
-    ViewData["Title"] = "Get Tickets";
+    ViewData["Title"] = ClientLocalizer["Client.Events.GetTickets"];
 }
 
 @if (!Model.HasSeatLayout)
@@ -25,10 +28,10 @@
     <div class="animate-fade-in" style="max-width: 520px; margin: 0 auto;">
         <div class="mb-4">
             <a asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-link mb-2" style="padding: 0.375rem 0.75rem;">
-                <i class="fa fa-arrow-left mr-1"></i> Back to Event
+                <i class="fa fa-arrow-left mr-1"></i> @ClientLocalizer["Client.Events.BackToEvent"]
             </a>
-            <h4 class="fw-bold mb-1">Get Tickets</h4>
-            <p class="text-muted mb-0">Reserve your spot for this event</p>
+            <h4 class="fw-bold mb-1">@ClientLocalizer["Client.Events.GetTickets"]</h4>
+            <p class="text-muted mb-0">@ClientLocalizer["Client.Events.ReserveSpot"]</p>
         </div>
 
         <div class="card mb-3">
@@ -37,18 +40,18 @@
                 <div class="d-flex flex-column gap-1">
                     <small class="text-muted"><i class="fa fa-calendar mr-1"></i> @Model.EventStart.ToString("dd MMM yyyy, HH:mm")</small>
                     <small class="text-muted"><i class="fa fa-map-marker mr-1"></i> @Model.RoomName</small>
-                    <small class="text-muted"><i class="fa fa-ticket mr-1"></i> @Model.AvailableTickets tickets available</small>
+                    <small class="text-muted"><i class="fa fa-ticket mr-1"></i> @ClientLocalizer["Client.Events.TicketsAvailable", Model.AvailableTickets]</small>
                     @if (Model.Price > 0)
                     {
                         <small class="fw-medium mt-2">
-                            Price:
+                            @ClientLocalizer["Client.Events.PriceLabel"]
                             <span data-currency-amount="@Model.Price.ToString(CultureInfo.InvariantCulture)" data-currency-source="EUR">@Model.Price.ToString("F2") @Model.Currency</span>
-                            per ticket
+                            @ClientLocalizer["Client.Events.PerTicket"]
                         </small>
                     }
                     else
                     {
-                        <small class="fw-medium mt-2" style="color: #10b981;">Free Event</small>
+                        <small class="fw-medium mt-2" style="color: #10b981;">@ClientLocalizer["Client.Events.FreeEvent"]</small>
                     }
                 </div>
             </div>
@@ -69,7 +72,7 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
 
                     <div class="form-group">
-                        <label asp-for="Quantity" class="form-label">Number of Tickets</label>
+                        <label asp-for="Quantity" class="form-label">@ClientLocalizer["Client.Events.NumberOfTickets"]</label>
                         <input asp-for="Quantity" type="number" name="quantity" min="1"
                                max="@Math.Min(10, Model.AvailableTickets)"
                                class="form-control" value="1" style="max-width: 150px;" />
@@ -80,7 +83,7 @@
                     {
                         <div class="card mb-3" style="background: hsl(var(--muted)); border: none; padding: 1rem;">
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-medium">Total:</span>
+                                <span class="fw-medium">@ClientLocalizer["Client.Events.Total"]</span>
                                 <span class="fw-bold" style="font-size: 1.25rem;">
                                     <span id="totalPriceQty"
                                           data-currency-amount="@Model.Price.ToString(CultureInfo.InvariantCulture)"
@@ -92,12 +95,12 @@
                         <input type="hidden" name="unitPrice" value="@Model.Price.ToString(CultureInfo.InvariantCulture)" />
                         <button type="submit" formaction="@Url.Action("Checkout", "Payment", new { area = "Client" })"
                                 formmethod="post" class="btn btn-primary w-100 mb-2" style="padding: 0.75rem;">
-                            <i class="fa fa-credit-card mr-1"></i> Pay with Stripe
+                            <i class="fa fa-credit-card mr-1"></i> @ClientLocalizer["Client.Events.PayWithStripe"]
                         </button>
                     }
 
                     <button type="submit" class="btn @(Model.Price > 0 ? "btn-secondary" : "btn-primary") w-100" style="padding: 0.75rem;">
-                        @(Model.Price > 0 ? "Reserve (Pay Later)" : "Get Free Tickets")
+                        @(Model.Price > 0 ? ClientLocalizer["Client.Events.ReservePayLater"] : ClientLocalizer["Client.Events.GetFreeTickets"])
                     </button>
                 </form>
             </div>
@@ -109,10 +112,10 @@ else
     <div class="animate-fade-in" style="max-width: 1100px; margin: 0 auto;">
         <div class="mb-4">
             <a asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-link mb-2" style="padding: 0.375rem 0.75rem;">
-                <i class="fa fa-arrow-left mr-1"></i> Back to Event
+                <i class="fa fa-arrow-left mr-1"></i> @ClientLocalizer["Client.Events.BackToEvent"]
             </a>
-            <h4 class="fw-bold mb-1">Pick Your Seats</h4>
-            <p class="text-muted mb-0">Click seats on the map to add them to your order.</p>
+            <h4 class="fw-bold mb-1">@ClientLocalizer["Client.Events.PickSeats"]</h4>
+            <p class="text-muted mb-0">@ClientLocalizer["Client.Events.PickSeatsHint"]</p>
         </div>
 
         <div class="card mb-3">
@@ -121,7 +124,7 @@ else
                 <div class="d-flex flex-wrap gap-3">
                     <small class="text-muted"><i class="fa fa-calendar mr-1"></i> @Model.EventStart.ToString("dd MMM yyyy, HH:mm")</small>
                     <small class="text-muted"><i class="fa fa-map-marker mr-1"></i> @Model.RoomName</small>
-                    <small class="text-muted"><i class="fa fa-ticket mr-1"></i> @Model.AvailableTickets tickets available</small>
+                    <small class="text-muted"><i class="fa fa-ticket mr-1"></i> @ClientLocalizer["Client.Events.TicketsAvailable", Model.AvailableTickets]</small>
                 </div>
             </div>
         </div>
@@ -133,7 +136,7 @@ else
 
         <div class="card mb-3">
             <div class="card-body seat-grid-wrap">
-                <div class="text-center small text-muted mb-2" style="letter-spacing: 0.15em;">STAGE / SCREEN</div>
+                <div class="text-center small text-muted mb-2" style="letter-spacing: 0.15em;">@ClientLocalizer["Client.Events.StageScreen"]</div>
                 <div id="ticketGrid" class="seat-grid"></div>
             </div>
         </div>
@@ -142,18 +145,18 @@ else
             <div class="col-12 col-md-5">
                 <div class="card h-100">
                     <div class="card-body py-2">
-                        <div class="small fw-semibold mb-2">Legend</div>
+                        <div class="small fw-semibold mb-2">@ClientLocalizer["Client.Events.Legend"]</div>
                         <div class="d-flex flex-wrap gap-3">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="legend-swatch" style="background:#e9ecef;border:1px solid #adb5bd"></div>
-                                <span class="small text-muted">Empty</span>
+                                <span class="small text-muted">@ClientLocalizer["Client.Events.Empty"]</span>
                             </div>
                             @if (Model.Zones.Any(z => z.UsesBasePrice) || Model.Seats.Any(s => !s.ZoneId.HasValue))
                             {
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="legend-swatch" style="background:#212529"></div>
                                     <span class="small text-muted">
-                                        Base (<span data-currency-amount="@Model.BasePrice.ToString(CultureInfo.InvariantCulture)" data-currency-source="EUR">@Model.BasePrice.ToString("0.00") @Model.Currency</span>)
+                                        @ClientLocalizer["Client.Events.Base"] (<span data-currency-amount="@Model.BasePrice.ToString(CultureInfo.InvariantCulture)" data-currency-source="EUR">@Model.BasePrice.ToString("0.00") @Model.Currency</span>)
                                     </span>
                                 </div>
                             }
@@ -168,16 +171,16 @@ else
                                 };
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="legend-swatch" style="background:@color"></div>
-                                    <span class="small text-muted">@zoneType</span>
+                                    <span class="small text-muted">@EnumLocalizer.LocalizeEnum(zoneType)</span>
                                 </div>
                             }
                             <div class="d-flex align-items-center gap-2">
                                 <div class="legend-swatch" style="background:#212529;opacity:.35"></div>
-                                <span class="small text-muted">Taken</span>
+                                <span class="small text-muted">@ClientLocalizer["Client.Events.Taken"]</span>
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <div class="legend-swatch" style="outline:3px solid #fd7e14;outline-offset:-3px"></div>
-                                <span class="small text-muted">Selected</span>
+                                <span class="small text-muted">@ClientLocalizer["Client.Events.Selected"]</span>
                             </div>
                         </div>
                     </div>
@@ -187,7 +190,7 @@ else
             <div class="col-12 col-md-7">
                 <div class="card h-100">
                     <div class="card-header bg-white py-2">
-                        <span class="small fw-semibold">Zones &amp; Pricing</span>
+                        <span class="small fw-semibold">@Html.Raw(ClientLocalizer["Client.Events.ZonesPricing"])</span>
                     </div>
                     <div class="card-body p-0">
                         @foreach (var z in Model.Zones)
@@ -196,13 +199,13 @@ else
                                 <div class="zone-color" data-zone-type="@((int)z.ZoneType)"></div>
                                 <div class="flex-grow-1">
                                     <div class="small fw-medium">@z.Name</div>
-                                    <div class="small text-muted">@z.AvailableCount / @z.SeatCount available</div>
+                                    <div class="small text-muted">@ClientLocalizer["Client.Events.ZoneAvailable", z.AvailableCount, z.SeatCount]</div>
                                 </div>
                                 <div class="text-end">
                                     <div class="small fw-medium" data-currency-amount="@z.Price.ToString(CultureInfo.InvariantCulture)" data-currency-source="EUR">@z.Price.ToString("0.00") @z.Currency</div>
                                     @if (z.UsesBasePrice)
                                     {
-                                        <div class="text-muted" style="font-size:0.7rem">base price</div>
+                                        <div class="text-muted" style="font-size:0.7rem">@ClientLocalizer["Client.Events.BasePrice"]</div>
                                     }
                                 </div>
                             </div>
@@ -216,12 +219,12 @@ else
             <div class="card-body">
                 <div class="row g-3 align-items-end">
                     <div class="col-12 col-md-7">
-                        <div class="small fw-semibold mb-2">Your Selection</div>
-                        <div id="selectionList" class="small text-muted">No seats selected.</div>
+                        <div class="small fw-semibold mb-2">@ClientLocalizer["Client.Events.YourSelection"]</div>
+                        <div id="selectionList" class="small text-muted">@JsLocalizer["Js.Seats.NoneSelected"]</div>
                     </div>
                     <div class="col-12 col-md-5">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fw-medium">Total:</span>
+                            <span class="fw-medium">@ClientLocalizer["Client.Events.Total"]</span>
                             <span class="fw-bold" style="font-size: 1.5rem;">
                                 <span id="totalPrice">0.00</span> <span id="totalCurrency">@Model.Currency</span>
                             </span>
@@ -235,15 +238,15 @@ else
                             <button type="submit"
                                     formaction="@Url.Action("CheckoutSeats", "Payment", new { area = "Client" })"
                                     class="btn btn-primary w-100" style="padding: 0.75rem;" id="payBtn" disabled>
-                                <i class="fa fa-credit-card mr-1"></i> Pay with Stripe
+                                <i class="fa fa-credit-card mr-1"></i> @ClientLocalizer["Client.Events.PayWithStripe"]
                             </button>
                             <button type="submit"
                                     formaction="@Url.Action("ReserveSeats", "Events", new { area = "Client" })"
                                     class="btn btn-secondary w-100" style="padding: 0.75rem;" id="reserveBtn" disabled>
-                                Reserve (Pay Later)
+                                @ClientLocalizer["Client.Events.ReservePayLater"]
                             </button>
                         </form>
-                        <p class="small text-muted mt-2 mb-0 text-end">Reservations are held for 15 minutes.</p>
+                        <p class="small text-muted mt-2 mb-0 text-end">@ClientLocalizer["Client.Events.ReservationHold"]</p>
                     </div>
                 </div>
             </div>
@@ -288,6 +291,12 @@ else
             const gridRows = @Model.GridRows;
             const gridCols = @Model.GridColumns;
             const seats = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Seats, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+            const i18n = {
+                noneSelected: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(JsLocalizer["Js.Seats.NoneSelected"].Value)),
+                taken: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(JsLocalizer["Js.Seats.Taken"].Value)),
+                seat: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(JsLocalizer["Js.Seats.Seat"].Value)),
+                base: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(JsLocalizer["Js.Seats.Base"].Value))
+            };
             const zoneColors = { 0: '#dc3545', 1: '#0d6efd', 2: '#198754' };
 
             const selected = new Map();
@@ -311,14 +320,14 @@ else
                     cell.classList.add('seat-placed', 'seat-taken');
                     cell.style.background = color;
                     cell.style.borderColor = color;
-                    cell.title = 'Taken';
+                    cell.title = i18n.taken;
                 } else {
                     cell.classList.add('seat-placed', 'seat-available');
                     cell.style.background = color;
                     cell.style.borderColor = color;
-                    cell.title = `Seat ${seat.seatNumber} — ${seat.price.toFixed(2)} ${seat.currency}` +
+                    cell.title = `${i18n.seat} ${seat.seatNumber} - ${seat.price.toFixed(2)} ${seat.currency}` +
                                  (seat.zoneName ? ` (${seat.zoneName})` : '') +
-                                 (seat.usesBasePrice ? ' (base)' : '');
+                                 (seat.usesBasePrice ? ` (${i18n.base})` : '');
                 }
             }
 
@@ -371,7 +380,7 @@ else
                 const hidden = document.getElementById('hiddenSeats');
 
                 if (selected.size === 0) {
-                    list.textContent = 'No seats selected.';
+                    list.textContent = i18n.noneSelected;
                     totalSpan.textContent = '0.00';
                     payBtn.disabled = true;
                     reserveBtn.disabled = true;
@@ -384,7 +393,7 @@ else
                 list.innerHTML = items.map(s => {
                     total += s.price;
                     const zone = s.zoneName ? ` &middot; ${s.zoneName}` : '';
-                    return `<div class="d-flex justify-content-between"><span>Seat ${s.seatNumber}${zone}</span><span>${moneyText(s.price)}</span></div>`;
+                    return `<div class="d-flex justify-content-between"><span>${i18n.seat} ${s.seatNumber}${zone}</span><span>${moneyText(s.price)}</span></div>`;
                 }).join('');
 
                 const convertedTotal = window.EventHubCurrency

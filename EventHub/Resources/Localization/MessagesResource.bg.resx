@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Messages.Auth.AccountDeactivated" xml:space="preserve"><value>Профилът ви е деактивиран!</value></data>
+  <data name="Messages.Auth.InvalidCredentials" xml:space="preserve"><value>Невалидно потребителско име или парола</value></data>
+  <data name="Messages.Application.AlreadyPending" xml:space="preserve"><value>Вече имате изчакваща кандидатура.</value></data>
+  <data name="Messages.Application.Submitted" xml:space="preserve"><value>Кандидатурата е изпратена!</value></data>
+  <data name="Messages.Application.Approved" xml:space="preserve"><value>Кандидатурата е одобрена.</value></data>
+  <data name="Messages.Application.Rejected" xml:space="preserve"><value>Кандидатурата е отхвърлена.</value></data>
+  <data name="Messages.Event.Published" xml:space="preserve"><value>Събитието е публикувано успешно!</value></data>
+  <data name="Messages.Event.CoverUrlInvalid" xml:space="preserve"><value>URL адресът на коричната снимка трябва да е абсолютен http или https адрес.</value></data>
+  <data name="Messages.Event.CityRequired" xml:space="preserve"><value>Параметърът за град е задължителен.</value></data>
+  <data name="Messages.Ticket.NotEnoughTickets" xml:space="preserve"><value>Покупката не може да бъде завършена. Няма достатъчно билети.</value></data>
+  <data name="Messages.Ticket.Purchased" xml:space="preserve"><value>{0} билет(а) са закупени успешно!</value></data>
+  <data name="Messages.Ticket.PickSeat" xml:space="preserve"><value>Моля, изберете поне едно място.</value></data>
+  <data name="Messages.Ticket.ReserveFailed" xml:space="preserve"><value>Местата не могат да бъдат резервирани.</value></data>
+  <data name="Messages.Ticket.SeatsReserved" xml:space="preserve"><value>{0} място(а) са резервирани. Завършете плащането до 15 минути, за да потвърдите.</value></data>
+  <data name="Messages.Payment.InvalidQuantity" xml:space="preserve"><value>Изберете валиден брой билети.</value></data>
+  <data name="Messages.Payment.StripeStartFailed" xml:space="preserve"><value>Stripe плащането не може да бъде стартирано. Опитайте отново.</value></data>
+  <data name="Messages.Payment.CurrencyFailed" xml:space="preserve"><value>Избраната валута не може да бъде конвертирана. Опитайте с EUR или друга валута.</value></data>
+  <data name="Messages.Payment.InvalidStripeSignature" xml:space="preserve"><value>Невалиден Stripe подпис.</value></data>
+  <data name="Messages.Service.RequestCreated" xml:space="preserve"><value>Заявката е изпратена до доставчика.</value></data>
+  <data name="Messages.Service.RequestCreateFailed" xml:space="preserve"><value>Заявката не може да бъде изпратена.</value></data>
+  <data name="Messages.Service.RequestCancelled" xml:space="preserve"><value>Заявката е отменена.</value></data>
+  <data name="Messages.Service.RequestCancelFailed" xml:space="preserve"><value>Заявката не може да бъде отменена.</value></data>
+  <data name="Messages.User.CreateFailed" xml:space="preserve"><value>Потребителят не може да бъде създаден.</value></data>
+  <data name="Messages.User.UpdateFailed" xml:space="preserve"><value>Потребителят не може да бъде обновен.</value></data>
+  <data name="Messages.Moderator.CreateFailed" xml:space="preserve"><value>Модераторът не може да бъде създаден. Потребителското име или имейлът може вече да са заети.</value></data>
+  <data name="Messages.Moderator.UpdateFailed" xml:space="preserve"><value>Модераторът не може да бъде обновен.</value></data>
+  <data name="Messages.Pricing.InvalidInput" xml:space="preserve"><value>Невалидна цена.</value></data>
+</root>

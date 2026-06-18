@@ -19,6 +19,12 @@ namespace EventHub.Core.Models.Event
         [StringLength(2000)]
         public string? Description { get; set; }
 
+        [StringLength(200, MinimumLength = 3)]
+        public string? BulgarianEventName { get; set; }
+
+        [StringLength(2000)]
+        public string? BulgarianDescription { get; set; }
+
         [Required]
         public EventType EventType { get; set; }
 
@@ -64,10 +70,10 @@ namespace EventHub.Core.Models.Event
         [StringLength(2, MinimumLength = 2)]
         public string? CountryCode { get; set; }
 
-        [Range(-90, 90, ErrorMessage = "Latitude must be between -90 and 90.")]
+        [Range(-90, 90, ErrorMessage = "Validation.Event.Latitude.Range")]
         public decimal Latitude { get; set; }
 
-        [Range(-180, 180, ErrorMessage = "Longitude must be between -180 and 180.")]
+        [Range(-180, 180, ErrorMessage = "Validation.Event.Longitude.Range")]
         public decimal Longitude { get; set; }
 
         public IEnumerable<SelectListItem> AvailableRooms { get; set; } = [];

@@ -1,10 +1,12 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using EventHub.Core.Models.User;
 using EventHub.Infrastructure.Data.Models;
+using EventHub.Localization;
 using EzyShape.Core.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace EventHub.Controllers
 {
@@ -15,10 +17,9 @@ namespace EventHub.Controllers
     public class UserController : Controller
     {
         private readonly UserManager<User> userManager;
-
         private readonly SignInManager<User> signInManager;
-
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         /// <summary>
         /// Constructor for the user controller.
@@ -26,12 +27,14 @@ namespace EventHub.Controllers
         public UserController(
             UserManager<User> _userManager,
             SignInManager<User> _signInManager,
-            RoleManager<IdentityRole> _roleManager
+            RoleManager<IdentityRole> _roleManager,
+            IStringLocalizer<MessagesResource> _messagesLocalizer
         )
         {
             userManager = _userManager;
             signInManager = _signInManager;
             roleManager = _roleManager;
+            messagesLocalizer = _messagesLocalizer;
         }
 
         /// <summary>
@@ -82,7 +85,7 @@ namespace EventHub.Controllers
 
                 if (roleExists)
                 {
-                    var roleResult = await userManager.AddToRoleAsync(user, roleName);
+                    await userManager.AddToRoleAsync(user, roleName);
                 }
 
                 return RedirectToAction("Login", "User");
@@ -124,44 +127,43 @@ namespace EventHub.Controllers
             {
                 return View(model);
             }
-        
+
             var user = await userManager.FindByNameAsync(model.Username);
-        
+
             if (user != null)
             {
                 if (!user.IsActive)
                 {
-                    ModelState.AddModelError("", "Your account is deactivated!");
+                    ModelState.AddModelError("", messagesLocalizer["Messages.Auth.AccountDeactivated"]);
                     return View(model);
                 }
-        
+
                 var result = await signInManager.PasswordSignInAsync(
                     user,
                     model.Password,
                     false,
                     false
                 );
-        
+
                 if (result.Succeeded)
                 {
-                    // Log login info
                     user.LastLoginIP = GetClientIp();
                     user.LastLoginDevice = GetDevice();
                     user.LastOnline = DateTime.UtcNow;
-        
+
                     await userManager.UpdateAsync(user);
-        
+
                     var roles = await userManager.GetRolesAsync(user);
                     var role = roles.FirstOrDefault();
-        
+
                     return !string.IsNullOrEmpty(role)
                         ? RedirectToAction("Index", "Home", new { area = role })
                         : RedirectToAction("Index", "Home");
                 }
             }
-        
-            ModelState.AddModelError("", "Invalid username or password");
-        
+
+            ModelState.AddModelError("", messagesLocalizer["Messages.Auth.InvalidCredentials"]);
+
             return View(model);
         }
 
@@ -172,22 +174,25 @@ namespace EventHub.Controllers
         public async Task<IActionResult> Logout()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await userManager.FindByIdAsync(userId);
-            await userManager.UpdateAsync(user);
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                var user = await userManager.FindByIdAsync(userId);
+                if (user != null)
+                {
+                    await userManager.UpdateAsync(user);
+                }
+            }
 
             await signInManager.SignOutAsync();
 
             return RedirectToAction("Index", "Home");
         }
 
-        // Helpers
-        
-        
-        private string GetClientIp()
+        private string? GetClientIp()
         {
             return HttpContext.Connection.RemoteIpAddress?.ToString();
         }
-        
+
         private string GetDevice()
         {
             return Request.Headers["User-Agent"].ToString();

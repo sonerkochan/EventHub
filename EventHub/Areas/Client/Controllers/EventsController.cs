@@ -1,7 +1,9 @@
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.Ticket;
+using EventHub.Localization;
 using EventHub.Infrastructure.Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,19 +19,22 @@ namespace EventHub.Areas.Client.Controllers
         private readonly ISeatService seatService;
         private readonly IZoneService zoneService;
         private readonly IEventPricingTierService pricingTierService;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         public EventsController(
             IEventService _eventService,
             ITicketService _ticketService,
             ISeatService _seatService,
             IZoneService _zoneService,
-            IEventPricingTierService _pricingTierService)
+            IEventPricingTierService _pricingTierService,
+            IStringLocalizer<MessagesResource> _messagesLocalizer)
         {
             eventService = _eventService;
             ticketService = _ticketService;
             seatService = _seatService;
             zoneService = _zoneService;
             pricingTierService = _pricingTierService;
+            messagesLocalizer = _messagesLocalizer;
         }
 
         public async Task<IActionResult> Index()
@@ -154,11 +159,11 @@ namespace EventHub.Areas.Client.Controllers
 
             if (ticketIds.Count == 0)
             {
-                TempData["Error"] = "Unable to complete purchase. Not enough tickets available.";
+                TempData["Error"] = messagesLocalizer["Messages.Ticket.NotEnoughTickets"].Value;
                 return RedirectToAction(nameof(Buy), new { id = eventId });
             }
 
-            TempData["Success"] = $"{quantity} ticket(s) purchased successfully!";
+            TempData["Success"] = messagesLocalizer["Messages.Ticket.Purchased", quantity].Value;
             return RedirectToAction("Index", "Tickets");
         }
 
@@ -168,7 +173,7 @@ namespace EventHub.Areas.Client.Controllers
         {
             if (seatIds == null || seatIds.Count == 0)
             {
-                TempData["Error"] = "Please pick at least one seat.";
+                TempData["Error"] = messagesLocalizer["Messages.Ticket.PickSeat"].Value;
                 return RedirectToAction(nameof(Buy), new { id = eventId });
             }
 
@@ -177,11 +182,11 @@ namespace EventHub.Areas.Client.Controllers
 
             if (!result.Success)
             {
-                TempData["Error"] = result.ErrorMessage ?? "Unable to reserve seats.";
+                TempData["Error"] = result.ErrorMessage ?? messagesLocalizer["Messages.Ticket.ReserveFailed"].Value;
                 return RedirectToAction(nameof(Buy), new { id = eventId });
             }
 
-            TempData["Success"] = $"{result.TicketIds.Count} seat(s) reserved. Complete payment within 15 minutes to confirm.";
+            TempData["Success"] = messagesLocalizer["Messages.Ticket.SeatsReserved", result.TicketIds.Count].Value;
             return RedirectToAction("Index", "Tickets");
         }
     }

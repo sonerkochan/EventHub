@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Admin.Common.ActionFailed" xml:space="preserve"><value>Действието е неуспешно.</value></data>
+  <data name="Admin.Common.Cancel" xml:space="preserve"><value>Отказ</value></data>
+  <data name="Admin.Common.SaveChanges" xml:space="preserve"><value>Запази промените</value></data>
+  <data name="Admin.Common.Create" xml:space="preserve"><value>Създай</value></data>
+  <data name="Admin.Common.Save" xml:space="preserve"><value>Запази</value></data>
+  <data name="Admin.Common.Remove" xml:space="preserve"><value>Премахни</value></data>
+  <data name="Admin.Common.Saving" xml:space="preserve"><value>Запазване...</value></data>
+  <data name="Admin.Events.Title" xml:space="preserve"><value>Събития</value></data>
+  <data name="Admin.Events.NewEvent" xml:space="preserve"><value>Ново събитие</value></data>
+  <data name="Admin.Events.CreateTitle" xml:space="preserve"><value>Създай ново събитие</value></data>
+  <data name="Admin.Events.CreateIntro" xml:space="preserve"><value>Попълнете детайлите по-долу, за да създадете събитие.</value></data>
+  <data name="Admin.Events.BackToEvents" xml:space="preserve"><value>Назад към събитията</value></data>
+  <data name="Admin.Events.View" xml:space="preserve"><value>Преглед</value></data>
+  <data name="Admin.Events.Pricing" xml:space="preserve"><value>Цени</value></data>
+  <data name="Admin.Events.Sell" xml:space="preserve"><value>Продай</value></data>
+  <data name="Admin.Events.Edit" xml:space="preserve"><value>Редакция</value></data>
+  <data name="Admin.Events.Publish" xml:space="preserve"><value>Публикувай</value></data>
+  <data name="Admin.Events.Deactivate" xml:space="preserve"><value>Деактивирай</value></data>
+  <data name="Admin.Events.NoEvents" xml:space="preserve"><value>Все още няма събития.</value></data>
+  <data name="Admin.Events.Name" xml:space="preserve"><value>Име</value></data>
+  <data name="Admin.Events.Room" xml:space="preserve"><value>Зала</value></data>
+  <data name="Admin.Events.Type" xml:space="preserve"><value>Тип</value></data>
+  <data name="Admin.Events.Status" xml:space="preserve"><value>Статус</value></data>
+  <data name="Admin.Events.Start" xml:space="preserve"><value>Начало</value></data>
+  <data name="Admin.Events.Tickets" xml:space="preserve"><value>Билети</value></data>
+  <data name="Admin.Rooms.NewRoom" xml:space="preserve"><value>Нова зала</value></data>
+  <data name="Admin.Rooms.EditRoom" xml:space="preserve"><value>Редакция на зала</value></data>
+  <data name="Admin.Rooms.Title" xml:space="preserve"><value>Зали</value></data>
+  <data name="Admin.Rooms.Name" xml:space="preserve"><value>Име</value></data>
+  <data name="Admin.Rooms.Description" xml:space="preserve"><value>Описание</value></data>
+  <data name="Admin.Rooms.Venue" xml:space="preserve"><value>Място</value></data>
+  <data name="Admin.Rooms.SelectVenue" xml:space="preserve"><value>изберете място</value></data>
+  <data name="Admin.Rooms.Capacity" xml:space="preserve"><value>Капацитет</value></data>
+  <data name="Admin.Rooms.Type" xml:space="preserve"><value>Тип</value></data>
+  <data name="Admin.Rooms.Layout" xml:space="preserve"><value>Подредба</value></data>
+  <data name="Admin.Rooms.Edit" xml:space="preserve"><value>Редакция</value></data>
+  <data name="Admin.Rooms.Deactivate" xml:space="preserve"><value>Деактивирай</value></data>
+  <data name="Admin.Rooms.NoRooms" xml:space="preserve"><value>Все още няма зали.</value></data>
+  <data name="Admin.Rooms.CreateRoom" xml:space="preserve"><value>Създай зала</value></data>
+  <data name="Admin.Pricing.Title" xml:space="preserve"><value>Цени - {0}</value></data>
+  <data name="Admin.Pricing.Setup" xml:space="preserve"><value>Настройка на цени - {0}</value></data>
+  <data name="Admin.Pricing.OpenTicketManager" xml:space="preserve"><value>Отвори управление на билети</value></data>
+  <data name="Admin.Pricing.SetEveryZoneFirst" xml:space="preserve"><value>Първо задайте цена за всяка зона</value></data>
+  <data name="Admin.Pricing.NoZones" xml:space="preserve"><value>Залата за това събитие все още няма зони. Върнете се към подредбата на залата и създайте поне една зона, преди да задавате цени.</value></data>
+  <data name="Admin.Pricing.Zone" xml:space="preserve"><value>Зона</value></data>
+  <data name="Admin.Pricing.Seats" xml:space="preserve"><value>Места</value></data>
+  <data name="Admin.Pricing.Price" xml:space="preserve"><value>Цена</value></data>
+  <data name="Admin.Pricing.Currency" xml:space="preserve"><value>Валута</value></data>
+  <data name="Admin.Pricing.Available" xml:space="preserve"><value>Свободни</value></data>
+  <data name="Admin.Pricing.Sold" xml:space="preserve"><value>Продадени</value></data>
+  <data name="Admin.Pricing.Help" xml:space="preserve"><value>Задайте цена за всяка зона, преди да отворите управлението на билети. Премахването на цена деактивира тарифата, но запазва вече продадените билети.</value></data>
+  <data name="Admin.Tickets.Manager" xml:space="preserve"><value>Управление на билети</value></data>
+  <data name="Admin.Tickets.TotalSeats" xml:space="preserve"><value>Общо места</value></data>
+  <data name="Admin.Tickets.Reserved" xml:space="preserve"><value>Резервирани</value></data>
+  <data name="Admin.Tickets.Revenue" xml:space="preserve"><value>Приходи</value></data>
+</root>

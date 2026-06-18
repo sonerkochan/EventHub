@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Admin.Common.ActionFailed" xml:space="preserve"><value>Action failed.</value></data>
+  <data name="Admin.Common.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Admin.Common.SaveChanges" xml:space="preserve"><value>Save Changes</value></data>
+  <data name="Admin.Common.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="Admin.Common.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Admin.Common.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Admin.Common.Saving" xml:space="preserve"><value>Saving...</value></data>
+  <data name="Admin.Events.Title" xml:space="preserve"><value>Events</value></data>
+  <data name="Admin.Events.NewEvent" xml:space="preserve"><value>New Event</value></data>
+  <data name="Admin.Events.CreateTitle" xml:space="preserve"><value>Create New Event</value></data>
+  <data name="Admin.Events.CreateIntro" xml:space="preserve"><value>Fill in the details below to create your event.</value></data>
+  <data name="Admin.Events.BackToEvents" xml:space="preserve"><value>Back to Events</value></data>
+  <data name="Admin.Events.View" xml:space="preserve"><value>View</value></data>
+  <data name="Admin.Events.Pricing" xml:space="preserve"><value>Pricing</value></data>
+  <data name="Admin.Events.Sell" xml:space="preserve"><value>Sell</value></data>
+  <data name="Admin.Events.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Admin.Events.Publish" xml:space="preserve"><value>Publish</value></data>
+  <data name="Admin.Events.Deactivate" xml:space="preserve"><value>Deactivate</value></data>
+  <data name="Admin.Events.NoEvents" xml:space="preserve"><value>No events yet.</value></data>
+  <data name="Admin.Events.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Admin.Events.Room" xml:space="preserve"><value>Room</value></data>
+  <data name="Admin.Events.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Admin.Events.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Admin.Events.Start" xml:space="preserve"><value>Start</value></data>
+  <data name="Admin.Events.Tickets" xml:space="preserve"><value>Tickets</value></data>
+  <data name="Admin.Rooms.NewRoom" xml:space="preserve"><value>New Room</value></data>
+  <data name="Admin.Rooms.EditRoom" xml:space="preserve"><value>Edit Room</value></data>
+  <data name="Admin.Rooms.Title" xml:space="preserve"><value>Rooms</value></data>
+  <data name="Admin.Rooms.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Admin.Rooms.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Admin.Rooms.Venue" xml:space="preserve"><value>Venue</value></data>
+  <data name="Admin.Rooms.SelectVenue" xml:space="preserve"><value>select a venue</value></data>
+  <data name="Admin.Rooms.Capacity" xml:space="preserve"><value>Capacity</value></data>
+  <data name="Admin.Rooms.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Admin.Rooms.Layout" xml:space="preserve"><value>Layout</value></data>
+  <data name="Admin.Rooms.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Admin.Rooms.Deactivate" xml:space="preserve"><value>Deactivate</value></data>
+  <data name="Admin.Rooms.NoRooms" xml:space="preserve"><value>No rooms yet.</value></data>
+  <data name="Admin.Rooms.CreateRoom" xml:space="preserve"><value>Create Room</value></data>
+  <data name="Admin.Pricing.Title" xml:space="preserve"><value>Pricing - {0}</value></data>
+  <data name="Admin.Pricing.Setup" xml:space="preserve"><value>Pricing setup - {0}</value></data>
+  <data name="Admin.Pricing.OpenTicketManager" xml:space="preserve"><value>Open Ticket Manager</value></data>
+  <data name="Admin.Pricing.SetEveryZoneFirst" xml:space="preserve"><value>Set a price for every zone first</value></data>
+  <data name="Admin.Pricing.NoZones" xml:space="preserve"><value>This event's room has no zones yet. Go back to the room layout and create at least one zone before setting prices.</value></data>
+  <data name="Admin.Pricing.Zone" xml:space="preserve"><value>Zone</value></data>
+  <data name="Admin.Pricing.Seats" xml:space="preserve"><value>Seats</value></data>
+  <data name="Admin.Pricing.Price" xml:space="preserve"><value>Price</value></data>
+  <data name="Admin.Pricing.Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="Admin.Pricing.Available" xml:space="preserve"><value>Available</value></data>
+  <data name="Admin.Pricing.Sold" xml:space="preserve"><value>Sold</value></data>
+  <data name="Admin.Pricing.Help" xml:space="preserve"><value>Set a price for every zone before opening the ticket manager. Removing a price deactivates the tier but keeps any existing tickets sold under it.</value></data>
+  <data name="Admin.Tickets.Manager" xml:space="preserve"><value>Ticket manager</value></data>
+  <data name="Admin.Tickets.TotalSeats" xml:space="preserve"><value>Total seats</value></data>
+  <data name="Admin.Tickets.Reserved" xml:space="preserve"><value>Reserved</value></data>
+  <data name="Admin.Tickets.Revenue" xml:space="preserve"><value>Revenue</value></data>
+</root>

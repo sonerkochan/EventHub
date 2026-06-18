@@ -1,7 +1,9 @@
 ﻿using EventHub.Core.Contracts;
 using EventHub.Core.Models.ApplicationForm;
+using EventHub.Localization;
 using EventHub.Infrastructure.Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Client.Controllers
@@ -9,10 +11,14 @@ namespace EventHub.Areas.Client.Controllers
     public class ApplicationController : BaseController
     {
         private readonly IApplicationService applicationService;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
-        public ApplicationController(IApplicationService _applicationService)
+        public ApplicationController(
+            IApplicationService _applicationService,
+            IStringLocalizer<MessagesResource> _messagesLocalizer)
         {
             applicationService = _applicationService;
+            messagesLocalizer = _messagesLocalizer;
         }
 
         public IActionResult Index()
@@ -43,11 +49,11 @@ namespace EventHub.Areas.Client.Controllers
 
             if (!result)
             {
-                TempData["Error"] = "You already have a pending application.";
+                TempData["Error"] = messagesLocalizer["Messages.Application.AlreadyPending"].Value;
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["Success"] = "Application submitted!";
+            TempData["Success"] = messagesLocalizer["Messages.Application.Submitted"].Value;
             return RedirectToAction(nameof(Index));
         }
     }

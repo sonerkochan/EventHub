@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Supplier.Services.Created" xml:space="preserve"><value>Service created successfully!</value></data>
+  <data name="Supplier.Services.Updated" xml:space="preserve"><value>Service updated successfully!</value></data>
+  <data name="Supplier.Services.Deleted" xml:space="preserve"><value>Service deleted successfully!</value></data>
+  <data name="Supplier.Requests.Accepted" xml:space="preserve"><value>Request accepted.</value></data>
+  <data name="Supplier.Requests.AcceptFailed" xml:space="preserve"><value>Unable to accept request.</value></data>
+  <data name="Supplier.Requests.Declined" xml:space="preserve"><value>Request declined.</value></data>
+  <data name="Supplier.Requests.DeclineFailed" xml:space="preserve"><value>Unable to decline request.</value></data>
+</root>

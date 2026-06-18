@@ -2,9 +2,11 @@ using System.Security.Claims;
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.ApplicationForm;
 using EventHub.Infrastructure.Data.Models;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Localization;
 using Moq;
 using ApplicationController = EventHub.Areas.Admin.Controllers.ApplicationController;
 
@@ -32,7 +34,7 @@ public class AdminApplicationControllerTests
         applicationService
             .Setup(s => s.GetAllPendingAsync())
             .ReturnsAsync(pendingApplications);
-        var controller = new ApplicationController(applicationService.Object);
+        var controller = new ApplicationController(applicationService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Index();
 
@@ -92,7 +94,7 @@ public class AdminApplicationControllerTests
                 "TestAuth"))
         };
 
-        var controller = new ApplicationController(applicationService.Object)
+        var controller = new ApplicationController(applicationService.Object, CreateMessagesLocalizer().Object)
         {
             ControllerContext = new ControllerContext
             {
@@ -102,5 +104,20 @@ public class AdminApplicationControllerTests
         };
 
         return controller;
+    }
+
+    private static Mock<IStringLocalizer<MessagesResource>> CreateMessagesLocalizer()
+    {
+        var localizer = new Mock<IStringLocalizer<MessagesResource>>();
+        localizer
+            .Setup(l => l[It.IsAny<string>()])
+            .Returns((string key) => new LocalizedString(key, key switch
+            {
+                "Messages.Application.Approved" => "Application approved.",
+                "Messages.Application.Rejected" => "Application rejected.",
+                _ => key
+            }));
+
+        return localizer;
     }
 }

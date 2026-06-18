@@ -1,5 +1,7 @@
 @using EventHub.Infrastructure.Data.Models
+@using EventHub.Localization
 @model EventHub.Core.Models.Admin.EventTicketsManageViewModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AdminResource> AdminLocalizer
 @{
     ViewData["Title"] = $"Tickets — {Model.EventName}";
 }
@@ -7,11 +9,11 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
         <h5 class="fw-semibold mb-0">@Model.EventName</h5>
-        <small class="text-muted">Ticket manager &middot; @Model.RoomName &middot; @Model.EventStart.ToString("dd MMM yyyy HH:mm")</small>
+        <small class="text-muted">@AdminLocalizer["Admin.Tickets.Manager"] &middot; @Model.RoomName &middot; @Model.EventStart.ToString("dd MMM yyyy HH:mm")</small>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-        <a asp-action="Pricing" asp-route-id="@Model.EventId" class="btn btn-outline-secondary btn-sm">Pricing</a>
-        <a asp-area="Admin" asp-controller="Events" asp-action="Index" class="btn btn-outline-secondary btn-sm">Back to Events</a>
+        <a asp-action="Pricing" asp-route-id="@Model.EventId" class="btn btn-outline-secondary btn-sm">@AdminLocalizer["Admin.Events.Pricing"]</a>
+        <a asp-area="Moderator" asp-controller="Events" asp-action="Index" class="btn btn-outline-secondary btn-sm">@AdminLocalizer["Admin.Events.BackToEvents"]</a>
     </div>
 </div>
 

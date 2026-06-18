@@ -2,13 +2,15 @@
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
+@inject IStringLocalizer<LayoutResource> LayoutLocalizer
+@inject IStringLocalizer<CommonResource> CommonLocalizer
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>@ViewData["Title"] - EventHub Supplier</title>
+    <title>@ViewData["Title"] - EventHub @LayoutLocalizer["Layout.Area.Supplier"]</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700&subset=latin-ext" />
@@ -277,12 +279,15 @@
     <span style="font-size: 24px; font-weight: 700; color: #1e293b; letter-spacing: -0.5px;">
         Event<span style="color: #4facfe;">Hub</span>
     </span>
-    <small class="text-muted ml-2" style="font-size: 14px; font-weight: 400; align-self: flex-end; margin-bottom: 8px;">Supplier</small>
+    <small class="text-muted ml-2" style="font-size: 14px; font-weight: 400; align-self: flex-end; margin-bottom: 8px;">@LayoutLocalizer["Layout.Area.Supplier"]</small>
 </a>
 
                         <div class="d-flex order-lg-2 ml-auto align-items-center">
                             <div class="mr-3">
                                 @await Html.PartialAsync("~/Views/Shared/_CurrencySelector.cshtml")
+                            </div>
+                            <div class="mr-3">
+                                @await Html.PartialAsync("~/Views/Shared/_CultureSelector.cshtml")
                             </div>
                             @if (SignInManager.IsSignedIn(User))
                             {
@@ -292,25 +297,25 @@
                                         <span class="avatar">@GetInitial(User.Identity?.Name)</span>
                                         <span class="ml-2 d-none d-lg-block">
                                             <span class="text-default font-weight-600">@User.Identity?.Name</span>
-                                            <small class="text-muted d-block mt-1">Supplier</small>
+                                            <small class="text-muted d-block mt-1">@CommonLocalizer["Common.Role.Supplier"]</small>
                                         </span>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
                                         <a asp-area="Client" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                            <i class="dropdown-icon fa fa-user"></i> Client area
+                                            <i class="dropdown-icon fa fa-user"></i> @LayoutLocalizer["Layout.Nav.ClientArea"]
                                         </a>
                                         @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Organizer"))
                                         {
                                             <a asp-area="Organizer" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                                <i class="dropdown-icon fa fa-calendar"></i> Organizer panel
+                                                <i class="dropdown-icon fa fa-calendar"></i> @LayoutLocalizer["Layout.Nav.OrganizerPanelLower"]
                                             </a>
                                         }
                                         <a asp-area="" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                            <i class="dropdown-icon fa fa-home"></i> Back to site
+                                            <i class="dropdown-icon fa fa-home"></i> @LayoutLocalizer["Layout.Nav.BackToSite"]
                                         </a>
                                         <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
                                             <button type="submit" class="dropdown-item text-danger">
-                                                <i class="dropdown-icon fa fa-sign-out"></i> Sign out
+                                                <i class="dropdown-icon fa fa-sign-out"></i> @CommonLocalizer["Common.Action.SignOut"]
                                             </button>
                                         </form>
                                     </div>
@@ -332,17 +337,17 @@
                             <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
                                 <li class="nav-item">
                                     <a asp-area="Supplier" asp-controller="Home" asp-action="Index" class="nav-link @(IsActive("Home"))">
-                                        <i class="fa fa-th-large mr-1"></i> Dashboard
+                                        <i class="fa fa-th-large mr-1"></i> @LayoutLocalizer["Layout.Nav.Dashboard"]
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-area="Supplier" asp-controller="Services" asp-action="Index" class="nav-link @(IsActive("Services"))">
-                                        <i class="fa fa-briefcase mr-1"></i> My Services
+                                        <i class="fa fa-briefcase mr-1"></i> @LayoutLocalizer["Layout.Nav.MyServices"]
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-area="Supplier" asp-controller="Requests" asp-action="Index" class="nav-link @(IsActive("Requests"))">
-                                        <i class="fa fa-list-alt mr-1"></i> Requests
+                                        <i class="fa fa-list-alt mr-1"></i> @LayoutLocalizer["Layout.Nav.Requests"]
                                     </a>
                                 </li>
                             </ul>
@@ -363,7 +368,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title font-weight-bold" style="color:#1e3c72;">Create New Service</h5>
+                    <h5 class="modal-title font-weight-bold" style="color:#1e3c72;">@LayoutLocalizer["Layout.Supplier.CreateService.Title"]</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-5">
@@ -371,11 +376,11 @@
                         @Html.AntiForgeryToken()
                         <div class="row">
                             <div class="col-md-8 mb-3">
-                                <label for="createName" class="form-label font-weight-bold text-muted small text-uppercase">Service Name</label>
-                                <input type="text" id="createName" name="Name" class="form-control form-control-lg border-0 bg-light" placeholder="e.g. Premium Catering" style="border-radius:10px;" required />
+                                <label for="createName" class="form-label font-weight-bold text-muted small text-uppercase">@LayoutLocalizer["Layout.Supplier.CreateService.Name"]</label>
+                                <input type="text" id="createName" name="Name" class="form-control form-control-lg border-0 bg-light" placeholder="@LayoutLocalizer["Layout.Supplier.CreateService.NamePlaceholder"]" style="border-radius:10px;" required />
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="createPrice" class="form-label font-weight-bold text-muted small text-uppercase">Base Price (EUR)</label>
+                                <label for="createPrice" class="form-label font-weight-bold text-muted small text-uppercase">@LayoutLocalizer["Layout.Supplier.CreateService.Price"]</label>
                                 <div class="input-group input-group-lg" style="border-radius:10px; overflow:hidden;">
                                     <span class="input-group-prepend">
                                         <span class="input-group-text bg-light border-0"><i class="fa fa-eur text-primary"></i></span>
@@ -384,14 +389,14 @@
                                 </div>
                             </div>
                             <div class="col-12 mb-3">
-                                <label for="createDescription" class="form-label font-weight-bold text-muted small text-uppercase">Description</label>
-                                <textarea id="createDescription" name="Description" class="form-control border-0 bg-light" rows="5" placeholder="Describe what you offer..." style="border-radius:10px; resize:none;"></textarea>
+                                <label for="createDescription" class="form-label font-weight-bold text-muted small text-uppercase">@LayoutLocalizer["Layout.Supplier.CreateService.Description"]</label>
+                                <textarea id="createDescription" name="Description" class="form-control border-0 bg-light" rows="5" placeholder="@LayoutLocalizer["Layout.Supplier.CreateService.DescriptionPlaceholder"]" style="border-radius:10px; resize:none;"></textarea>
                             </div>
                         </div>
                         <div class="text-right mt-4">
-                            <button type="button" class="btn btn-link text-muted font-weight-bold mr-3" data-dismiss="modal" style="text-decoration:none;">Cancel</button>
+                            <button type="button" class="btn btn-link text-muted font-weight-bold mr-3" data-dismiss="modal" style="text-decoration:none;">@CommonLocalizer["Common.Action.Cancel"]</button>
                             <button type="submit" class="btn btn-primary px-5 rounded-pill">
-                                <i class="fa fa-check mr-1"></i> Create Service
+                                <i class="fa fa-check mr-1"></i> @LayoutLocalizer["Layout.Supplier.CreateService.Submit"]
                             </button>
                         </div>
                     </form>

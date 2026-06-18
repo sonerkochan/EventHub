@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Organizer.Events.CreateTitle" xml:space="preserve"><value>Create Event</value></data>
+  <data name="Organizer.Events.EditTitle" xml:space="preserve"><value>Edit Event</value></data>
+  <data name="Organizer.Events.NewEvent" xml:space="preserve"><value>New Event</value></data>
+  <data name="Organizer.Events.EventName" xml:space="preserve"><value>Event Name</value></data>
+  <data name="Organizer.Events.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Organizer.Events.BulgarianEventName" xml:space="preserve"><value>Bulgarian Event Name</value></data>
+  <data name="Organizer.Events.BulgarianDescription" xml:space="preserve"><value>Bulgarian Description</value></data>
+  <data name="Organizer.Events.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Organizer.Events.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Organizer.Events.Priority" xml:space="preserve"><value>Priority</value></data>
+  <data name="Organizer.Events.Room" xml:space="preserve"><value>Room</value></data>
+  <data name="Organizer.Events.SelectRoom" xml:space="preserve"><value>select a room</value></data>
+  <data name="Organizer.Events.Start" xml:space="preserve"><value>Start</value></data>
+  <data name="Organizer.Events.End" xml:space="preserve"><value>End</value></data>
+  <data name="Organizer.Events.TotalTickets" xml:space="preserve"><value>Total Tickets</value></data>
+  <data name="Organizer.Events.TicketPrice" xml:space="preserve"><value>Ticket Price ({0})</value></data>
+  <data name="Organizer.Events.FreeHint" xml:space="preserve"><value>Set to 0 for free events</value></data>
+  <data name="Organizer.Events.CoverImageUrl" xml:space="preserve"><value>Cover Image URL</value></data>
+  <data name="Organizer.Events.UploadCoverPhoto" xml:space="preserve"><value>Upload Cover Photo</value></data>
+  <data name="Organizer.Events.UploadNewCoverPhoto" xml:space="preserve"><value>Upload New Cover Photo</value></data>
+  <data name="Organizer.Events.UploadHint" xml:space="preserve"><value>Uploaded photo is used instead of the URL.</value></data>
+  <data name="Organizer.Events.Location" xml:space="preserve"><value>Location</value></data>
+  <data name="Organizer.Events.LocationHint" xml:space="preserve"><value>Used for the event details map and external events API.</value></data>
+  <data name="Organizer.Events.Address" xml:space="preserve"><value>Address</value></data>
+  <data name="Organizer.Events.AddressPlaceholder" xml:space="preserve"><value>Street address or venue entrance</value></data>
+  <data name="Organizer.Events.City" xml:space="preserve"><value>City</value></data>
+  <data name="Organizer.Events.CountryCode" xml:space="preserve"><value>Country Code</value></data>
+  <data name="Organizer.Events.PickLocation" xml:space="preserve"><value>Pick Location on Map</value></data>
+  <data name="Organizer.Events.PickLocationHint" xml:space="preserve"><value>Click the map to place a pin and fill in coordinates automatically.</value></data>
+  <data name="Organizer.Events.Latitude" xml:space="preserve"><value>Latitude</value></data>
+  <data name="Organizer.Events.Longitude" xml:space="preserve"><value>Longitude</value></data>
+  <data name="Organizer.Events.AllowRefunds" xml:space="preserve"><value>Allow Refunds</value></data>
+  <data name="Organizer.Events.RefundDeadline" xml:space="preserve"><value>Refund Deadline</value></data>
+  <data name="Organizer.Events.CreateButton" xml:space="preserve"><value>Create Event</value></data>
+  <data name="Organizer.Events.SaveButton" xml:space="preserve"><value>Save Changes</value></data>
+</root>

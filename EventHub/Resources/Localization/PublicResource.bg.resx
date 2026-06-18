@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Public.Home.Title" xml:space="preserve"><value>EventHub - Вашият пазар за събития</value></data>
+  <data name="Public.Home.Hero.BeforeAccent" xml:space="preserve"><value>Открийте</value></data>
+  <data name="Public.Home.Hero.Accent" xml:space="preserve"><value>страхотни</value></data>
+  <data name="Public.Home.Hero.AfterAccent" xml:space="preserve"><value>събития около вас</value></data>
+  <data name="Public.Home.Hero.Subtitle" xml:space="preserve"><value>От концерти до конференции, работилници и спорт — намерете и резервирайте билети за събития, които ви вдъхновяват.</value></data>
+  <data name="Public.Home.GetStarted" xml:space="preserve"><value>Започнете</value></data>
+  <data name="Public.Home.GetStartedFree" xml:space="preserve"><value>Започнете безплатно</value></data>
+  <data name="Public.Home.SignIn" xml:space="preserve"><value>Вход</value></data>
+  <data name="Public.Home.BrowseEvents" xml:space="preserve"><value>Разгледай събития</value></data>
+  <data name="Public.Home.MyTickets" xml:space="preserve"><value>Моите билети</value></data>
+  <data name="Public.Home.LiveEvents" xml:space="preserve"><value>Активни събития</value></data>
+  <data name="Public.Home.TotalTickets" xml:space="preserve"><value>Общо билети</value></data>
+  <data name="Public.Home.TicketsSold" xml:space="preserve"><value>Продадени билети</value></data>
+  <data name="Public.Home.Categories" xml:space="preserve"><value>Категории</value></data>
+  <data name="Public.Home.UpcomingEvents" xml:space="preserve"><value>Предстоящи събития</value></data>
+  <data name="Public.Home.UpcomingSubtitle" xml:space="preserve"><value>Не пропускайте какво се случва около вас</value></data>
+  <data name="Public.Home.ViewAll" xml:space="preserve"><value>Виж всички</value></data>
+  <data name="Public.Home.BrowseByCategory" xml:space="preserve"><value>Разгледай по категория</value></data>
+  <data name="Public.Home.CategorySubtitle" xml:space="preserve"><value>По нещо за всеки интерес</value></data>
+  <data name="Public.Home.SignInToBook" xml:space="preserve"><value>Влезте, за да резервирате</value></data>
+  <data name="Public.Home.NoEvents" xml:space="preserve"><value>В момента няма налични събития</value></data>
+  <data name="Public.Home.NoEventsHint" xml:space="preserve"><value>Проверете отново скоро за предстоящи събития!</value></data>
+  <data name="Public.Home.HostTitle" xml:space="preserve"><value>Искате да организирате събития?</value></data>
+  <data name="Public.Home.HostSubtitle" xml:space="preserve"><value>Присъединете се към EventHub като организатор и достигнете до хиляди потенциални посетители.</value></data>
+  <data name="Public.Home.ApplyOrganizer" xml:space="preserve"><value>Кандидатствай като организатор</value></data>
+</root>

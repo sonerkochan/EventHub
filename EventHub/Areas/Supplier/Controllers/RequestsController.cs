@@ -1,5 +1,7 @@
 using EventHub.Core.Contracts;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Supplier.Controllers
@@ -7,10 +9,14 @@ namespace EventHub.Areas.Supplier.Controllers
     public class RequestsController : BaseController
     {
         private readonly ISupplierServiceCatalogService supplierServiceCatalogService;
+        private readonly IStringLocalizer<SupplierResource> supplierLocalizer;
 
-        public RequestsController(ISupplierServiceCatalogService _supplierServiceCatalogService)
+        public RequestsController(
+            ISupplierServiceCatalogService _supplierServiceCatalogService,
+            IStringLocalizer<SupplierResource> _supplierLocalizer)
         {
             supplierServiceCatalogService = _supplierServiceCatalogService;
+            supplierLocalizer = _supplierLocalizer;
         }
 
         [HttpGet]
@@ -29,8 +35,8 @@ namespace EventHub.Areas.Supplier.Controllers
             var accepted = await supplierServiceCatalogService.AcceptRequestAsync(id, supplierId, supplierId, responseComment);
 
             TempData[accepted ? "Success" : "Error"] = accepted
-                ? "Service request accepted."
-                : "Unable to accept this request.";
+                ? supplierLocalizer["Supplier.Requests.Accepted"].Value
+                : supplierLocalizer["Supplier.Requests.AcceptFailed"].Value;
 
             return RedirectToAction(nameof(Index));
         }
@@ -43,8 +49,8 @@ namespace EventHub.Areas.Supplier.Controllers
             var declined = await supplierServiceCatalogService.DeclineRequestAsync(id, supplierId, supplierId, responseComment);
 
             TempData[declined ? "Success" : "Error"] = declined
-                ? "Service request declined."
-                : "Unable to decline this request.";
+                ? supplierLocalizer["Supplier.Requests.Declined"].Value
+                : supplierLocalizer["Supplier.Requests.DeclineFailed"].Value;
 
             return RedirectToAction(nameof(Index));
         }

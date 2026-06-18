@@ -1,12 +1,16 @@
 @using EventHub.Infrastructure.Data.Models
+@using EventHub.Localization
 @model IEnumerable<EventHub.Core.Models.Room.RoomListViewModel>
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AdminResource> AdminLocalizer
+@inject Microsoft.Extensions.Localization.IStringLocalizer<EnumResource> EnumLocalizer
+@inject Microsoft.Extensions.Localization.IStringLocalizer<JsResource> JsLocalizer
 @{
-    ViewData["Title"] = "Rooms";
+    ViewData["Title"] = AdminLocalizer["Admin.Rooms.Title"];
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="fw-semibold mb-0">Rooms</h5>
-    <button class="btn btn-dark btn-sm" onclick="openModal('@Url.Action("CreatePartial")')">+ New Room</button>
+    <h5 class="fw-semibold mb-0">@AdminLocalizer["Admin.Rooms.Title"]</h5>
+    <button class="btn btn-dark btn-sm" onclick="openModal('@Url.Action("CreatePartial")')">+ @AdminLocalizer["Admin.Rooms.NewRoom"]</button>
 </div>
 
 <div class="card border">
@@ -14,10 +18,10 @@
         <table class="table table-sm table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th class="small">Name</th>
-                    <th class="small">Venue</th>
-                    <th class="small">Type</th>
-                    <th class="small">Capacity</th>
+                    <th class="small">@AdminLocalizer["Admin.Rooms.Name"]</th>
+                    <th class="small">@AdminLocalizer["Admin.Rooms.Venue"]</th>
+                    <th class="small">@AdminLocalizer["Admin.Rooms.Type"]</th>
+                    <th class="small">@AdminLocalizer["Admin.Rooms.Capacity"]</th>
                     <th></th>
                 </tr>
             </thead>
@@ -27,18 +31,18 @@
                     <tr>
                         <td class="small">@room.Name</td>
                         <td class="small text-muted">@room.VenueName</td>
-                        <td><span class="badge bg-secondary fw-normal">@room.RoomType</span></td>
+                        <td><span class="badge bg-secondary fw-normal">@EnumLocalizer.LocalizeEnum(room.RoomType)</span></td>
                         <td class="small">@room.Capacity</td>
                         <td class="text-end">
                             <a asp-action="Layout" asp-route-id="@room.Id"
-                               class="btn btn-outline-primary btn-sm">Layout</a>
+                               class="btn btn-outline-primary btn-sm">@AdminLocalizer["Admin.Rooms.Layout"]</a>
                             <button class="btn btn-outline-secondary btn-sm"
                                     onclick="openModal('@Url.Action("EditPartial", new { id = room.Id })')">
-                                Edit
+                                @AdminLocalizer["Admin.Rooms.Edit"]
                             </button>
                             <button class="btn btn-outline-danger btn-sm"
                                     onclick="deactivateRoom('@Url.Action("Deactivate", new { id = room.Id })')">
-                                Deactivate
+                                @AdminLocalizer["Admin.Rooms.Deactivate"]
                             </button>
                         </td>
                     </tr>
@@ -46,7 +50,7 @@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="5" class="text-center text-muted small py-4">No rooms yet.</td>
+                        <td colspan="5" class="text-center text-muted small py-4">@AdminLocalizer["Admin.Rooms.NoRooms"]</td>
                     </tr>
                 }
             </tbody>
@@ -66,6 +70,9 @@
     <script>
         const modalEl = document.getElementById('roomModal');
         const modal = new bootstrap.Modal(modalEl);
+        const i18n = {
+            deactivateRoom: '@JavaScriptEncoder.Default.Encode(JsLocalizer["Js.Confirm.DeactivateRoom"].Value)'
+        };
 
         function openModal(url) {
             fetch(url)
@@ -77,7 +84,7 @@
         }
 
         function deactivateRoom(url) {
-            if (!confirm('Deactivate this room?')) return;
+            if (!confirm(i18n.deactivateRoom)) return;
 
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
                 || '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1];

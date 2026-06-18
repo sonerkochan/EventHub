@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Validation.Event.TotalTickets.Range" xml:space="preserve"><value>Must have at least 1 ticket.</value></data>
+  <data name="Validation.Event.Price.Range" xml:space="preserve"><value>Price must be 0 or greater.</value></data>
+  <data name="Validation.Event.Latitude.Range" xml:space="preserve"><value>Latitude must be between -90 and 90.</value></data>
+  <data name="Validation.Event.Longitude.Range" xml:space="preserve"><value>Longitude must be between -180 and 180.</value></data>
+  <data name="Validation.Ticket.Quantity.Range" xml:space="preserve"><value>You can purchase between 1 and 10 tickets.</value></data>
+  <data name="Validation.Refund.Amount.Range" xml:space="preserve"><value>Amount must be greater than 0.</value></data>
+  <data name="Validation.Passwords.DoNotMatch" xml:space="preserve"><value>Passwords do not match.</value></data>
+  <data name="Validation.User.Username.Required" xml:space="preserve"><value>The username field is required!</value></data>
+  <data name="Validation.User.Email.Required" xml:space="preserve"><value>The email field is required!</value></data>
+  <data name="Validation.User.Password.Required" xml:space="preserve"><value>The password field is required!</value></data>
+  <data name="Validation.User.ConfirmPassword.Required" xml:space="preserve"><value>Please confirm your password!</value></data>
+</root>

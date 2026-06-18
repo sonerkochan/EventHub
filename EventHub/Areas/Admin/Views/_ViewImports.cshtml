@@ -1,3 +1,6 @@
-﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using EventHub.Localization
 @using EventHub.Core.Models.ApplicationForm
+@using Microsoft.Extensions.Localization
+@using System.Text.Encodings.Web
 @inject Microsoft.Extensions.Options.IOptions<EventHub.Core.Models.Currency.CurrencyOptions> CurrencyOptionsAccessor

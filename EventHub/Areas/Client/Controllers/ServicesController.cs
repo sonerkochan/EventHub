@@ -1,5 +1,7 @@
 using EventHub.Core.Contracts;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Client.Controllers
@@ -7,10 +9,14 @@ namespace EventHub.Areas.Client.Controllers
     public class ServicesController : BaseController
     {
         private readonly ISupplierServiceCatalogService supplierServiceCatalogService;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
-        public ServicesController(ISupplierServiceCatalogService _supplierServiceCatalogService)
+        public ServicesController(
+            ISupplierServiceCatalogService _supplierServiceCatalogService,
+            IStringLocalizer<MessagesResource> messagesLocalizer)
         {
             supplierServiceCatalogService = _supplierServiceCatalogService;
+            this.messagesLocalizer = messagesLocalizer;
         }
 
         [HttpGet]
@@ -29,8 +35,8 @@ namespace EventHub.Areas.Client.Controllers
             var created = await supplierServiceCatalogService.RequestServiceAsync(serviceId, userId, message);
 
             TempData[created ? "Success" : "Error"] = created
-                ? "Service request sent to the supplier."
-                : "Unable to request this service. You may already have a pending request.";
+                ? messagesLocalizer["Messages.Service.RequestCreated"].Value
+                : messagesLocalizer["Messages.Service.RequestCreateFailed"].Value;
 
             return RedirectToAction(nameof(Index), new { searchTerm });
         }

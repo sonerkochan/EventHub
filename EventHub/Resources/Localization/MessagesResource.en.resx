@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Messages.Auth.AccountDeactivated" xml:space="preserve"><value>Your account is deactivated!</value></data>
+  <data name="Messages.Auth.InvalidCredentials" xml:space="preserve"><value>Invalid username or password</value></data>
+  <data name="Messages.Application.AlreadyPending" xml:space="preserve"><value>You already have a pending application.</value></data>
+  <data name="Messages.Application.Submitted" xml:space="preserve"><value>Application submitted!</value></data>
+  <data name="Messages.Application.Approved" xml:space="preserve"><value>Application approved.</value></data>
+  <data name="Messages.Application.Rejected" xml:space="preserve"><value>Application rejected.</value></data>
+  <data name="Messages.Event.Published" xml:space="preserve"><value>Event published successfully!</value></data>
+  <data name="Messages.Event.CoverUrlInvalid" xml:space="preserve"><value>Cover image URL must be an absolute http or https URL.</value></data>
+  <data name="Messages.Event.CityRequired" xml:space="preserve"><value>The city query parameter is required.</value></data>
+  <data name="Messages.Ticket.NotEnoughTickets" xml:space="preserve"><value>Unable to complete purchase. Not enough tickets available.</value></data>
+  <data name="Messages.Ticket.Purchased" xml:space="preserve"><value>{0} ticket(s) purchased successfully!</value></data>
+  <data name="Messages.Ticket.PickSeat" xml:space="preserve"><value>Please pick at least one seat.</value></data>
+  <data name="Messages.Ticket.ReserveFailed" xml:space="preserve"><value>Unable to reserve seats.</value></data>
+  <data name="Messages.Ticket.SeatsReserved" xml:space="preserve"><value>{0} seat(s) reserved. Complete payment within 15 minutes to confirm.</value></data>
+  <data name="Messages.Payment.InvalidQuantity" xml:space="preserve"><value>Choose a valid ticket quantity.</value></data>
+  <data name="Messages.Payment.StripeStartFailed" xml:space="preserve"><value>Unable to start Stripe checkout. Please try again.</value></data>
+  <data name="Messages.Payment.CurrencyFailed" xml:space="preserve"><value>Unable to convert the selected currency. Please try EUR or another currency.</value></data>
+  <data name="Messages.Payment.InvalidStripeSignature" xml:space="preserve"><value>Invalid Stripe signature.</value></data>
+  <data name="Messages.Service.RequestCreated" xml:space="preserve"><value>Request sent to supplier.</value></data>
+  <data name="Messages.Service.RequestCreateFailed" xml:space="preserve"><value>Unable to send request.</value></data>
+  <data name="Messages.Service.RequestCancelled" xml:space="preserve"><value>Request cancelled.</value></data>
+  <data name="Messages.Service.RequestCancelFailed" xml:space="preserve"><value>Unable to cancel request.</value></data>
+  <data name="Messages.User.CreateFailed" xml:space="preserve"><value>Failed to create user.</value></data>
+  <data name="Messages.User.UpdateFailed" xml:space="preserve"><value>Failed to update user.</value></data>
+  <data name="Messages.Moderator.CreateFailed" xml:space="preserve"><value>Failed to create moderator. Username or email may already be taken.</value></data>
+  <data name="Messages.Moderator.UpdateFailed" xml:space="preserve"><value>Failed to update moderator.</value></data>
+  <data name="Messages.Pricing.InvalidInput" xml:space="preserve"><value>Invalid price input.</value></data>
+</root>

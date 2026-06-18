@@ -33,6 +33,7 @@ namespace EventHub.Infrastructure.Data.Models
         public string? CoverImageUrl { get; set; }
         public Guid? CoverPhotoId { get; set; }
         public Photo? CoverImage { get; set; }
+        public ICollection<EventTranslation> Translations { get; set; } = new List<EventTranslation>();
     }
 
     public enum EventPriority
