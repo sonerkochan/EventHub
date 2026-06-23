@@ -22,7 +22,7 @@ public class BuyTicketE2ETests
         using var playwright = await Playwright.CreateAsync();
         await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
 
-        // ── SETUP: Organizer creates and publishes the event ──────────────────
+        // Organizer creates and publishes the event
 
         var organizerContext = await CreateContextAsync(browser);
         var organizerPage = await organizerContext.NewPageAsync();
@@ -41,7 +41,7 @@ public class BuyTicketE2ETests
 
         await organizerContext.CloseAsync();
 
-        // ── ADMIN PUBLISHES THE EVENT ─────────────────────────────────────────
+        // publishes the event
         var adminContext = await CreateContextAsync(browser);
         var adminPage = await adminContext.NewPageAsync();
         await LoginAsync(adminPage, "admin", "Admin123!");
@@ -55,7 +55,6 @@ public class BuyTicketE2ETests
         await eventRow.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 15_000 });
         await eventRow.ScrollIntoViewIfNeededAsync();
 
-        // Automatically accept confirm dialogue
         adminPage.Dialog += (_, dialog) => dialog.AcceptAsync();
 
         var publishBtn = eventRow.Locator("button:has-text('Publish')").First;
@@ -65,32 +64,27 @@ public class BuyTicketE2ETests
         await WaitForPageReadyAsync(adminPage);
         await adminContext.CloseAsync();
 
-        // ── CLIENT BUYS A TICKET ──────────────────────────────────────────────
+        // Client buys a ticket
 
         var clientContext = await CreateContextAsync(browser);
         var clientPage = await clientContext.NewPageAsync();
 
         await LoginAsync(clientPage, ClientEmail, ClientPassword);
 
-        // Go to Client Events listing and find the event
         await clientPage.GotoAsync(
             $"{BaseUrl}/Client/Events/Index",
             new() { WaitUntil = WaitUntilState.DOMContentLoaded });
         await WaitForPageReadyAsync(clientPage);
 
-        // The event should be visible as published
         await ExpectVisibleTextAsync(clientPage, eventName);
 
-        // Click View Details for the event
         var eventCard = clientPage.Locator(".eh-event-listing-card", new() { HasTextString = eventName }).First;
         await eventCard.Locator("a:has-text('View Details')").ClickAsync();
         await WaitForPageReadyAsync(clientPage);
 
-        // Click "Get Tickets" button on the Details page
         await clientPage.Locator("a:has-text('Get Tickets')").First.ClickAsync();
         await WaitForPageReadyAsync(clientPage);
 
-        // Fill quantity = 1 and submit BuyDirect form via Reserve button
         var quantityInput = clientPage.Locator("input[name='quantity']");
         await quantityInput.FillAsync("1");
 
@@ -98,16 +92,12 @@ public class BuyTicketE2ETests
         await buyForm.Locator("button:has-text('Reserve (Pay Later)'), button:has-text('Reserve'), button[type='submit']").First.ClickAsync();
         await WaitForPageReadyAsync(clientPage);
 
-        // Should redirect to /Client/Tickets/Index
         await clientPage.WaitForURLAsync("**/Client/Tickets**", new() { Timeout = 15_000 });
 
-        // Verify the ticket appears in My Tickets
         await ExpectVisibleTextAsync(clientPage, eventName);
 
         await clientContext.CloseAsync();
     }
-
-    // ─── Helpers ───────────────────────────────────────────────────────────────
 
     private static async Task<IBrowserContext> CreateContextAsync(IBrowser browser)
     {
@@ -164,7 +154,6 @@ public class BuyTicketE2ETests
         }
         catch
         {
-            // NetworkIdle е best-effort
         }
     }
 }

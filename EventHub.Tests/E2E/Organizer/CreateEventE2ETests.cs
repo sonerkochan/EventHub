@@ -43,8 +43,6 @@ public class CreateEventE2ETests
         await context.CloseAsync();
     }
 
-    // ─── Helpers ───────────────────────────────────────────────────────────────
-
     internal static async Task<IBrowserContext> CreateContextAsync(IBrowser browser)
     {
         return await browser.NewContextAsync(new()
@@ -77,9 +75,7 @@ public class CreateEventE2ETests
         await WaitForPageReadyAsync(page);
     }
 
-    /// <summary>
-    /// Creates an event through the Organizer UI and redirects to /Organizer/Events/Index.
-    /// </summary>
+    // Creates an event
     internal static async Task CreateEventAsync(
         IPage page,
         string eventName,
@@ -96,10 +92,8 @@ public class CreateEventE2ETests
 
         await WaitForPageReadyAsync(page);
 
-        // Event name
         await page.Locator("input[name='EventName']").FillAsync(eventName);
 
-        // Room – select the first real option (with a non-empty value) via JS
         var roomSelect = page.Locator("select[name='RoomId']");
         var firstRoomValue = await roomSelect.EvaluateAsync<string>(
             "select => [...select.options].find(o => o.value && o.value !== '')?.value ?? ''");
@@ -110,10 +104,8 @@ public class CreateEventE2ETests
 
         await roomSelect.SelectOptionAsync(firstRoomValue);
 
-        // Description
         await page.Locator("textarea[name='Description']").FillAsync(description);
 
-        // Dates – format expected by datetime-local inputs: yyyy-MM-ddTHH:mm
         var start = DateTime.UtcNow.Add(startOffset);
         var end = DateTime.UtcNow.Add(endOffset);
         var startStr = start.ToString("yyyy-MM-ddTHH:mm");
@@ -122,14 +114,11 @@ public class CreateEventE2ETests
         await page.Locator("input[name='StartDateTime']").FillAsync(startStr);
         await page.Locator("input[name='EndDateTime']").FillAsync(endStr);
 
-        // Tickets & price
         await page.Locator("input[name='TotalTickets']").FillAsync(totalTickets);
         await page.Locator("input[name='BasePrice']").FillAsync(basePrice);
 
-        // Cover image URL (required – no upload)
         await page.Locator("input[name='CoverImageUrl']").FillAsync(coverImageUrl);
 
-        // Submit
         await page.GetByRole(AriaRole.Button, new() { Name = "Create Event" }).ClickAsync();
 
         await WaitForPageReadyAsync(page);
@@ -158,7 +147,6 @@ public class CreateEventE2ETests
         }
         catch
         {
-            // NetworkIdle is best-effort
         }
     }
 }
