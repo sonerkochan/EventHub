@@ -89,7 +89,7 @@ public class BuyTicketE2ETests
         await quantityInput.FillAsync("1");
 
         var buyForm = clientPage.Locator("form[action*='BuyDirect']").First;
-        await buyForm.Locator("button:has-text('Reserve (Pay Later)'), button:has-text('Reserve'), button[type='submit']").First.ClickAsync();
+        await buyForm.Locator("button:has-text('Reserve (Pay Later)'), button:has-text('Get Free Tickets'), button:has-text('Reserve')").First.ClickAsync();
         await WaitForPageReadyAsync(clientPage);
 
         await clientPage.WaitForURLAsync("**/Client/Tickets**", new() { Timeout = 15_000 });
