@@ -12,6 +12,7 @@ using DataEvent = EventHub.Infrastructure.Data.Models.Event;
 
 namespace EventHub.Tests.Integration.Admin;
 
+[Trait("Category", "Integration")]
 public class EventServiceAdminFlowIntegrationTests
 {
     [Fact]
