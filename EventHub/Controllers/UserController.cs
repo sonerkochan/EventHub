@@ -147,9 +147,10 @@ namespace EventHub.Controllers
 
                 if (result.Succeeded)
                 {
+                    user.LastLoginAt = DateTime.UtcNow.AddHours(3);
                     user.LastLoginIP = GetClientIp();
                     user.LastLoginDevice = GetDevice();
-                    user.LastOnline = DateTime.UtcNow;
+                    user.LastOnline = user.LastLoginAt.Value;
 
                     await userManager.UpdateAsync(user);
 
