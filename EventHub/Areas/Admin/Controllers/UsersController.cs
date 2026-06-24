@@ -1,7 +1,9 @@
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.User;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace EventHub.Areas.Admin.Controllers
 {
@@ -9,10 +11,14 @@ namespace EventHub.Areas.Admin.Controllers
     public class UsersController : BaseController
     {
         private readonly IUserService userService;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
-        public UsersController(IUserService _userService)
+        public UsersController(
+            IUserService _userService,
+            IStringLocalizer<MessagesResource>? messagesLocalizer = null)
         {
             userService = _userService;
+            this.messagesLocalizer = messagesLocalizer ?? new FallbackStringLocalizer<MessagesResource>();
         }
 
         public async Task<IActionResult> Index(string? role = null)
@@ -40,7 +46,7 @@ namespace EventHub.Areas.Admin.Controllers
             var (success, error) = await userService.CreateUserAsync(model);
             if (!success)
             {
-                ModelState.AddModelError(string.Empty, error ?? "Failed to create user.");
+                ModelState.AddModelError(string.Empty, error ?? messagesLocalizer["Messages.User.CreateFailed"]);
                 return PartialView("_CreateModal", model);
             }
 
@@ -68,7 +74,7 @@ namespace EventHub.Areas.Admin.Controllers
             var (success, error) = await userService.UpdateUserAsync(model);
             if (!success)
             {
-                ModelState.AddModelError(string.Empty, error ?? "Failed to update user.");
+                ModelState.AddModelError(string.Empty, error ?? messagesLocalizer["Messages.User.UpdateFailed"]);
                 return PartialView("_EditModal", model);
             }
 

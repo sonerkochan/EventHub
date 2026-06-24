@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using EventHub.Areas.Supplier.Models;
 using EventHub.Core.Contracts;
+using EventHub.Localization;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace EventHub.Areas.Supplier.Controllers
 {
@@ -12,13 +14,16 @@ namespace EventHub.Areas.Supplier.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly ICurrencyDisplayService currencyDisplayService;
+        private readonly IStringLocalizer<SupplierResource> supplierLocalizer;
 
         public ServicesController(
             ApplicationDbContext db,
-            ICurrencyDisplayService _currencyDisplayService)
+            ICurrencyDisplayService _currencyDisplayService,
+            IStringLocalizer<SupplierResource> _supplierLocalizer)
         {
             _db = db;
             currencyDisplayService = _currencyDisplayService;
+            supplierLocalizer = _supplierLocalizer;
         }
 
         [HttpGet]
@@ -63,7 +68,7 @@ namespace EventHub.Areas.Supplier.Controllers
             _db.SupplierServices.Add(entity);
             await _db.SaveChangesAsync();
 
-            TempData["Success"] = "Service created successfully!";
+            TempData["Success"] = supplierLocalizer["Supplier.Services.Created"].Value;
 
             return RedirectToAction("Index");
         }
@@ -109,7 +114,7 @@ namespace EventHub.Areas.Supplier.Controllers
             _db.SupplierServices.Update(entity);
             await _db.SaveChangesAsync();
 
-            TempData["Success"] = "Service updated successfully!";
+            TempData["Success"] = supplierLocalizer["Supplier.Services.Updated"].Value;
 
             return RedirectToAction("Index");
         }
@@ -146,7 +151,7 @@ namespace EventHub.Areas.Supplier.Controllers
             _db.SupplierServices.Update(entity);
             await _db.SaveChangesAsync();
 
-            TempData["Success"] = "Service deleted successfully!";
+            TempData["Success"] = supplierLocalizer["Supplier.Services.Deleted"].Value;
 
             return RedirectToAction("Index");
         }

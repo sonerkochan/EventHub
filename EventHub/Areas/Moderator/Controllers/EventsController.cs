@@ -1,8 +1,10 @@
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.Event;
 using EventHub.Core.Services;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Moderator.Controllers
@@ -12,15 +14,18 @@ namespace EventHub.Areas.Moderator.Controllers
         private readonly IEventService eventService;
         private readonly IRoomService roomService;
         private readonly IPhotoService photoService;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         public EventsController(
             IEventService _eventService,
             IRoomService _roomService,
-            IPhotoService _photoService)
+            IPhotoService _photoService,
+            IStringLocalizer<MessagesResource>? messagesLocalizer = null)
         {
             eventService = _eventService;
             roomService = _roomService;
             photoService = _photoService;
+            this.messagesLocalizer = messagesLocalizer ?? new FallbackStringLocalizer<MessagesResource>();
         }
 
         public async Task<IActionResult> Index()
@@ -163,7 +168,7 @@ namespace EventHub.Areas.Moderator.Controllers
 
             if (!EventCoverImageResolver.IsValidExternalUrl(value))
             {
-                ModelState.AddModelError("CoverImageUrl", "Cover image URL must be an absolute http or https URL.");
+                ModelState.AddModelError("CoverImageUrl", messagesLocalizer["Messages.Event.CoverUrlInvalid"]);
             }
         }
 

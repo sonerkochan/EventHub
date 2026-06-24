@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Layout.Area.Admin" xml:space="preserve"><value>Админ</value></data>
+  <data name="Layout.Area.Moderator" xml:space="preserve"><value>Модератор</value></data>
+  <data name="Layout.Area.Organizer" xml:space="preserve"><value>Организатор</value></data>
+  <data name="Layout.Area.Supplier" xml:space="preserve"><value>Доставчик</value></data>
+  <data name="Layout.Footer.Tagline" xml:space="preserve"><value>Вашето място за откриване и резервиране на страхотни събития.</value></data>
+  <data name="Layout.Footer.PrivacyPolicy" xml:space="preserve"><value>Политика за поверителност</value></data>
+  <data name="Layout.Footer.TermsOfService" xml:space="preserve"><value>Общи условия</value></data>
+  <data name="Layout.Footer.Rights" xml:space="preserve"><value>Всички права запазени.</value></data>
+  <data name="Layout.Nav.AdminDashboard" xml:space="preserve"><value>Админ табло</value></data>
+  <data name="Layout.Nav.Applications" xml:space="preserve"><value>Кандидатури</value></data>
+  <data name="Layout.Nav.BackToSite" xml:space="preserve"><value>Обратно към сайта</value></data>
+  <data name="Layout.Nav.BrowseEvents" xml:space="preserve"><value>Разгледай събития</value></data>
+  <data name="Layout.Nav.ClientArea" xml:space="preserve"><value>Клиентска зона</value></data>
+  <data name="Layout.Nav.ClientDashboard" xml:space="preserve"><value>Клиентско табло</value></data>
+  <data name="Layout.Nav.Dashboard" xml:space="preserve"><value>Табло</value></data>
+  <data name="Layout.Nav.Events" xml:space="preserve"><value>Събития</value></data>
+  <data name="Layout.Nav.Home" xml:space="preserve"><value>Начало</value></data>
+  <data name="Layout.Nav.Login" xml:space="preserve"><value>Вход</value></data>
+  <data name="Layout.Nav.ModeratorDashboard" xml:space="preserve"><value>Модераторско табло</value></data>
+  <data name="Layout.Nav.Moderators" xml:space="preserve"><value>Модератори</value></data>
+  <data name="Layout.Nav.MyEvents" xml:space="preserve"><value>Моите събития</value></data>
+  <data name="Layout.Nav.MyServices" xml:space="preserve"><value>Моите услуги</value></data>
+  <data name="Layout.Nav.MyTickets" xml:space="preserve"><value>Моите билети</value></data>
+  <data name="Layout.Nav.NewEvent" xml:space="preserve"><value>Ново събитие</value></data>
+  <data name="Layout.Nav.OrganizerPanel" xml:space="preserve"><value>Организаторски панел</value></data>
+  <data name="Layout.Nav.OrganizerPanelLower" xml:space="preserve"><value>Организаторски панел</value></data>
+  <data name="Layout.Nav.Payments" xml:space="preserve"><value>Плащания</value></data>
+  <data name="Layout.Nav.Requests" xml:space="preserve"><value>Заявки</value></data>
+  <data name="Layout.Nav.Rooms" xml:space="preserve"><value>Зали</value></data>
+  <data name="Layout.Nav.Services" xml:space="preserve"><value>Услуги</value></data>
+  <data name="Layout.Nav.SignUp" xml:space="preserve"><value>Регистрация</value></data>
+  <data name="Layout.Nav.SupplierPanel" xml:space="preserve"><value>Панел за доставчик</value></data>
+  <data name="Layout.Nav.SupplierPanelLower" xml:space="preserve"><value>Панел за доставчик</value></data>
+  <data name="Layout.Nav.Tickets" xml:space="preserve"><value>Билети</value></data>
+  <data name="Layout.Nav.Users" xml:space="preserve"><value>Потребители</value></data>
+  <data name="Layout.Nav.Venues" xml:space="preserve"><value>Локации</value></data>
+  <data name="Layout.Supplier.CreateService.Title" xml:space="preserve"><value>Създай нова услуга</value></data>
+  <data name="Layout.Supplier.CreateService.Name" xml:space="preserve"><value>Име на услугата</value></data>
+  <data name="Layout.Supplier.CreateService.NamePlaceholder" xml:space="preserve"><value>напр. Премиум кетъринг</value></data>
+  <data name="Layout.Supplier.CreateService.Price" xml:space="preserve"><value>Базова цена (EUR)</value></data>
+  <data name="Layout.Supplier.CreateService.Description" xml:space="preserve"><value>Описание</value></data>
+  <data name="Layout.Supplier.CreateService.DescriptionPlaceholder" xml:space="preserve"><value>Опишете какво предлагате...</value></data>
+  <data name="Layout.Supplier.CreateService.Submit" xml:space="preserve"><value>Създай услуга</value></data>
+</root>

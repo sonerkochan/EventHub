@@ -1,27 +1,31 @@
 @using EventHub.Infrastructure.Data.Models
+@using EventHub.Localization
 @model EventHub.Core.Models.Admin.EventPricingPageViewModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AdminResource> AdminLocalizer
+@inject Microsoft.Extensions.Localization.IStringLocalizer<EnumResource> EnumLocalizer
+@inject Microsoft.Extensions.Localization.IStringLocalizer<JsResource> JsLocalizer
 @{
-    ViewData["Title"] = $"Pricing — {Model.EventName}";
+    ViewData["Title"] = AdminLocalizer["Admin.Pricing.Title", Model.EventName];
 }
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
         <h5 class="fw-semibold mb-0">@Model.EventName</h5>
-        <small class="text-muted">Pricing setup &middot; @Model.RoomName</small>
+        <small class="text-muted">@AdminLocalizer["Admin.Pricing.Setup", Model.RoomName]</small>
     </div>
     <div class="d-flex gap-2">
         <a asp-area="Admin" asp-controller="Events" asp-action="Index"
-           class="btn btn-outline-secondary btn-sm">Back to Events</a>
+           class="btn btn-outline-secondary btn-sm">@AdminLocalizer["Admin.Events.BackToEvents"]</a>
         @if (Model.AllZonesPriced)
         {
             <a asp-action="Manage" asp-route-id="@Model.EventId" class="btn btn-dark btn-sm">
-                Open Ticket Manager →
+                @AdminLocalizer["Admin.Pricing.OpenTicketManager"] &rarr;
             </a>
         }
         else
         {
-            <button class="btn btn-outline-dark btn-sm" disabled title="Set a price for every zone first">
-                Open Ticket Manager →
+            <button class="btn btn-outline-dark btn-sm" disabled title="@AdminLocalizer["Admin.Pricing.SetEveryZoneFirst"]">
+                @AdminLocalizer["Admin.Pricing.OpenTicketManager"] &rarr;
             </button>
         }
     </div>
@@ -30,7 +34,7 @@
 @if (Model.Zones.Count == 0)
 {
     <div class="alert alert-warning small">
-        This event's room has no zones yet. Go back to <a asp-area="Admin" asp-controller="Rooms" asp-action="Layout" asp-route-id="@Model.RoomId">the room layout</a> and create at least one zone before setting prices.
+        @AdminLocalizer["Admin.Pricing.NoZones"]
     </div>
 }
 else
@@ -40,13 +44,13 @@ else
             <table class="table table-sm mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="small">Zone</th>
-                        <th class="small">Type</th>
-                        <th class="small text-end">Seats</th>
-                        <th class="small text-end">Price</th>
-                        <th class="small">Currency</th>
-                        <th class="small text-end">Available</th>
-                        <th class="small text-end">Sold</th>
+                        <th class="small">@AdminLocalizer["Admin.Pricing.Zone"]</th>
+                        <th class="small">@AdminLocalizer["Admin.Events.Type"]</th>
+                        <th class="small text-end">@AdminLocalizer["Admin.Pricing.Seats"]</th>
+                        <th class="small text-end">@AdminLocalizer["Admin.Pricing.Price"]</th>
+                        <th class="small">@AdminLocalizer["Admin.Pricing.Currency"]</th>
+                        <th class="small text-end">@AdminLocalizer["Admin.Pricing.Available"]</th>
+                        <th class="small text-end">@AdminLocalizer["Admin.Pricing.Sold"]</th>
                         <th class="small text-end"></th>
                     </tr>
                 </thead>
@@ -56,13 +60,13 @@ else
                         var available = Math.Max(0, z.SeatCount - z.SoldQuantity);
                         <tr data-zone-id="@z.ZoneId" data-tier-id="@(z.TierId?.ToString() ?? string.Empty)">
                             <td class="small fw-medium">@z.ZoneName</td>
-                            <td class="small text-muted">@z.ZoneType</td>
+                            <td class="small text-muted">@EnumLocalizer.LocalizeEnum(z.ZoneType)</td>
                             <td class="small text-end fw-medium">@z.SeatCount</td>
                             <td class="text-end" style="width:130px">
                                 <input type="number" step="0.01" min="0"
                                        class="form-control form-control-sm text-end js-price"
                                        value="@(z.Price?.ToString("0.00") ?? "")"
-                                       placeholder="—" />
+                                       placeholder="-" />
                             </td>
                             <td style="width:100px">
                                 <input type="text" maxlength="3"
@@ -72,10 +76,10 @@ else
                             <td class="small text-end fw-medium">@available</td>
                             <td class="small text-end">@z.SoldQuantity</td>
                             <td class="text-end" style="width:160px">
-                                <button class="btn btn-dark btn-sm js-save">Save</button>
+                                <button class="btn btn-dark btn-sm js-save">@AdminLocalizer["Admin.Common.Save"]</button>
                                 @if (z.IsConfigured)
                                 {
-                                    <button class="btn btn-outline-danger btn-sm js-remove">Remove</button>
+                                    <button class="btn btn-outline-danger btn-sm js-remove">@AdminLocalizer["Admin.Common.Remove"]</button>
                                 }
                             </td>
                         </tr>
@@ -86,7 +90,7 @@ else
     </div>
 
     <p class="text-muted small mt-2 mb-0">
-        Set a price for every zone before opening the ticket manager. Removing a price deactivates the tier but keeps any existing tickets sold under it.
+        @AdminLocalizer["Admin.Pricing.Help"]
     </p>
 }
 
@@ -97,6 +101,13 @@ else
         const eventId = '@Model.EventId';
         const setPriceUrl = '@Url.Action("SetPrice")';
         const removePriceUrl = '@Url.Action("RemovePrice")';
+        const i18n = {
+            invalidPrice: '@JavaScriptEncoder.Default.Encode(JsLocalizer["Js.Alert.InvalidPrice"].Value)',
+            savePriceFailed: '@JavaScriptEncoder.Default.Encode(JsLocalizer["Js.Alert.SavePriceFailed"].Value)',
+            removePricing: '@JavaScriptEncoder.Default.Encode(JsLocalizer["Js.Confirm.RemovePricing"].Value)',
+            save: '@JavaScriptEncoder.Default.Encode(AdminLocalizer["Admin.Common.Save"].Value)',
+            saving: '@JavaScriptEncoder.Default.Encode(AdminLocalizer["Admin.Common.Saving"].Value)'
+        };
 
         function postJson(url, body) {
             return fetch(url, {
@@ -116,13 +127,13 @@ else
             saveBtn.addEventListener('click', () => {
                 const price = parseFloat(priceInput.value);
                 if (isNaN(price) || price < 0) {
-                    alert('Enter a valid price (0 or more).');
+                    alert(i18n.invalidPrice);
                     return;
                 }
                 const currency = (currencyInput.value || 'EUR').trim().toUpperCase();
 
                 saveBtn.disabled = true;
-                saveBtn.textContent = 'Saving...';
+                saveBtn.textContent = i18n.saving;
 
                 postJson(setPriceUrl, {
                     eventId: eventId,
@@ -133,20 +144,20 @@ else
                     if (data.success) {
                         location.reload();
                     } else {
-                        alert(data.message || 'Failed to save price.');
+                        alert(data.message || i18n.savePriceFailed);
                         saveBtn.disabled = false;
-                        saveBtn.textContent = 'Save';
+                        saveBtn.textContent = i18n.save;
                     }
                 }).catch(() => {
-                    alert('Failed to save price.');
+                    alert(i18n.savePriceFailed);
                     saveBtn.disabled = false;
-                    saveBtn.textContent = 'Save';
+                    saveBtn.textContent = i18n.save;
                 });
             });
 
             if (removeBtn) {
                 removeBtn.addEventListener('click', () => {
-                    if (!confirm('Remove pricing for this zone? Existing tickets stay intact.')) return;
+                    if (!confirm(i18n.removePricing)) return;
                     postJson(removePriceUrl, { eventId, zoneId }).then(data => {
                         if (data.success) location.reload();
                     });

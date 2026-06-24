@@ -53,6 +53,19 @@ namespace EventHub.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(e => e.CoverPhotoId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<EventTranslation>(translation =>
+            {
+                translation.HasKey(t => t.Id);
+                translation.Property(t => t.Culture).HasMaxLength(10).IsRequired();
+                translation.Property(t => t.EventName).HasMaxLength(200).IsRequired();
+                translation.Property(t => t.Description).HasMaxLength(2000);
+                translation.HasIndex(t => new { t.EventId, t.Culture }).IsUnique();
+                translation.HasOne(t => t.Event)
+                    .WithMany(e => e.Translations)
+                    .HasForeignKey(t => t.EventId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 
         public DbSet<Venue> Venues { get; set; }
@@ -62,6 +75,7 @@ namespace EventHub.Infrastructure.Data
         public DbSet<SeatLayout> SeatLayouts { get; set; }
         public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<EventTranslation> EventTranslations { get; set; }
         public DbSet<EmailLog> EmailLogs { get; set; }
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
         public DbSet<EventPricingTier> EventPricingTiers { get; set; }

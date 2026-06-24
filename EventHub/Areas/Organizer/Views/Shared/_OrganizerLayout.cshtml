@@ -1,14 +1,17 @@
 @using EventHub.Infrastructure.Data.Models
+@using System.Globalization
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
+@inject IStringLocalizer<LayoutResource> LayoutLocalizer
+@inject IStringLocalizer<CommonResource> CommonLocalizer
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@CultureInfo.CurrentUICulture.Name">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>@ViewData["Title"] - EventHub Organizer</title>
+    <title>@ViewData["Title"] - EventHub @LayoutLocalizer["Layout.Area.Organizer"]</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700&subset=latin-ext" />
@@ -31,12 +34,15 @@
                         <a class="header-brand" asp-area="Organizer" asp-controller="Home" asp-action="Index">
                             <span style="font-size:22px; margin-right:8px;">EH</span>
                             <strong>EventHub</strong>
-                            <small class="text-muted ml-1">Organizer</small>
+                            <small class="text-muted ml-1">@LayoutLocalizer["Layout.Area.Organizer"]</small>
                         </a>
 
                         <div class="d-flex order-lg-2 ml-auto align-items-center">
                             <div class="mr-3">
                                 @await Html.PartialAsync("~/Views/Shared/_CurrencySelector.cshtml")
+                            </div>
+                            <div class="mr-3">
+                                @await Html.PartialAsync("~/Views/Shared/_CultureSelector.cshtml")
                             </div>
                             @if (SignInManager.IsSignedIn(User))
                             {
@@ -46,25 +52,25 @@
                                         <span class="avatar">@GetInitial(User.Identity?.Name)</span>
                                         <span class="ml-2 d-none d-lg-block">
                                             <span class="text-default">@User.Identity?.Name</span>
-                                            <small class="text-muted d-block mt-1">Organizer</small>
+                                            <small class="text-muted d-block mt-1">@CommonLocalizer["Common.Role.Organizer"]</small>
                                         </span>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
                                         <a asp-area="Client" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                            <i class="dropdown-icon fa fa-user"></i> Client area
+                                            <i class="dropdown-icon fa fa-user"></i> @LayoutLocalizer["Layout.Nav.ClientArea"]
                                         </a>
                                         @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Supplier"))
                                         {
                                             <a asp-area="Supplier" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                                <i class="dropdown-icon fa fa-briefcase"></i> Supplier panel
+                                                <i class="dropdown-icon fa fa-briefcase"></i> @LayoutLocalizer["Layout.Nav.SupplierPanelLower"]
                                             </a>
                                         }
                                         <a asp-area="" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                            <i class="dropdown-icon fa fa-home"></i> Back to site
+                                            <i class="dropdown-icon fa fa-home"></i> @LayoutLocalizer["Layout.Nav.BackToSite"]
                                         </a>
                                         <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
                                             <button type="submit" class="dropdown-item text-danger">
-                                                <i class="dropdown-icon fa fa-sign-out"></i> Sign out
+                                                <i class="dropdown-icon fa fa-sign-out"></i> @CommonLocalizer["Common.Action.SignOut"]
                                             </button>
                                         </form>
                                     </div>
@@ -86,22 +92,22 @@
                             <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
                                 <li class="nav-item">
                                     <a asp-area="Organizer" asp-controller="Home" asp-action="Index" class="nav-link @(IsActive("Home"))">
-                                        <i class="fa fa-th-large mr-1"></i> Dashboard
+                                        <i class="fa fa-th-large mr-1"></i> @LayoutLocalizer["Layout.Nav.Dashboard"]
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-area="Organizer" asp-controller="Events" asp-action="Index" class="nav-link @(IsActive("Events"))">
-                                        <i class="fa fa-calendar mr-1"></i> My Events
+                                        <i class="fa fa-calendar mr-1"></i> @LayoutLocalizer["Layout.Nav.MyEvents"]
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-area="Organizer" asp-controller="Events" asp-action="Create" class="nav-link">
-                                        <i class="fa fa-plus mr-1"></i> New Event
+                                        <i class="fa fa-plus mr-1"></i> @LayoutLocalizer["Layout.Nav.NewEvent"]
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-area="Organizer" asp-controller="Services" asp-action="Index" class="nav-link @(IsActive("Services"))">
-                                        <i class="fa fa-briefcase mr-1"></i> Services
+                                        <i class="fa fa-briefcase mr-1"></i> @LayoutLocalizer["Layout.Nav.Services"]
                                     </a>
                                 </li>
                             </ul>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Client.Events.Available" xml:space="preserve"><value>Available</value></data>
+  <data name="Client.Events.BackToEvents" xml:space="preserve"><value>Back to Events</value></data>
+  <data name="Client.Events.BookingCount" xml:space="preserve"><value>{0} events available for booking</value></data>
+  <data name="Client.Events.BrowseTitle" xml:space="preserve"><value>Browse Events</value></data>
+  <data name="Client.Events.Free" xml:space="preserve"><value>Free</value></data>
+  <data name="Client.Events.GetTickets" xml:space="preserve"><value>Get Tickets</value></data>
+  <data name="Client.Events.BackToEvent" xml:space="preserve"><value>Back to Event</value></data>
+  <data name="Client.Events.ReserveSpot" xml:space="preserve"><value>Reserve your spot for this event</value></data>
+  <data name="Client.Events.TicketsAvailable" xml:space="preserve"><value>{0} tickets available</value></data>
+  <data name="Client.Events.PriceLabel" xml:space="preserve"><value>Price:</value></data>
+  <data name="Client.Events.PerTicket" xml:space="preserve"><value>per ticket</value></data>
+  <data name="Client.Events.FreeEvent" xml:space="preserve"><value>Free Event</value></data>
+  <data name="Client.Events.NumberOfTickets" xml:space="preserve"><value>Number of Tickets</value></data>
+  <data name="Client.Events.Total" xml:space="preserve"><value>Total:</value></data>
+  <data name="Client.Events.PayWithStripe" xml:space="preserve"><value>Pay with Stripe</value></data>
+  <data name="Client.Events.ReservePayLater" xml:space="preserve"><value>Reserve (Pay Later)</value></data>
+  <data name="Client.Events.GetFreeTickets" xml:space="preserve"><value>Get Free Tickets</value></data>
+  <data name="Client.Events.PickSeats" xml:space="preserve"><value>Pick Your Seats</value></data>
+  <data name="Client.Events.PickSeatsHint" xml:space="preserve"><value>Click seats on the map to add them to your order.</value></data>
+  <data name="Client.Events.StageScreen" xml:space="preserve"><value>STAGE / SCREEN</value></data>
+  <data name="Client.Events.Legend" xml:space="preserve"><value>Legend</value></data>
+  <data name="Client.Events.Empty" xml:space="preserve"><value>Empty</value></data>
+  <data name="Client.Events.Base" xml:space="preserve"><value>Base</value></data>
+  <data name="Client.Events.Taken" xml:space="preserve"><value>Taken</value></data>
+  <data name="Client.Events.Selected" xml:space="preserve"><value>Selected</value></data>
+  <data name="Client.Events.ZonesPricing" xml:space="preserve"><value>Zones &amp; Pricing</value></data>
+  <data name="Client.Events.BasePrice" xml:space="preserve"><value>base price</value></data>
+  <data name="Client.Events.ZoneAvailable" xml:space="preserve"><value>{0} / {1} available</value></data>
+  <data name="Client.Events.YourSelection" xml:space="preserve"><value>Your Selection</value></data>
+  <data name="Client.Events.ReservationHold" xml:space="preserve"><value>Reservations are held for 15 minutes.</value></data>
+  <data name="Client.Events.Left" xml:space="preserve"><value>{0} / {1} left</value></data>
+  <data name="Client.Events.Location" xml:space="preserve"><value>Location</value></data>
+  <data name="Client.Events.LocationMissing" xml:space="preserve"><value>Location details not provided.</value></data>
+  <data name="Client.Events.LowStock" xml:space="preserve"><value>Low stock</value></data>
+  <data name="Client.Events.MapApiMissing" xml:space="preserve"><value>Add a Google Maps API key to show the map.</value></data>
+  <data name="Client.Events.MapCoordinatesMissing" xml:space="preserve"><value>Add valid latitude and longitude to show the map.</value></data>
+  <data name="Client.Events.MapUnavailable" xml:space="preserve"><value>Map unavailable</value></data>
+  <data name="Client.Events.NoDescription" xml:space="preserve"><value>No description provided.</value></data>
+  <data name="Client.Events.NoEvents" xml:space="preserve"><value>No events published yet</value></data>
+  <data name="Client.Events.NoEventsHint" xml:space="preserve"><value>Check back soon for upcoming events!</value></data>
+  <data name="Client.Events.Price" xml:space="preserve"><value>Price</value></data>
+  <data name="Client.Events.SoldOut" xml:space="preserve"><value>Sold Out</value></data>
+  <data name="Client.Events.Start" xml:space="preserve"><value>Start</value></data>
+  <data name="Client.Events.End" xml:space="preserve"><value>End</value></data>
+  <data name="Client.Events.TicketSuffix" xml:space="preserve"><value>/ ticket</value></data>
+  <data name="Client.Events.TicketsLeft" xml:space="preserve"><value>{0} / {1} tickets left</value></data>
+  <data name="Client.Events.VenueRoom" xml:space="preserve"><value>Venue / Room</value></data>
+  <data name="Client.Events.ViewDetails" xml:space="preserve"><value>View Details</value></data>
+</root>

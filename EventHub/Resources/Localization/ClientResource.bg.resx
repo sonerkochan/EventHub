@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Client.Events.Available" xml:space="preserve"><value>Налични</value></data>
+  <data name="Client.Events.BackToEvents" xml:space="preserve"><value>Назад към събитията</value></data>
+  <data name="Client.Events.BookingCount" xml:space="preserve"><value>{0} събития налични за резервация</value></data>
+  <data name="Client.Events.BrowseTitle" xml:space="preserve"><value>Разгледай събития</value></data>
+  <data name="Client.Events.Free" xml:space="preserve"><value>Безплатно</value></data>
+  <data name="Client.Events.GetTickets" xml:space="preserve"><value>Вземи билети</value></data>
+  <data name="Client.Events.BackToEvent" xml:space="preserve"><value>Назад към събитието</value></data>
+  <data name="Client.Events.ReserveSpot" xml:space="preserve"><value>Резервирайте мястото си за това събитие</value></data>
+  <data name="Client.Events.TicketsAvailable" xml:space="preserve"><value>{0} налични билета</value></data>
+  <data name="Client.Events.PriceLabel" xml:space="preserve"><value>Цена:</value></data>
+  <data name="Client.Events.PerTicket" xml:space="preserve"><value>на билет</value></data>
+  <data name="Client.Events.FreeEvent" xml:space="preserve"><value>Безплатно събитие</value></data>
+  <data name="Client.Events.NumberOfTickets" xml:space="preserve"><value>Брой билети</value></data>
+  <data name="Client.Events.Total" xml:space="preserve"><value>Общо:</value></data>
+  <data name="Client.Events.PayWithStripe" xml:space="preserve"><value>Плати със Stripe</value></data>
+  <data name="Client.Events.ReservePayLater" xml:space="preserve"><value>Резервирай (плати по-късно)</value></data>
+  <data name="Client.Events.GetFreeTickets" xml:space="preserve"><value>Вземи безплатни билети</value></data>
+  <data name="Client.Events.PickSeats" xml:space="preserve"><value>Изберете места</value></data>
+  <data name="Client.Events.PickSeatsHint" xml:space="preserve"><value>Кликнете върху места на картата, за да ги добавите към поръчката.</value></data>
+  <data name="Client.Events.StageScreen" xml:space="preserve"><value>СЦЕНА / ЕКРАН</value></data>
+  <data name="Client.Events.Legend" xml:space="preserve"><value>Легенда</value></data>
+  <data name="Client.Events.Empty" xml:space="preserve"><value>Свободно</value></data>
+  <data name="Client.Events.Base" xml:space="preserve"><value>Базова</value></data>
+  <data name="Client.Events.Taken" xml:space="preserve"><value>Заето</value></data>
+  <data name="Client.Events.Selected" xml:space="preserve"><value>Избрано</value></data>
+  <data name="Client.Events.ZonesPricing" xml:space="preserve"><value>Зони и цени</value></data>
+  <data name="Client.Events.BasePrice" xml:space="preserve"><value>базова цена</value></data>
+  <data name="Client.Events.ZoneAvailable" xml:space="preserve"><value>{0} / {1} налични</value></data>
+  <data name="Client.Events.YourSelection" xml:space="preserve"><value>Вашият избор</value></data>
+  <data name="Client.Events.ReservationHold" xml:space="preserve"><value>Резервациите се пазят 15 минути.</value></data>
+  <data name="Client.Events.Left" xml:space="preserve"><value>{0} / {1} остават</value></data>
+  <data name="Client.Events.Location" xml:space="preserve"><value>Локация</value></data>
+  <data name="Client.Events.LocationMissing" xml:space="preserve"><value>Няма въведени детайли за локацията.</value></data>
+  <data name="Client.Events.LowStock" xml:space="preserve"><value>Малко останали</value></data>
+  <data name="Client.Events.MapApiMissing" xml:space="preserve"><value>Добавете Google Maps API ключ, за да се покаже картата.</value></data>
+  <data name="Client.Events.MapCoordinatesMissing" xml:space="preserve"><value>Добавете валидни ширина и дължина, за да се покаже картата.</value></data>
+  <data name="Client.Events.MapUnavailable" xml:space="preserve"><value>Картата не е налична</value></data>
+  <data name="Client.Events.NoDescription" xml:space="preserve"><value>Няма въведено описание.</value></data>
+  <data name="Client.Events.NoEvents" xml:space="preserve"><value>Все още няма публикувани събития</value></data>
+  <data name="Client.Events.NoEventsHint" xml:space="preserve"><value>Проверете отново скоро за предстоящи събития!</value></data>
+  <data name="Client.Events.Price" xml:space="preserve"><value>Цена</value></data>
+  <data name="Client.Events.SoldOut" xml:space="preserve"><value>Разпродадено</value></data>
+  <data name="Client.Events.Start" xml:space="preserve"><value>Начало</value></data>
+  <data name="Client.Events.End" xml:space="preserve"><value>Край</value></data>
+  <data name="Client.Events.TicketSuffix" xml:space="preserve"><value>/ билет</value></data>
+  <data name="Client.Events.TicketsLeft" xml:space="preserve"><value>{0} / {1} билета остават</value></data>
+  <data name="Client.Events.VenueRoom" xml:space="preserve"><value>Място / Зала</value></data>
+  <data name="Client.Events.ViewDetails" xml:space="preserve"><value>Виж детайли</value></data>
+</root>

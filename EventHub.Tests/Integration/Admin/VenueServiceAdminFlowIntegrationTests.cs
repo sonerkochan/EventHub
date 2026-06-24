@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventHub.Tests.Integration.Admin;
 
+[Trait("Category", "Integration")]
 public class VenueServiceAdminFlowIntegrationTests
 {
     [Fact]

@@ -21,13 +21,13 @@ namespace EventHub.Infrastructure.Data.Configuration
             {
                 new Room()
                 {
-                    RoomId = Guid.NewGuid(),
+                    RoomId = Guid.Parse("3190929a-5292-4dc3-8fd1-5adf73d8982a"),
                     Name = "Fancy",
                     Description = "Very nice and cool big room (to test)",
                     Capacity = 100,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = new DateTime(2026, 5, 29, 10, 55, 8, 96, DateTimeKind.Utc).AddTicks(7462),
                     CreatedBy = Guid.Parse("f7a1b2c3-d4e5-6789-abcd-ef0123456789"),
-                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedAt = new DateTime(2026, 5, 29, 10, 55, 8, 96, DateTimeKind.Utc).AddTicks(8240),
                     IsActive = true,
                     VenueId = Guid.Parse("12345678-90ab-cdef-1234-567890abcdef"),
                     RoomType = RoomType.Theatre

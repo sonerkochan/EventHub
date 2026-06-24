@@ -1,11 +1,11 @@
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.Currency;
 using EventHub.Core.Models.Payment;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 
 namespace EventHub.Areas.Client.Controllers
@@ -18,6 +18,7 @@ namespace EventHub.Areas.Client.Controllers
         private readonly ICurrencyExchangeRateService currencyExchangeRateService;
         private readonly StripeOptions stripeOptions;
         private readonly CurrencyOptions currencyOptions;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         public PaymentController(
             IPaymentService _paymentService,
@@ -25,7 +26,8 @@ namespace EventHub.Areas.Client.Controllers
             ITicketService _ticketService,
             ICurrencyExchangeRateService _currencyExchangeRateService,
             IOptions<StripeOptions> _stripeOptions,
-            IOptions<CurrencyOptions> _currencyOptions)
+            IOptions<CurrencyOptions> _currencyOptions,
+            IStringLocalizer<MessagesResource> _messagesLocalizer)
         {
             paymentService = _paymentService;
             eventService = _eventService;
@@ -33,6 +35,7 @@ namespace EventHub.Areas.Client.Controllers
             currencyExchangeRateService = _currencyExchangeRateService;
             stripeOptions = _stripeOptions.Value;
             currencyOptions = _currencyOptions.Value;
+            messagesLocalizer = _messagesLocalizer;
         }
 
         [HttpGet]
@@ -53,7 +56,7 @@ namespace EventHub.Areas.Client.Controllers
             var maxQuantity = Math.Min(10, ev.TotalTickets - ev.TicketsSold);
             if (quantity < 1 || quantity > maxQuantity)
             {
-                TempData["Error"] = "Choose a valid ticket quantity.";
+                TempData["Error"] = messagesLocalizer["Messages.Payment.InvalidQuantity"].Value;
                 return RedirectToAction("Buy", "Events", new { id = eventId });
             }
 
@@ -87,12 +90,12 @@ namespace EventHub.Areas.Client.Controllers
             }
             catch (Stripe.StripeException)
             {
-                TempData["Error"] = "Unable to start Stripe checkout. Please try again.";
+                TempData["Error"] = messagesLocalizer["Messages.Payment.StripeStartFailed"].Value;
                 return RedirectToAction("Buy", "Events", new { id = eventId });
             }
             catch (InvalidOperationException)
             {
-                TempData["Error"] = "Unable to convert the selected currency. Please try EUR or another currency.";
+                TempData["Error"] = messagesLocalizer["Messages.Payment.CurrencyFailed"].Value;
                 return RedirectToAction("Buy", "Events", new { id = eventId });
             }
         }
@@ -103,7 +106,7 @@ namespace EventHub.Areas.Client.Controllers
         {
             if (seatIds == null || seatIds.Count == 0)
             {
-                TempData["Error"] = "Please pick at least one seat.";
+                TempData["Error"] = messagesLocalizer["Messages.Ticket.PickSeat"].Value;
                 return RedirectToAction("Buy", "Events", new { id = eventId });
             }
 
@@ -115,7 +118,7 @@ namespace EventHub.Areas.Client.Controllers
             var reservation = await ticketService.ReserveSeatsAsync(eventId, userId, seatIds);
             if (!reservation.Success)
             {
-                TempData["Error"] = reservation.ErrorMessage ?? "Unable to reserve seats.";
+                TempData["Error"] = reservation.ErrorMessage ?? messagesLocalizer["Messages.Ticket.ReserveFailed"].Value;
                 return RedirectToAction("Buy", "Events", new { id = eventId });
             }
 
@@ -152,12 +155,12 @@ namespace EventHub.Areas.Client.Controllers
             }
             catch (Stripe.StripeException)
             {
-                TempData["Error"] = "Unable to start Stripe checkout. Please try again.";
+                TempData["Error"] = messagesLocalizer["Messages.Payment.StripeStartFailed"].Value;
                 return RedirectToAction("Buy", "Events", new { id = eventId });
             }
             catch (InvalidOperationException)
             {
-                TempData["Error"] = "Unable to convert the selected currency. Please try EUR or another currency.";
+                TempData["Error"] = messagesLocalizer["Messages.Payment.CurrencyFailed"].Value;
                 return RedirectToAction("Buy", "Events", new { id = eventId });
             }
         }
@@ -212,13 +215,16 @@ namespace EventHub.Areas.Client.Controllers
     {
         private readonly IPaymentService paymentService;
         private readonly StripeOptions stripeOptions;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         public StripeWebhookController(
             IPaymentService _paymentService,
-            IOptions<StripeOptions> _stripeOptions)
+            IOptions<StripeOptions> _stripeOptions,
+            IStringLocalizer<MessagesResource>? messagesLocalizer = null)
         {
             paymentService = _paymentService;
             stripeOptions = _stripeOptions.Value;
+            this.messagesLocalizer = messagesLocalizer ?? new FallbackStringLocalizer<MessagesResource>();
         }
 
         [HttpPost]
@@ -234,7 +240,7 @@ namespace EventHub.Areas.Client.Controllers
             }
             catch (Stripe.StripeException)
             {
-                return BadRequest("Invalid Stripe signature.");
+                return BadRequest(messagesLocalizer["Messages.Payment.InvalidStripeSignature"].Value);
             }
         }
     }

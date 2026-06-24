@@ -1,7 +1,9 @@
 @model EventHub.Core.Models.Event.EventDetailViewModel
 @using System.Globalization
 @using System.Text.Json
+@using EventHub.Localization
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@inject Microsoft.Extensions.Localization.IStringLocalizer<ClientResource> ClientLocalizer
 
 @{
     ViewData["Title"] = Model.EventName;
@@ -131,7 +133,7 @@
 </style>
 
 <a asp-action="Index" class="eh-back-link">
-    <i class="fa fa-arrow-left"></i> Back to Events
+    <i class="fa fa-arrow-left"></i> @ClientLocalizer["Client.Events.BackToEvents"]
 </a>
 
 <div class="row">
@@ -146,7 +148,7 @@
             }
             <div class="desc">
                 <h4 style="font-family:'Poppins',sans-serif;font-weight:700;color:#1a1a2e;margin-bottom:14px;">@Model.EventName</h4>
-                @(Model.Description ?? "No description provided.")
+                @(Model.Description ?? ClientLocalizer["Client.Events.NoDescription"])
             </div>
         </div>
 
@@ -154,8 +156,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                     <div>
-                        <h6 class="fw-semibold mb-1">Location</h6>
-                        <p class="text-muted small mb-0">@(string.IsNullOrWhiteSpace(locationText) ? "Location details not provided." : locationText)</p>
+                        <h6 class="fw-semibold mb-1">@ClientLocalizer["Client.Events.Location"]</h6>
+                        <p class="text-muted small mb-0">@(string.IsNullOrWhiteSpace(locationText) ? ClientLocalizer["Client.Events.LocationMissing"] : locationText)</p>
                     </div>
                     @if (hasMapLocation)
                     {
@@ -170,15 +172,15 @@
                 else
                 {
                     <div class="eh-map-placeholder">
-                        <div class="fw-medium">Map unavailable</div>
+                        <div class="fw-medium">@ClientLocalizer["Client.Events.MapUnavailable"]</div>
                         <div class="text-muted small">
                             @if (string.IsNullOrWhiteSpace(googleMapsApiKey))
                             {
-                                <span>Add a Google Maps API key to show the map.</span>
+                                <span>@ClientLocalizer["Client.Events.MapApiMissing"]</span>
                             }
                             else
                             {
-                                <span>Add valid latitude and longitude to show the map.</span>
+                                <span>@ClientLocalizer["Client.Events.MapCoordinatesMissing"]</span>
                             }
                         </div>
                     </div>
@@ -194,44 +196,44 @@
             </div>
             <div class="eh-info-card-body">
                 <div class="eh-info-row">
-                    <div class="eh-info-label">Start</div>
+                    <div class="eh-info-label">@ClientLocalizer["Client.Events.Start"]</div>
                     <div class="eh-info-value">
                         <i class="fa fa-calendar"></i> @Model.StartDateTime.ToString("dd MMM yyyy, HH:mm")
                     </div>
                 </div>
                 <div class="eh-info-row">
-                    <div class="eh-info-label">End</div>
+                    <div class="eh-info-label">@ClientLocalizer["Client.Events.End"]</div>
                     <div class="eh-info-value">
                         <i class="fa fa-calendar-check-o"></i> @Model.EndDateTime.ToString("dd MMM yyyy, HH:mm")
                     </div>
                 </div>
                 <div class="eh-info-row">
-                    <div class="eh-info-label">Venue / Room</div>
+                    <div class="eh-info-label">@ClientLocalizer["Client.Events.VenueRoom"]</div>
                     <div class="eh-info-value">
                         <i class="fa fa-map-marker"></i> @Model.RoomName
                     </div>
                 </div>
                 <div class="eh-info-row">
-                    <div class="eh-info-label">Price</div>
+                    <div class="eh-info-label">@ClientLocalizer["Client.Events.Price"]</div>
                     <div class="eh-info-value">
                         @if (!Model.IsFree)
                         {
                             <i class="fa fa-credit-card"></i>
                             <span data-currency-amount="@Model.PriceAmount?.ToString(CultureInfo.InvariantCulture)" data-currency-source="EUR">@Model.PriceText</span>
-                            <small class="text-muted"> / ticket</small>
+                            <small class="text-muted"> @ClientLocalizer["Client.Events.TicketSuffix"]</small>
                         }
                         else
                         {
                             <i class="fa fa-ticket"></i>
-                            <span>Free</span>
+                            <span>@ClientLocalizer["Client.Events.Free"]</span>
                         }
                     </div>
                 </div>
                 <div class="eh-info-row">
-                    <div class="eh-info-label">Availability</div>
+                    <div class="eh-info-label">@ClientLocalizer["Client.Events.Available"]</div>
                     <div class="eh-info-value">
                         <i class="fa fa-ticket"></i>
-                        @(Model.TotalTickets - Model.TicketsSold) / @Model.TotalTickets tickets left
+                        @ClientLocalizer["Client.Events.TicketsLeft", Model.TotalTickets - Model.TicketsSold, Model.TotalTickets]
                     </div>
                     @{
                         var pct = Model.TotalTickets > 0 ? (Model.TotalTickets - Model.TicketsSold) * 100.0 / Model.TotalTickets : 0;
@@ -245,12 +247,12 @@
                 @if (Model.TotalTickets - Model.TicketsSold > 0)
                 {
                     <a asp-action="Buy" asp-route-id="@Model.Id" class="eh-book-btn">
-                        <i class="fa fa-ticket mr-1"></i> Get Tickets
+                        <i class="fa fa-ticket mr-1"></i> @ClientLocalizer["Client.Events.GetTickets"]
                     </a>
                 }
                 else
                 {
-                    <div class="eh-sold-out-btn">Sold Out</div>
+                    <div class="eh-sold-out-btn">@ClientLocalizer["Client.Events.SoldOut"]</div>
                 }
             </div>
         </div>

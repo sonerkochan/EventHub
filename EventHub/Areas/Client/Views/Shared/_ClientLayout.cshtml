@@ -1,10 +1,13 @@
 @using EventHub.Infrastructure.Data.Models
+@using System.Globalization
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
+@inject IStringLocalizer<LayoutResource> LayoutLocalizer
+@inject IStringLocalizer<CommonResource> CommonLocalizer
 
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="@CultureInfo.CurrentUICulture.Name" class="no-js">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -140,7 +143,7 @@
     <nav class="navbar navbar-expand-lg navbar-light eh-navbar sticky-top">
         <div class="container">
             <a class="navbar-brand" asp-area="Client" asp-controller="Home" asp-action="Index">
-                Event<span>Hub</span> <small style="font-size:0.6rem;font-weight:400;color:#999;vertical-align:middle;">Client</small>
+                Event<span>Hub</span> <small style="font-size:0.6rem;font-weight:400;color:#999;vertical-align:middle;">@CommonLocalizer["Common.Role.Client"]</small>
             </a>
 
             <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -154,37 +157,37 @@
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Home" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Home"))">
-                            Dashboard
+                            @LayoutLocalizer["Layout.Nav.Dashboard"]
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Events" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Events"))">
-                            Events
+                            @LayoutLocalizer["Layout.Nav.Events"]
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Services" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Services"))">
-                            Services
+                            @LayoutLocalizer["Layout.Nav.Services"]
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Tickets" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Tickets"))">
-                            Tickets
+                            @LayoutLocalizer["Layout.Nav.Tickets"]
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Payment" asp-action="History"
                            class="nav-link eh-nav-link @(IsActive("Payment"))">
-                            Payments
+                            @LayoutLocalizer["Layout.Nav.Payments"]
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-area="Client" asp-controller="Application" asp-action="Index"
                            class="nav-link eh-nav-link @(IsActive("Application"))">
-                            Applications
+                            @LayoutLocalizer["Layout.Nav.Applications"]
                         </a>
                     </li>
                 </ul>
@@ -192,6 +195,9 @@
                 <ul class="navbar-nav ml-auto align-items-center">
                     <li class="nav-item mr-lg-2 my-2 my-lg-0">
                         @await Html.PartialAsync("~/Views/Shared/_CurrencySelector.cshtml")
+                    </li>
+                    <li class="nav-item mr-lg-2 my-2 my-lg-0">
+                        @await Html.PartialAsync("~/Views/Shared/_CultureSelector.cshtml")
                     </li>
                     @if (SignInManager.IsSignedIn(User))
                     {
@@ -208,22 +214,22 @@
                                 @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Organizer"))
                                 {
                                     <a asp-area="Organizer" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                        <i class="fa fa-calendar mr-2"></i> Organizer Panel
+                                        <i class="fa fa-calendar mr-2"></i> @LayoutLocalizer["Layout.Nav.OrganizerPanel"]
                                     </a>
                                 }
                                 @if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Supplier"))
                                 {
                                     <a asp-area="Supplier" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                        <i class="fa fa-briefcase mr-2"></i> Supplier Panel
+                                        <i class="fa fa-briefcase mr-2"></i> @LayoutLocalizer["Layout.Nav.SupplierPanel"]
                                     </a>
                                 }
                                 <a asp-area="" asp-controller="Home" asp-action="Index" class="dropdown-item">
-                                    <i class="fa fa-home mr-2"></i> Back to Site
+                                    <i class="fa fa-home mr-2"></i> @LayoutLocalizer["Layout.Nav.BackToSite"]
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <form asp-area="" asp-controller="User" asp-action="Logout" method="post">
                                     <button type="submit" class="dropdown-item text-danger">
-                                        <i class="fa fa-sign-out mr-2"></i> Sign Out
+                                        <i class="fa fa-sign-out mr-2"></i> @CommonLocalizer["Common.Action.SignOut"]
                                     </button>
                                 </form>
                             </div>
@@ -247,7 +253,7 @@
     <footer class="eh-footer">
         <div class="container text-center">
             <p>
-                &copy; <script>document.write(new Date().getFullYear());</script> EventHub. All rights reserved.
+                &copy; <script>document.write(new Date().getFullYear());</script> EventHub. @LayoutLocalizer["Layout.Footer.Rights"]
             </p>
         </div>
     </footer>

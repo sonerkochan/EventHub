@@ -4,10 +4,12 @@ using EventHub.Core.Models.Venue;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Common;
 using EventHub.Infrastructure.Data.Models;
+using EventHub.Localization;
 using EventHub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using System.Diagnostics;
 
 namespace EventHub.Areas.Admin.Controllers
@@ -15,10 +17,14 @@ namespace EventHub.Areas.Admin.Controllers
     public class ModeratorController : BaseController
     {
         private readonly IModeratorService moderatorService;
+        private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
-        public ModeratorController(IModeratorService _moderatorService)
+        public ModeratorController(
+            IModeratorService _moderatorService,
+            IStringLocalizer<MessagesResource>? messagesLocalizer = null)
         {
             moderatorService = _moderatorService;
+            this.messagesLocalizer = messagesLocalizer ?? new FallbackStringLocalizer<MessagesResource>();
         }
 
         public async Task<IActionResult> Index()
@@ -44,7 +50,7 @@ namespace EventHub.Areas.Admin.Controllers
 
             if (!success)
             {
-                ModelState.AddModelError("", "Failed to create moderator. Username or email may already be taken.");
+                ModelState.AddModelError("", messagesLocalizer["Messages.Moderator.CreateFailed"]);
                 return View(model);
             }
 
@@ -73,7 +79,7 @@ namespace EventHub.Areas.Admin.Controllers
 
             if (!success)
             {
-                ModelState.AddModelError("", "Failed to update moderator.");
+                ModelState.AddModelError("", messagesLocalizer["Messages.Moderator.UpdateFailed"]);
                 return View(model);
             }
 

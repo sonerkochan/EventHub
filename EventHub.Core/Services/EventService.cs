@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace EventHub.Core.Services
@@ -61,6 +62,7 @@ namespace EventHub.Core.Services
                     UpdatedAt = DateTime.UtcNow
                 };
                 await repo.AddAsync(entity);
+                await AddEventTranslationAsync(entity.Id, "bg", entity.EventName!, model.BulgarianEventName, model.BulgarianDescription);
                 await repo.SaveChangesAsync();
 
                 _cache.Remove("events_all");
@@ -84,6 +86,7 @@ namespace EventHub.Core.Services
                 .ToListAsync();
 
             await ApplyDisplayPricesAsync(events);
+            await ApplyEventTranslationsAsync(events);
             return events;
         }
 
@@ -93,6 +96,7 @@ namespace EventHub.Core.Services
                 .ToListAsync();
 
             await ApplyDisplayPricesAsync(events);
+            await ApplyEventTranslationsAsync(events);
             return events;
         }
         
@@ -104,6 +108,7 @@ namespace EventHub.Core.Services
                 .ToListAsync();
 
             await ApplyDisplayPricesAsync(events);
+            await ApplyEventTranslationsAsync(events);
             return events;
         }
 
@@ -121,6 +126,7 @@ namespace EventHub.Core.Services
                 .ToListAsync();
 
             await ApplyDisplayPricesAsync(events);
+            await ApplyEventTranslationsAsync(events);
             return events;
         }
 
@@ -132,6 +138,7 @@ namespace EventHub.Core.Services
             if (detail != null)
             {
                 await ApplyDisplayPriceAsync(detail);
+                await ApplyEventTranslationAsync(detail);
             }
 
             return detail;
@@ -147,6 +154,7 @@ namespace EventHub.Core.Services
             if (detail != null)
             {
                 await ApplyDisplayPriceAsync(detail);
+                await ApplyEventTranslationAsync(detail);
             }
 
             return detail;
@@ -159,11 +167,16 @@ namespace EventHub.Core.Services
 
             if (ev == null) return null;
 
+            var bgTranslation = await repo.AllReadonly<EventTranslation>()
+                .FirstOrDefaultAsync(t => t.EventId == ev.Id && t.Culture == "bg");
+
             return new EditEventViewModel
             {
                 Id = ev.Id,
                 EventName = ev.EventName!,
                 Description = ev.Description,
+                BulgarianEventName = bgTranslation?.EventName,
+                BulgarianDescription = bgTranslation?.Description,
                 EventType = ev.EventType,
                 EventStatus = ev.EventStatus,
                 EventPriority = ev.EventPriority,
@@ -215,6 +228,7 @@ namespace EventHub.Core.Services
             ev.UpdatedAt = DateTime.UtcNow;
 
             repo.Update(ev);
+            await UpsertEventTranslationAsync(ev.Id, "bg", ev.EventName!, model.BulgarianEventName, model.BulgarianDescription);
             await repo.SaveChangesAsync();
             return true;
         }
@@ -309,6 +323,116 @@ namespace EventHub.Core.Services
                         ev.IsFree = isFree;
                     });
             }
+        }
+
+        private async Task ApplyEventTranslationsAsync(List<EventListViewModel> events)
+        {
+            var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            if (culture == "en" || events.Count == 0)
+            {
+                return;
+            }
+
+            var eventIds = events.Select(e => e.Id).ToList();
+            var translations = await repo.AllReadonly<EventTranslation>()
+                .Where(t => t.Culture == culture && eventIds.Contains(t.EventId))
+                .ToDictionaryAsync(t => t.EventId);
+
+            foreach (var ev in events)
+            {
+                if (translations.TryGetValue(ev.Id, out var translation))
+                {
+                    var localized = EventTranslationDisplayResolver.Resolve(
+                        ev.EventName,
+                        ev.Description,
+                        culture,
+                        [translation]);
+                    ev.EventName = localized.EventName;
+                    ev.Description = localized.Description;
+                }
+            }
+        }
+
+        private async Task ApplyEventTranslationAsync(EventDetailViewModel ev)
+        {
+            var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            if (culture == "en")
+            {
+                return;
+            }
+
+            var translation = await repo.AllReadonly<EventTranslation>()
+                .FirstOrDefaultAsync(t => t.EventId == ev.Id && t.Culture == culture);
+
+            if (translation == null)
+            {
+                return;
+            }
+
+            var localized = EventTranslationDisplayResolver.Resolve(
+                ev.EventName,
+                ev.Description,
+                culture,
+                [translation]);
+            ev.EventName = localized.EventName;
+            ev.Description = localized.Description;
+        }
+
+        private async Task AddEventTranslationAsync(Guid eventId, string culture, string defaultEventName, string? eventName, string? description)
+        {
+            if (string.IsNullOrWhiteSpace(eventName) && string.IsNullOrWhiteSpace(description))
+            {
+                return;
+            }
+
+            await repo.AddAsync(new EventTranslation
+            {
+                Id = Guid.NewGuid(),
+                EventId = eventId,
+                Culture = culture,
+                EventName = string.IsNullOrWhiteSpace(eventName) ? defaultEventName : eventName.Trim(),
+                Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim(),
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+        }
+
+        private async Task UpsertEventTranslationAsync(Guid eventId, string culture, string defaultEventName, string? eventName, string? description)
+        {
+            var translation = await repo.All<EventTranslation>()
+                .FirstOrDefaultAsync(t => t.EventId == eventId && t.Culture == culture);
+
+            if (string.IsNullOrWhiteSpace(eventName) && string.IsNullOrWhiteSpace(description))
+            {
+                if (translation != null)
+                {
+                    repo.Delete(translation);
+                }
+                return;
+            }
+
+            var normalizedName = string.IsNullOrWhiteSpace(eventName) ? defaultEventName : eventName.Trim();
+            var normalizedDescription = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+
+            if (translation == null)
+            {
+                await repo.AddAsync(new EventTranslation
+                {
+                    Id = Guid.NewGuid(),
+                    EventId = eventId,
+                    Culture = culture,
+                    EventName = normalizedName,
+                    Description = normalizedDescription,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+                return;
+            }
+
+            translation.EventName = normalizedName;
+            translation.Description = normalizedDescription;
+            translation.UpdatedAt = DateTime.UtcNow;
+            repo.Update(translation);
         }
 
         private async Task ApplyDisplayPriceAsync(EventDetailViewModel ev)

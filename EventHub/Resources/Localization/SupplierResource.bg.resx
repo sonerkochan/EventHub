@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Supplier.Services.Created" xml:space="preserve"><value>Услугата е създадена успешно!</value></data>
+  <data name="Supplier.Services.Updated" xml:space="preserve"><value>Услугата е обновена успешно!</value></data>
+  <data name="Supplier.Services.Deleted" xml:space="preserve"><value>Услугата е изтрита успешно!</value></data>
+  <data name="Supplier.Requests.Accepted" xml:space="preserve"><value>Заявката е приета.</value></data>
+  <data name="Supplier.Requests.AcceptFailed" xml:space="preserve"><value>Заявката не може да бъде приета.</value></data>
+  <data name="Supplier.Requests.Declined" xml:space="preserve"><value>Заявката е отказана.</value></data>
+  <data name="Supplier.Requests.DeclineFailed" xml:space="preserve"><value>Заявката не може да бъде отказана.</value></data>
+</root>

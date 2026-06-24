@@ -1,11 +1,14 @@
 using EventHub.Areas.Admin.Controllers;
 using EventHub.Core.Contracts;
 using EventHub.Core.Models.Moderator;
+using EventHub.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Moq;
 
 namespace EventHub.Tests.Unit.Admin;
 
+[Trait("Category", "Unit")]
 public class ModeratorControllerTests
 {
     [Fact]
@@ -28,7 +31,7 @@ public class ModeratorControllerTests
         moderatorService
             .Setup(s => s.GetAllModeratorsAsync())
             .ReturnsAsync(moderators);
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Index();
 
@@ -42,7 +45,7 @@ public class ModeratorControllerTests
     public void CreateModeratorGet_ReturnsViewWithAddModeratorViewModel()
     {
         var moderatorService = new Mock<IModeratorService>();
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = controller.Create();
 
@@ -55,7 +58,7 @@ public class ModeratorControllerTests
     public async Task CreateModeratorPost_WhenModelStateIsInvalid_ReturnsViewAndDoesNotCallService()
     {
         var moderatorService = new Mock<IModeratorService>();
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
         var model = CreateAddModel();
         controller.ModelState.AddModelError("Email", "Required");
 
@@ -74,7 +77,7 @@ public class ModeratorControllerTests
         moderatorService
             .Setup(s => s.CreateModeratorAsync(model))
             .ReturnsAsync(true);
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Create(model);
 
@@ -91,7 +94,7 @@ public class ModeratorControllerTests
         moderatorService
             .Setup(s => s.CreateModeratorAsync(model))
             .ReturnsAsync(false);
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Create(model);
 
@@ -113,7 +116,7 @@ public class ModeratorControllerTests
         moderatorService
             .Setup(s => s.GetModeratorByIdAsync(id))
             .ReturnsAsync(model);
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Edit(id);
 
@@ -130,7 +133,7 @@ public class ModeratorControllerTests
         moderatorService
             .Setup(s => s.GetModeratorByIdAsync(id))
             .ReturnsAsync((EditModeratorViewModel?)null);
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Edit(id);
 
@@ -143,7 +146,7 @@ public class ModeratorControllerTests
     {
         var model = CreateEditModel("moderator-id");
         var moderatorService = new Mock<IModeratorService>();
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
         controller.ModelState.AddModelError("Username", "Required");
 
         var result = await controller.Edit(model);
@@ -161,7 +164,7 @@ public class ModeratorControllerTests
         moderatorService
             .Setup(s => s.EditModeratorAsync(model))
             .ReturnsAsync(true);
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Edit(model);
 
@@ -178,7 +181,7 @@ public class ModeratorControllerTests
         moderatorService
             .Setup(s => s.EditModeratorAsync(model))
             .ReturnsAsync(false);
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Edit(model);
 
@@ -199,7 +202,7 @@ public class ModeratorControllerTests
         moderatorService
             .Setup(s => s.SetActiveStatusAsync(id, false))
             .ReturnsAsync(true);
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Disable(id);
 
@@ -216,13 +219,28 @@ public class ModeratorControllerTests
         moderatorService
             .Setup(s => s.SetActiveStatusAsync(id, true))
             .ReturnsAsync(true);
-        var controller = new ModeratorController(moderatorService.Object);
+        var controller = new ModeratorController(moderatorService.Object, CreateMessagesLocalizer().Object);
 
         var result = await controller.Enable(id);
 
         var redirect = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal(nameof(ModeratorController.Index), redirect.ActionName);
         moderatorService.Verify(s => s.SetActiveStatusAsync(id, true), Times.Once);
+    }
+
+    private static Mock<IStringLocalizer<MessagesResource>> CreateMessagesLocalizer()
+    {
+        var localizer = new Mock<IStringLocalizer<MessagesResource>>();
+        localizer
+            .Setup(l => l[It.IsAny<string>()])
+            .Returns((string key) => new LocalizedString(key, key switch
+            {
+                "Messages.Moderator.CreateFailed" => "Failed to create moderator. Username or email may already be taken.",
+                "Messages.Moderator.UpdateFailed" => "Failed to update moderator.",
+                _ => key
+            }));
+
+        return localizer;
     }
 
     private static AddModeratorViewModel CreateAddModel()

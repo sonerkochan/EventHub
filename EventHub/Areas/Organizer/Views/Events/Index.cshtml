@@ -1,23 +1,27 @@
 ﻿@using EventHub.Infrastructure.Data.Models
 @model IEnumerable<EventHub.Core.Models.Event.EventListViewModel>
+@using EventHub.Localization
+@inject Microsoft.Extensions.Localization.IStringLocalizer<EnumResource> EnumLocalizer
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AdminResource> AdminLocalizer
+@inject Microsoft.Extensions.Localization.IStringLocalizer<JsResource> JsLocalizer
 @{
-    ViewData["Title"] = "Events";
+    ViewData["Title"] = AdminLocalizer["Admin.Events.Title"];
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Events</h2>
-    <a asp-action="Create" class="btn btn-primary">+ New Event</a>
+    <h2>@AdminLocalizer["Admin.Events.Title"]</h2>
+    <a asp-action="Create" class="btn btn-primary">+ @AdminLocalizer["Admin.Events.NewEvent"]</a>
 </div>
 
 <table class="table table-hover">
     <thead class="table-dark">
         <tr>
-            <th>Name</th>
-            <th>Room</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Start</th>
-            <th>Tickets Sold</th>
+            <th>@AdminLocalizer["Admin.Events.Name"]</th>
+            <th>@AdminLocalizer["Admin.Events.Room"]</th>
+            <th>@AdminLocalizer["Admin.Events.Type"]</th>
+            <th>@AdminLocalizer["Admin.Events.Status"]</th>
+            <th>@AdminLocalizer["Admin.Events.Start"]</th>
+            <th>@AdminLocalizer["Admin.Events.Tickets"]</th>
             <th></th>
         </tr>
     </thead>
@@ -27,19 +31,19 @@
             <tr>
                 <td>@e.EventName</td>
                 <td>@e.RoomName</td>
-                <td>@e.EventType</td>
+                <td>@EnumLocalizer.LocalizeEnum(e.EventType)</td>
                 <td>
-                    <span class="badge bg-@StatusBadge(e.EventStatus)">@e.EventStatus</span>
+                    <span class="badge bg-@StatusBadge(e.EventStatus)">@EnumLocalizer.LocalizeEnum(e.EventStatus)</span>
                 </td>
                 <td>@e.StartDateTime.ToString("dd MMM yyyy HH:mm")</td>
                 <td>@e.TicketsSold / @e.TotalTickets</td>
                 <td class="text-end">
-                    <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-sm btn-outline-secondary">View</a>
-                    <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-sm btn-outline-secondary">@AdminLocalizer["Admin.Events.View"]</a>
+                    <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-sm btn-outline-primary">@AdminLocalizer["Admin.Events.Edit"]</a>
                     <form asp-action="Deactivate" asp-route-id="@e.Id" method="post" class="d-inline"
-                          onsubmit="return confirm('Deactivate this event?')">
+                          onsubmit="return confirm('@JavaScriptEncoder.Default.Encode(JsLocalizer["Js.Confirm.DeactivateEvent"].Value)')">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">@AdminLocalizer["Admin.Events.Deactivate"]</button>
                     </form>
                 </td>
             </tr>

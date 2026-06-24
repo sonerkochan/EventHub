@@ -1,0 +1,22 @@
+@using System.Globalization
+@using EventHub.Localization
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<CommonResource> CommonLocalizer
+
+@{
+    var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var returnUrl = string.Concat(Context.Request.PathBase, Context.Request.Path, Context.Request.QueryString);
+}
+
+<form asp-area="" asp-controller="Culture" asp-action="SetCulture" method="post" class="eh-culture-switcher-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
+    <label class="eh-culture-switcher" title="@CommonLocalizer["Common.Language.Label"]">
+        <span class="eh-culture-switcher-label">@CommonLocalizer["Common.Language.Label"]</span>
+        <select class="eh-culture-select" name="culture" aria-label="@CommonLocalizer["Common.Language.Label"]" onchange="this.form.submit()">
+            <option value="en" selected="@(currentCulture == "en")">@CommonLocalizer["Common.Language.English"]</option>
+            <option value="bg" selected="@(currentCulture == "bg")">@CommonLocalizer["Common.Language.Bulgarian"]</option>
+        </select>
+    </label>
+</form>

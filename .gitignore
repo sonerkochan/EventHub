@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 EventHub/appsettings.Development.json
 /EventHub/INTRODUCTION.md
+/Documents/build_eventhub_manual_bg.py
+/Documents/EventHub_User_Manual_BG_v1.0.docx
