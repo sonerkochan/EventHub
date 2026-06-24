@@ -9,6 +9,7 @@ using Moq;
 
 namespace EventHub.Tests.Unit.Admin;
 
+[Trait("Category", "Unit")]
 public class TicketsControllerTests
 {
     [Fact]

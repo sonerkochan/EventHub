@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventHub.Tests.Integration.Admin;
 
+[Trait("Category", "Integration")]
 public class UserServiceIntegrationTests
 {
     [Fact]

@@ -6,7 +6,8 @@ using Moq;
 
 namespace EventHub.Tests.Unit.Admin;
 
-    public class UsersControllerTests
+[Trait("Category", "Unit")]
+public class UsersControllerTests
     {
         [Fact]
         public async Task Index_WhenNoRoleFilter_ReturnsViewWithUsers()

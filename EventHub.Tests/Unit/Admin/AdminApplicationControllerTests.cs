@@ -12,6 +12,7 @@ using ApplicationController = EventHub.Areas.Admin.Controllers.ApplicationContro
 
 namespace EventHub.Tests.Unit.Admin;
 
+[Trait("Category", "Unit")]
 public class AdminApplicationControllerTests
 {
     [Fact]

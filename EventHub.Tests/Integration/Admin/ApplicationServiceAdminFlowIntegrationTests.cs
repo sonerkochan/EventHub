@@ -9,6 +9,7 @@ using Moq;
 
 namespace EventHub.Tests.Integration.Admin;
 
+[Trait("Category", "Integration")]
 public class ApplicationServiceAdminFlowIntegrationTests
 {
     [Fact]
