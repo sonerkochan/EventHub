@@ -23,6 +23,16 @@ namespace EventHub.Infrastructure.Data
             builder.Entity<SeatLayout>(sl => sl.HasKey(sl => sl.Id));
             builder.Entity<EmailVerificationToken>(ev => ev.HasKey(ev => ev.TokenId));
             builder.Entity<PaymentTicket>().HasKey(pt => new { pt.PaymentId, pt.TicketId });
+            builder.Entity<Refund>(refund =>
+            {
+                refund.HasOne(r => r.Ticket)
+                    .WithMany()
+                    .HasForeignKey(r => r.TicketId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                refund.HasIndex(r => r.TicketId)
+                    .IsUnique()
+                    .HasFilter("[TicketId] IS NOT NULL");
+            });
             builder.Entity<SupplierService>(s =>
             {
                 s.HasKey(x => x.Id);

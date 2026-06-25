@@ -110,6 +110,11 @@
                                         <i class="fa fa-briefcase mr-1"></i> @LayoutLocalizer["Layout.Nav.Services"]
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a asp-area="Organizer" asp-controller="Refunds" asp-action="Index" class="nav-link @(IsActive("Refunds"))">
+                                        <i class="fa fa-undo mr-1"></i> @LayoutLocalizer["Layout.Nav.Refunds"]
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>

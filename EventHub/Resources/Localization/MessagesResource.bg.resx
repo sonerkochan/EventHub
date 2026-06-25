@@ -35,4 +35,23 @@
   <data name="Messages.Auth.ExternalEmailUnavailable" xml:space="preserve"><value>Google did not provide an email address for this account.</value></data>
   <data name="Messages.Auth.ExternalEmailNotVerified" xml:space="preserve"><value>Your Google email must be verified before it can be used to sign in.</value></data>
   <data name="Messages.Auth.DuplicateUserName" xml:space="preserve"><value>This username is already taken.</value></data>
+  <data name="Messages.Refund.Requested" xml:space="preserve"><value>Refund request submitted successfully.</value></data>
+  <data name="Messages.Refund.RequestFailed" xml:space="preserve"><value>Unable to submit the refund request.</value></data>
+  <data name="Messages.Refund.Approved" xml:space="preserve"><value>Refund approved and processed successfully.</value></data>
+  <data name="Messages.Refund.ApproveFailed" xml:space="preserve"><value>Unable to approve this refund request.</value></data>
+  <data name="Messages.Refund.Rejected" xml:space="preserve"><value>Refund request rejected.</value></data>
+  <data name="Messages.Refund.RejectFailed" xml:space="preserve"><value>Unable to reject this refund request.</value></data>
+  <data name="Messages.Refund.TicketNotFound" xml:space="preserve"><value>Ticket not found.</value></data>
+  <data name="Messages.Refund.NotPurchased" xml:space="preserve"><value>Only purchased tickets can be refunded.</value></data>
+  <data name="Messages.Refund.EventNotEligible" xml:space="preserve"><value>This event is not eligible for refunds.</value></data>
+  <data name="Messages.Refund.Disabled" xml:space="preserve"><value>Refunds are disabled for this event.</value></data>
+  <data name="Messages.Refund.TooLate" xml:space="preserve"><value>This ticket can no longer be refunded because the event starts too soon.</value></data>
+  <data name="Messages.Refund.Duplicate" xml:space="preserve"><value>A refund request already exists for this ticket.</value></data>
+  <data name="Messages.Refund.PaymentNotFound" xml:space="preserve"><value>No accepted payment was found for this ticket.</value></data>
+  <data name="Messages.Refund.PaymentIntentMissing" xml:space="preserve"><value>The payment is missing a Stripe payment intent.</value></data>
+  <data name="Messages.Refund.ProcessorUnavailable" xml:space="preserve"><value>Refund processing is not configured.</value></data>
+  <data name="Messages.Refund.NotFound" xml:space="preserve"><value>Refund request not found.</value></data>
+  <data name="Messages.Refund.UnauthorizedOrganizer" xml:space="preserve"><value>Only the event organizer can process this refund.</value></data>
+  <data name="Messages.Refund.ApprovalIneligible" xml:space="preserve"><value>Ticket is not eligible for refund approval.</value></data>
+  <data name="Messages.Refund.StripeFailed" xml:space="preserve"><value>Stripe refund processing failed. Please try again.</value></data>
 </root>

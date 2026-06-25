@@ -47,4 +47,5 @@
   <data name="Layout.Supplier.CreateService.Description" xml:space="preserve"><value>Описание</value></data>
   <data name="Layout.Supplier.CreateService.DescriptionPlaceholder" xml:space="preserve"><value>Опишете какво предлагате...</value></data>
   <data name="Layout.Supplier.CreateService.Submit" xml:space="preserve"><value>Създай услуга</value></data>
+  <data name="Layout.Nav.Refunds" xml:space="preserve"><value>Refunds</value></data>
 </root>
