@@ -16,6 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IModeratorService, ModeratorService>();
             services.AddScoped<IApplicationService, ApplicationService>();
+            services.AddScoped<IExternalAuthService, ExternalAuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<IPaymentService, StripePaymentService>();

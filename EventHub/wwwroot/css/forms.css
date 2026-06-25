@@ -78,3 +78,57 @@
     .form .form-button:hover {
         transform: scale(1.03);
     }
+
+.external-login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 22px 0 14px;
+    color: #718096;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.external-login-divider::before,
+.external-login-divider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: #dbeafe;
+}
+
+.external-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 50px;
+    padding: 13px 16px;
+    border: 1px solid #d7e3f4;
+    border-radius: 20px;
+    background: #ffffff;
+    color: #1f2937;
+    font-weight: 700;
+    box-shadow: #cff0ff 0px 10px 10px -5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.external-login-button:hover {
+    transform: scale(1.03);
+    border-color: #12B1D1;
+}
+
+.external-login-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #4285f4;
+    font-weight: 900;
+    box-shadow: inset 0 0 0 1px #e2e8f0;
+}
