@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Xunit;
 
 using DataEvent = EventHub.Infrastructure.Data.Models.Event;
+using DataRefund = EventHub.Infrastructure.Data.Models.Refund;
 
 namespace EventHub.Tests.Unit.TicketsService
 {
@@ -312,6 +313,7 @@ namespace EventHub.Tests.Unit.TicketsService
                 new Room { RoomId = roomId, Name = "Main Hall" }
             };
             _repoMock.Setup(r => r.AllReadonly<Room>()).Returns(rooms.AsQueryable().BuildMock());
+            _repoMock.Setup(r => r.AllReadonly<DataRefund>()).Returns(new List<DataRefund>().AsQueryable().BuildMock());
 
             var result = await _ticketService.GetUserTicketsAsync(userId);
 

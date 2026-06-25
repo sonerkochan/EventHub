@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using DataEvent = EventHub.Infrastructure.Data.Models.Event;
+using DataRefund = EventHub.Infrastructure.Data.Models.Refund;
 
 namespace EventHub.Core.Services
 {
@@ -338,11 +339,19 @@ namespace EventHub.Core.Services
                 .Where(t => t.UserId == userId)
                 .ToListAsync();
 
+            var ticketIds = tickets.Select(t => t.Id).ToList();
             var eventIds = tickets.Select(t => t.EventId).Distinct().ToList();
             var events = await repo.AllReadonly<Event>()
                 .Where(e => eventIds.Contains(e.Id))
-                .Select(e => new { e.Id, e.EventName, e.StartDateTime, e.RoomId })
+                .Select(e => new { e.Id, e.EventName, e.StartDateTime, e.RoomId, e.AllowRefunds, e.IsActive })
                 .ToListAsync();
+
+            var refunds = await repo.AllReadonly<DataRefund>()
+                .Where(r => r.TicketId != null && ticketIds.Contains(r.TicketId.Value))
+                .ToListAsync();
+            var refundByTicketId = refunds
+                .Where(r => r.TicketId != null)
+                .ToDictionary(r => r.TicketId!.Value);
 
             var roomIds = events.Select(e => e.RoomId).Distinct().ToList();
             var rooms = await repo.AllReadonly<Room>()
@@ -353,6 +362,8 @@ namespace EventHub.Core.Services
             {
                 var evt = events.FirstOrDefault(e => e.Id == t.EventId);
                 var room = rooms.FirstOrDefault(r => r.RoomId == evt?.RoomId);
+                refundByTicketId.TryGetValue(t.Id, out var refund);
+
                 return new TicketListViewModel
                 {
                     Id = t.Id,
@@ -364,7 +375,18 @@ namespace EventHub.Core.Services
                     Currency = t.Currency ?? "EUR",
                     IsUsed = t.IsUsed,
                     PurchasedAt = t.PurchasedAt,
-                    Status = t.Status
+                    Status = t.Status,
+                    CanRequestRefund = refund == null
+                        && evt != null
+                        && evt.IsActive
+                        && evt.AllowRefunds
+                        && t.Status == TicketStatus.Purchased
+                        && DateTime.UtcNow <= evt.StartDateTime.AddHours(-48),
+                    RefundStatus = refund?.Status,
+                    RefundAmount = refund?.Amount ?? CalculateRefundAmount(t.Price),
+                    RefundReason = refund?.Reason,
+                    RefundProcessorComment = refund?.ProcessorComment,
+                    RefundRequestedAt = refund?.CreatedAt
                 };
             }).OrderByDescending(t => t.PurchasedAt);
 
@@ -385,6 +407,9 @@ namespace EventHub.Core.Services
             if (evt == null)
                 return null;
 
+            var refund = await repo.AllReadonly<DataRefund>()
+                .FirstOrDefaultAsync(r => r.TicketId == ticket.Id);
+
             var room = await repo.AllReadonly<Room>()
                 .FirstOrDefaultAsync(r => r.RoomId == evt.RoomId);
 
@@ -402,7 +427,18 @@ namespace EventHub.Core.Services
                 Price = ticket.Price,
                 Currency = ticket.Currency ?? "EUR",
                 IsUsed = ticket.IsUsed,
-                PurchasedAt = ticket.PurchasedAt
+                PurchasedAt = ticket.PurchasedAt,
+                Status = ticket.Status,
+                CanRequestRefund = refund == null
+                    && evt.IsActive
+                    && evt.AllowRefunds
+                    && ticket.Status == TicketStatus.Purchased
+                    && DateTime.UtcNow <= evt.StartDateTime.AddHours(-48),
+                RefundStatus = refund?.Status,
+                RefundAmount = refund?.Amount ?? CalculateRefundAmount(ticket.Price),
+                RefundReason = refund?.Reason,
+                RefundProcessorComment = refund?.ProcessorComment,
+                RefundRequestedAt = refund?.CreatedAt
             };
         }
 
@@ -872,5 +908,8 @@ namespace EventHub.Core.Services
             var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(raw));
             return Convert.ToBase64String(bytes)[..16].ToUpperInvariant().Replace("/", "A").Replace("+", "B").Replace("=", "");
         }
+
+        private static float CalculateRefundAmount(float ticketPrice)
+            => (float)Math.Round((decimal)ticketPrice * 0.70m, 2, MidpointRounding.AwayFromZero);
     }
 }

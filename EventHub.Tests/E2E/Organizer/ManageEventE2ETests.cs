@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using EventHub.Tests.E2E;
 
 namespace EventHub.Tests.E2E.Organizer;
 
@@ -99,26 +100,7 @@ public class ManageEventE2ETests
             new() { WaitUntil = WaitUntilState.DOMContentLoaded });
         await WaitForPageReadyAsync(adminPage);
 
-        var eventRow = adminPage.Locator("tr", new() { HasTextString = eventName }).First;
-        await eventRow.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 15_000 });
-        await eventRow.ScrollIntoViewIfNeededAsync();
-
-        adminPage.Dialog += (_, dialog) => dialog.AcceptAsync();
-
-        var publishBtn = eventRow.Locator("button:has-text('Publish')").First;
-        await publishBtn.ClickAsync();
-
-        var updatedRow = adminPage.Locator("tr", new() { HasTextString = eventName }).First;
-        var badge = updatedRow.Locator(".badge").First;
-
-        await badge.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 15_000 });
-
-        await Task.Delay(1000); 
-
-        var badgeText = await badge.InnerTextAsync();
-        Assert.True(
-            badgeText.Contains("Published") || badgeText.Contains("Active"),
-            $"Expected Published or Active badge, got: {badgeText}");
+        await AdminEventPublishHelper.PublishEventAndWaitAsync(adminPage, eventName);
 
         await adminCtx.CloseAsync();
     }
