@@ -1,0 +1,123 @@
+@model EventHub.Core.Models.Travelis.TravelisHotelsSectionViewModel
+
+<section class="eh-travelis-section" aria-label="Travelis hotel recommendations">
+    <div class="eh-travelis-header">
+        <div>
+            <h5 class="eh-travelis-title">
+                @if (!string.IsNullOrWhiteSpace(Model.City))
+                {
+                    <span>Hotels near @Model.City</span>
+                }
+                else
+                {
+                    <span>Nearby stays</span>
+                }
+            </h5>
+            <p class="eh-travelis-subtitle">Places to stay around this event, curated with Travelis.</p>
+        </div>
+        <a class="eh-travelis-partner"
+           href="@Model.PartnerBaseUrl"
+           target="_blank"
+           rel="noopener noreferrer">
+            In partnership with Travelis 🤝
+        </a>
+    </div>
+
+    @if (Model.IsUnavailable)
+    {
+        <div class="eh-travelis-unavailable">
+            <strong>Nearby stays are unavailable right now.</strong><br />
+            <span>Please check again in a moment.</span>
+        </div>
+    }
+    else if (Model.IsMissingCity)
+    {
+        <div class="eh-travelis-empty">
+            Add a city to this event to show nearby Travelis hotels.
+        </div>
+    }
+    else if (!Model.Hotels.Any())
+    {
+        <div class="eh-travelis-empty">
+            No Travelis hotels were found for @Model.City yet.
+        </div>
+    }
+    else
+    {
+        <div class="eh-travelis-grid">
+            @for (var hotelIndex = 0; hotelIndex < Model.Hotels.Count; hotelIndex++)
+            {
+                var hotel = Model.Hotels[hotelIndex];
+                var carouselId = $"travelis-hotel-{hotelIndex}-{hotel.Id}".Replace(" ", "-");
+
+                <article class="eh-travelis-card">
+                    @if (hotel.Images.Any())
+                    {
+                        <div id="@carouselId" class="carousel slide" data-interval="false">
+                            <div class="carousel-inner">
+                                @for (var imageIndex = 0; imageIndex < hotel.Images.Count; imageIndex++)
+                                {
+                                    var image = hotel.Images[imageIndex];
+                                    <div class="carousel-item @(imageIndex == 0 ? "active" : "")">
+                                        <img class="eh-travelis-image"
+                                             src="@image.Url"
+                                             alt="@hotel.Name" />
+                                    </div>
+                                }
+                            </div>
+
+                            @if (hotel.Images.Count > 1)
+                            {
+                                <a class="carousel-control-prev eh-travelis-carousel-control"
+                                   href="#@carouselId"
+                                   role="button"
+                                   data-slide="prev"
+                                   aria-label="Previous hotel image">
+                                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                </a>
+                                <a class="carousel-control-next eh-travelis-carousel-control"
+                                   href="#@carouselId"
+                                   role="button"
+                                   data-slide="next"
+                                   aria-label="Next hotel image">
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="eh-travelis-image-placeholder" aria-hidden="true">
+                            <i class="fa fa-bed"></i>
+                        </div>
+                    }
+
+                    <div class="eh-travelis-card-body">
+                        <div class="eh-travelis-hotel-name">@hotel.Name</div>
+
+                        @if (!string.IsNullOrWhiteSpace(hotel.DisplayAddress))
+                        {
+                            <div class="eh-travelis-meta">
+                                <i class="fa fa-map-marker" aria-hidden="true"></i>@hotel.DisplayAddress
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(hotel.PhoneNumber))
+                        {
+                            <div class="eh-travelis-meta">
+                                <i class="fa fa-phone" aria-hidden="true"></i>@hotel.PhoneNumber
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(hotel.Email))
+                        {
+                            <div class="eh-travelis-meta">
+                                <i class="fa fa-envelope-o" aria-hidden="true"></i>@hotel.Email
+                            </div>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

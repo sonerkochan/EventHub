@@ -130,6 +130,145 @@
     }
     .eh-avail-bar { height: 6px; border-radius: 10px; background: #e8ecf0; overflow: hidden; margin-top: 6px; }
     .eh-avail-bar .fill { height: 100%; border-radius: 10px; }
+    .eh-travelis-shell {
+        margin-top: 34px;
+    }
+    .eh-travelis-loading,
+    .eh-travelis-empty,
+    .eh-travelis-unavailable {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 8px;
+        padding: 28px;
+        color: #777;
+        font-family: 'Poppins', sans-serif;
+    }
+    .eh-travelis-loading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .eh-travelis-spinner {
+        width: 22px;
+        height: 22px;
+        border: 3px solid #e8ecf0;
+        border-top-color: #55a5d2;
+        border-radius: 50%;
+        animation: ehTravelisSpin 0.8s linear infinite;
+    }
+    .eh-travelis-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+    .eh-travelis-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0;
+    }
+    .eh-travelis-subtitle {
+        color: #777;
+        font-size: 0.86rem;
+        margin: 4px 0 0;
+    }
+    .eh-travelis-partner {
+        color: #55a5d2;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.84rem;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .eh-travelis-partner:hover {
+        color: #1a1a2e;
+        text-decoration: none;
+    }
+    .eh-travelis-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+    .eh-travelis-card {
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 8px;
+        overflow: hidden;
+        min-width: 0;
+        height: 100%;
+    }
+    .eh-travelis-image,
+    .eh-travelis-image-placeholder {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        background: #f4f7fa;
+    }
+    .eh-travelis-image-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9aa8b3;
+        font-size: 1.8rem;
+    }
+    .eh-travelis-card-body {
+        padding: 16px;
+        font-family: 'Poppins', sans-serif;
+    }
+    .eh-travelis-hotel-name {
+        color: #1a1a2e;
+        font-size: 0.98rem;
+        font-weight: 700;
+        line-height: 1.35;
+        margin-bottom: 8px;
+    }
+    .eh-travelis-meta {
+        color: #666;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        margin-bottom: 8px;
+        word-break: break-word;
+    }
+    .eh-travelis-meta i {
+        color: #55a5d2;
+        margin-right: 6px;
+        width: 14px;
+        text-align: center;
+    }
+    .eh-travelis-carousel-control {
+        width: 34px;
+        height: 34px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(26, 26, 46, 0.62);
+        border-radius: 50%;
+        opacity: 1;
+        margin: 0 10px;
+    }
+    .eh-travelis-carousel-control i {
+        color: #fff;
+        font-size: 0.9rem;
+    }
+    @@keyframes ehTravelisSpin {
+        to { transform: rotate(360deg); }
+    }
+    @@media (max-width: 991px) {
+        .eh-travelis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @@media (max-width: 575px) {
+        .eh-travelis-header {
+            display: block;
+        }
+        .eh-travelis-partner {
+            display: inline-block;
+            margin-top: 8px;
+            white-space: normal;
+        }
+        .eh-travelis-grid { grid-template-columns: 1fr; }
+    }
 </style>
 
 <a asp-action="Index" class="eh-back-link">
@@ -259,7 +398,45 @@
     </div>
 </div>
 
+<div id="travelis-hotels"
+     class="eh-travelis-shell"
+     data-url="@Url.Action("TravelisHotels", "Events", new { area = "Client", eventId = Model.Id })">
+    <div class="eh-travelis-loading" role="status" aria-live="polite">
+        <span class="eh-travelis-spinner" aria-hidden="true"></span>
+        <span>Finding nearby stays...</span>
+    </div>
+</div>
+
 @section Scripts {
+    <script>
+        (function () {
+            const container = document.getElementById("travelis-hotels");
+            if (!container) {
+                return;
+            }
+
+            fetch(container.dataset.url, {
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Unable to load Travelis hotels.");
+                    }
+
+                    return response.text();
+                })
+                .then(html => {
+                    container.innerHTML = html;
+                    if (window.jQuery) {
+                        window.jQuery(container).find(".carousel").carousel({ interval: false });
+                    }
+                })
+                .catch(() => {
+                    container.innerHTML = '<div class="eh-travelis-unavailable"><strong>Nearby stays are unavailable right now.</strong><br><span>Please check again in a moment.</span></div>';
+                });
+        })();
+    </script>
+
     @if (canRenderMap)
     {
         <script>
