@@ -1,9 +1,11 @@
 using System.Security.Claims;
+using EventHub.Core.Contracts;
 using EventHub.Core.Models.User;
 using EventHub.Infrastructure.Data.Models;
 using EventHub.Localization;
 using EzyShape.Core.Models.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -19,6 +21,7 @@ namespace EventHub.Controllers
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IExternalAuthService externalAuthService;
         private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         /// <summary>
@@ -28,12 +31,14 @@ namespace EventHub.Controllers
             UserManager<User> _userManager,
             SignInManager<User> _signInManager,
             RoleManager<IdentityRole> _roleManager,
+            IExternalAuthService _externalAuthService,
             IStringLocalizer<MessagesResource> _messagesLocalizer
         )
         {
             userManager = _userManager;
             signInManager = _signInManager;
             roleManager = _roleManager;
+            externalAuthService = _externalAuthService;
             messagesLocalizer = _messagesLocalizer;
         }
 
@@ -153,17 +158,141 @@ namespace EventHub.Controllers
 
                     await userManager.UpdateAsync(user);
 
-                    var roles = await userManager.GetRolesAsync(user);
-                    var role = roles.FirstOrDefault();
-
-                    return !string.IsNullOrEmpty(role)
-                        ? RedirectToAction("Index", "Home", new { area = role })
-                        : RedirectToAction("Index", "Home");
+                    return await RedirectAfterSignInAsync(user, null);
                 }
             }
 
             ModelState.AddModelError("", messagesLocalizer["Messages.Auth.InvalidCredentials"]);
 
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+        {
+            if (!string.Equals(provider, GoogleDefaults.AuthenticationScheme, StringComparison.Ordinal))
+            {
+                return BadRequest();
+            }
+
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "User", new { returnUrl });
+            var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+
+            return Challenge(properties, provider);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
+        {
+            if (!string.IsNullOrWhiteSpace(remoteError))
+            {
+                AddExternalLoginError(ExternalLoginProcessStatus.Failed, remoteError);
+                return View(nameof(Login), new LoginViewModel());
+            }
+
+            var loginInfo = await signInManager.GetExternalLoginInfoAsync();
+            if (loginInfo == null)
+            {
+                AddExternalLoginError(ExternalLoginProcessStatus.Failed);
+                return View(nameof(Login), new LoginViewModel());
+            }
+
+            var result = await externalAuthService.HandleExternalLoginCallbackAsync(
+                loginInfo,
+                GetClientIp(),
+                GetDevice());
+
+            if (result.Succeeded && result.User != null)
+            {
+                await signInManager.SignInAsync(
+                    result.User,
+                    isPersistent: false,
+                    loginInfo.LoginProvider);
+
+                return await RedirectAfterSignInAsync(result.User, returnUrl);
+            }
+
+            if (result.Status == ExternalLoginProcessStatus.RequiresConfirmation)
+            {
+                return RedirectToAction(nameof(ExternalLoginConfirmation), new { returnUrl });
+            }
+
+            AddExternalLoginError(result.Status, result.Error);
+            return View(nameof(Login), new LoginViewModel());
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginConfirmation(string? returnUrl = null)
+        {
+            if (User?.Identity?.IsAuthenticated ?? false)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var loginInfo = await signInManager.GetExternalLoginInfoAsync();
+            if (loginInfo == null)
+            {
+                AddExternalLoginError(ExternalLoginProcessStatus.Failed);
+                return View(nameof(Login), new LoginViewModel());
+            }
+
+            var email = GetExternalEmail(loginInfo);
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                AddExternalLoginError(ExternalLoginProcessStatus.EmailUnavailable);
+                return View(nameof(Login), new LoginViewModel());
+            }
+
+            return View(new ExternalLoginConfirmationViewModel
+            {
+                Email = email,
+                Provider = loginInfo.ProviderDisplayName ?? loginInfo.LoginProvider
+            });
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExternalLoginConfirmation(
+            ExternalLoginConfirmationViewModel model,
+            string? returnUrl = null)
+        {
+            var loginInfo = await signInManager.GetExternalLoginInfoAsync();
+            if (loginInfo == null)
+            {
+                AddExternalLoginError(ExternalLoginProcessStatus.Failed);
+                return View(nameof(Login), new LoginViewModel());
+            }
+
+            model.Email = GetExternalEmail(loginInfo) ?? model.Email;
+            model.Provider = loginInfo.ProviderDisplayName ?? loginInfo.LoginProvider;
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var result = await externalAuthService.ConfirmExternalLoginAsync(
+                loginInfo,
+                model,
+                GetClientIp(),
+                GetDevice());
+
+            if (result.Succeeded && result.User != null)
+            {
+                await signInManager.SignInAsync(
+                    result.User,
+                    isPersistent: false,
+                    loginInfo.LoginProvider);
+
+                return await RedirectAfterSignInAsync(result.User, returnUrl);
+            }
+
+            AddExternalLoginError(result.Status, result.Error);
             return View(model);
         }
 
@@ -187,6 +316,39 @@ namespace EventHub.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        private async Task<IActionResult> RedirectAfterSignInAsync(User user, string? returnUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault();
+
+            return !string.IsNullOrEmpty(role)
+                ? RedirectToAction("Index", "Home", new { area = role })
+                : RedirectToAction("Index", "Home");
+        }
+
+        private void AddExternalLoginError(ExternalLoginProcessStatus status, string? error = null)
+        {
+            var messageKey = status switch
+            {
+                ExternalLoginProcessStatus.AccountInactive => "Messages.Auth.AccountDeactivated",
+                ExternalLoginProcessStatus.EmailUnavailable => "Messages.Auth.ExternalEmailUnavailable",
+                ExternalLoginProcessStatus.EmailNotVerified => "Messages.Auth.ExternalEmailNotVerified",
+                ExternalLoginProcessStatus.DuplicateUserName => "Messages.Auth.DuplicateUserName",
+                _ => "Messages.Auth.ExternalLoginFailed"
+            };
+
+            ModelState.AddModelError("", error ?? messagesLocalizer[messageKey]);
+        }
+
+        private static string? GetExternalEmail(ExternalLoginInfo loginInfo)
+            => loginInfo.Principal.FindFirstValue(ClaimTypes.Email)
+               ?? loginInfo.Principal.FindFirstValue("email");
 
         private string? GetClientIp()
         {

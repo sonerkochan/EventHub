@@ -5,6 +5,7 @@
 @{
     ViewData["Title"] = AuthLocalizer["Auth.Register.Title"];
     Layout = null;
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
 }
 
 <link rel="stylesheet" href="~/css/loginRegisterPage.css" asp-append-version="true" />
@@ -54,6 +55,19 @@
                 </div>
 
                 <button type="submit" class="form-button">@AuthLocalizer["Auth.Register.Submit"]</button>
+            </form>
+
+            <div class="external-login-divider">
+                <span>@AuthLocalizer["Auth.External.Or"]</span>
+            </div>
+
+            <form asp-action="ExternalLogin" asp-route-returnUrl="@returnUrl" method="post" class="form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="provider" value="Google" />
+                <button type="submit" class="external-login-button">
+                    <span class="external-login-icon">G</span>
+                    @AuthLocalizer["Auth.External.Google"]
+                </button>
             </form>
 
             <p class="text-center mt-3 mb-0 small">

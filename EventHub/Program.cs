@@ -4,6 +4,8 @@ using EventHub.Localization;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
 using EventHub.Middlewares;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +39,16 @@ builder
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
+        options.CallbackPath = "/signin-google";
+        options.SaveTokens = false;
+        options.ClaimActions.MapJsonKey("email_verified", "email_verified");
+    });
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
