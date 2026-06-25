@@ -33,6 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ISupplierServiceCatalogService, SupplierServiceCatalogService>();
             services.AddScoped<IAdminSupplierServiceService, AdminSupplierServiceService>();
             services.AddHttpClient<ICurrencyExchangeRateService, FrankfurterCurrencyExchangeRateService>();
+            services.AddHttpClient<ITravelisHotelService, TravelisHotelService>();
             services.AddScoped<ICurrencyDisplayService, CurrencyDisplayService>();
 
             return services;

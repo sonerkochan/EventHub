@@ -1,5 +1,6 @@
 using System.Globalization;
 using Elastic.Apm.NetCoreAll;
+using EventHub.Core.Models.Travelis;
 using EventHub.Localization;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
@@ -60,6 +61,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services.AddApplicationServices();
+builder.Services.Configure<TravelisOptions>(builder.Configuration.GetSection(TravelisOptions.Section));
 builder.Services.AddStripe(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
