@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using EventHub.Tests.E2E;
 
 namespace EventHub.Tests.E2E.Client;
 
@@ -51,17 +52,7 @@ public class BuyTicketE2ETests
             new() { WaitUntil = WaitUntilState.DOMContentLoaded });
         await WaitForPageReadyAsync(adminPage);
 
-        var eventRow = adminPage.Locator("tr", new() { HasTextString = eventName }).First;
-        await eventRow.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 15_000 });
-        await eventRow.ScrollIntoViewIfNeededAsync();
-
-        adminPage.Dialog += (_, dialog) => dialog.AcceptAsync();
-
-        var publishBtn = eventRow.Locator("button:has-text('Publish')").First;
-        await publishBtn.ClickAsync();
-
-        await adminPage.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
-        await WaitForPageReadyAsync(adminPage);
+        await AdminEventPublishHelper.PublishEventAndWaitAsync(adminPage, eventName);
         await adminContext.CloseAsync();
 
         // Client buys a ticket
@@ -76,7 +67,7 @@ public class BuyTicketE2ETests
             new() { WaitUntil = WaitUntilState.DOMContentLoaded });
         await WaitForPageReadyAsync(clientPage);
 
-        await ExpectVisibleTextAsync(clientPage, eventName);
+        await ExpectVisibleTextWithReloadAsync(clientPage, eventName);
 
         var eventCard = clientPage.Locator(".eh-event-listing-card", new() { HasTextString = eventName }).First;
         await eventCard.Locator("a:has-text('View Details')").ClickAsync();
@@ -140,6 +131,20 @@ public class BuyTicketE2ETests
                 State = WaitForSelectorState.Visible,
                 Timeout = 15_000
             });
+    }
+
+    private static async Task ExpectVisibleTextWithReloadAsync(IPage page, string text)
+    {
+        try
+        {
+            await ExpectVisibleTextAsync(page, text);
+        }
+        catch (TimeoutException)
+        {
+            await page.ReloadAsync(new() { WaitUntil = WaitUntilState.DOMContentLoaded });
+            await WaitForPageReadyAsync(page);
+            await ExpectVisibleTextAsync(page, text);
+        }
     }
 
     private static async Task WaitForPageReadyAsync(IPage page)

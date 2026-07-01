@@ -577,6 +577,9 @@ namespace EventHub.Infrastructure.Migrations
                     b.Property<Guid>("ProcessedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ProcessorComment")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Reason")
                         .HasColumnType("nvarchar(max)");
 
@@ -589,10 +592,17 @@ namespace EventHub.Infrastructure.Migrations
                     b.Property<string>("StripeRefundId")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TicketId")
+                        .IsUnique()
+                        .HasFilter("[TicketId] IS NOT NULL");
 
                     b.ToTable("Refunds");
                 });
@@ -1329,12 +1339,10 @@ namespace EventHub.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -1378,12 +1386,10 @@ namespace EventHub.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -1429,6 +1435,16 @@ namespace EventHub.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
+                });
+
+            modelBuilder.Entity("EventHub.Infrastructure.Data.Models.Refund", b =>
+                {
+                    b.HasOne("EventHub.Infrastructure.Data.Models.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("EventHub.Infrastructure.Data.Models.ServiceRentalRequest", b =>

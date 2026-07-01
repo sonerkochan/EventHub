@@ -16,9 +16,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IModeratorService, ModeratorService>();
             services.AddScoped<IApplicationService, ApplicationService>();
+            services.AddScoped<IExternalAuthService, ExternalAuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<IPaymentService, StripePaymentService>();
+            services.AddScoped<IPaymentRefundProcessor, StripeRefundProcessor>();
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<ISeatLayoutService, SeatLayoutService>();
             services.AddScoped<IReviewService, ReviewService>();
@@ -31,6 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ISupplierServiceCatalogService, SupplierServiceCatalogService>();
             services.AddScoped<IAdminSupplierServiceService, AdminSupplierServiceService>();
             services.AddHttpClient<ICurrencyExchangeRateService, FrankfurterCurrencyExchangeRateService>();
+            services.AddHttpClient<ITravelisHotelService, TravelisHotelService>();
             services.AddScoped<ICurrencyDisplayService, CurrencyDisplayService>();
 
             return services;

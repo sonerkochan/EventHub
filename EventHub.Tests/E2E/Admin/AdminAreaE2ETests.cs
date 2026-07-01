@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using EventHub.Tests.E2E;
 
 namespace EventHub.Tests.E2E.Admin;
 
@@ -284,16 +285,7 @@ public class AdminAreaE2ETests
 
     private static async Task PublishEventAsync(IPage page, string eventName)
     {
-        var row = page.Locator("tr", new() { HasTextString = eventName }).First;
-        var publishButton = row.GetByRole(AriaRole.Button, new() { Name = "Publish" });
-        if (await publishButton.CountAsync() == 0)
-        {
-            return;
-        }
-
-        page.Dialog += async (_, dialog) => await dialog.AcceptAsync();
-        await publishButton.ClickAsync();
-        await WaitForPageReadyAsync(page);
+        await AdminEventPublishHelper.PublishEventAndWaitAsync(page, eventName);
     }
 
     private static async Task OpenRoomLayoutAsync(IPage page, string roomName)

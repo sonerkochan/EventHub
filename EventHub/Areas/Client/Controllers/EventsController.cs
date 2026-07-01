@@ -1,9 +1,11 @@
 using EventHub.Core.Contracts;
+using EventHub.Core.Models.Travelis;
 using EventHub.Core.Models.Ticket;
 using EventHub.Localization;
 using EventHub.Infrastructure.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +21,8 @@ namespace EventHub.Areas.Client.Controllers
         private readonly ISeatService seatService;
         private readonly IZoneService zoneService;
         private readonly IEventPricingTierService pricingTierService;
+        private readonly ITravelisHotelService travelisHotelService;
+        private readonly TravelisOptions travelisOptions;
         private readonly IStringLocalizer<MessagesResource> messagesLocalizer;
 
         public EventsController(
@@ -27,6 +31,8 @@ namespace EventHub.Areas.Client.Controllers
             ISeatService _seatService,
             IZoneService _zoneService,
             IEventPricingTierService _pricingTierService,
+            ITravelisHotelService _travelisHotelService,
+            IOptions<TravelisOptions> _travelisOptions,
             IStringLocalizer<MessagesResource> _messagesLocalizer)
         {
             eventService = _eventService;
@@ -34,6 +40,8 @@ namespace EventHub.Areas.Client.Controllers
             seatService = _seatService;
             zoneService = _zoneService;
             pricingTierService = _pricingTierService;
+            travelisHotelService = _travelisHotelService;
+            travelisOptions = _travelisOptions.Value;
             messagesLocalizer = _messagesLocalizer;
         }
 
@@ -49,6 +57,35 @@ namespace EventHub.Areas.Client.Controllers
             var model = await eventService.GetPublishedEventByIdAsync(id);
             if (model == null) return NotFound();
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> TravelisHotels(Guid eventId, CancellationToken cancellationToken)
+        {
+            var ev = await eventService.GetPublishedEventByIdAsync(eventId);
+            if (ev == null) return NotFound();
+
+            var model = new TravelisHotelsSectionViewModel
+            {
+                City = ev.City,
+                PartnerBaseUrl = travelisOptions.PartnerBaseUrl
+            };
+
+            if (string.IsNullOrWhiteSpace(ev.City))
+            {
+                return PartialView("_TravelisHotels", model);
+            }
+
+            try
+            {
+                model.Hotels = await travelisHotelService.GetHotelsByCityAsync(ev.City, cancellationToken);
+            }
+            catch
+            {
+                model.IsUnavailable = true;
+            }
+
+            return PartialView("_TravelisHotels", model);
         }
 
         [HttpGet]

@@ -1,9 +1,12 @@
 using System.Globalization;
 using Elastic.Apm.NetCoreAll;
+using EventHub.Core.Models.Travelis;
 using EventHub.Localization;
 using EventHub.Infrastructure.Data;
 using EventHub.Infrastructure.Data.Models;
 using EventHub.Middlewares;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +41,16 @@ builder
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
+        options.CallbackPath = "/signin-google";
+        options.SaveTokens = false;
+        options.ClaimActions.MapJsonKey("email_verified", "email_verified");
+    });
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/User/Login";
@@ -48,6 +61,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services.AddApplicationServices();
+builder.Services.Configure<TravelisOptions>(builder.Configuration.GetSection(TravelisOptions.Section));
 builder.Services.AddStripe(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();

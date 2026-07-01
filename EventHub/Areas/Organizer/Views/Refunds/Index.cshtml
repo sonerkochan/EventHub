@@ -1,0 +1,154 @@
+@model IEnumerable<EventHub.Core.Models.Refund.OrganizerRefundListItemViewModel>
+@using RefundStatus = EventHub.Infrastructure.Data.Models.Refund.RefundStatus
+
+@{
+    ViewData["Title"] = "Refund Requests";
+    var selectedStatus = ViewBag.StatusFilter as string;
+}
+
+<style>
+    .refunds-header { margin-bottom: 24px; }
+    .refunds-header h4 { font-family:'Poppins',sans-serif; font-weight:700; color:#1a1a2e; margin-bottom:6px; }
+    .refunds-header p { margin:0; color:#7f8c8d; }
+    .refunds-toolbar { display:flex; gap:12px; align-items:center; margin-bottom:20px; flex-wrap:wrap; }
+    .refunds-toolbar select, .refunds-toolbar button, .reject-input {
+        border:1px solid #d7dee5; border-radius:6px; padding:8px 12px; font-family:'Poppins',sans-serif;
+    }
+    .refunds-toolbar button, .action-btn {
+        background:#1f6feb; color:#fff; border:none; font-weight:600;
+    }
+    .refunds-table-card { background:#fff; border:1px solid #e8ecf0; border-radius:10px; overflow:hidden; }
+    .refunds-table { width:100%; border-collapse:collapse; }
+    .refunds-table th, .refunds-table td { padding:14px 16px; border-bottom:1px solid #eef2f5; vertical-align:top; }
+    .refunds-table th { background:#fafbfc; font-size:0.75rem; text-transform:uppercase; color:#8a97a6; letter-spacing:0.5px; }
+    .refunds-table td { font-size:0.9rem; color:#2d3748; }
+    .refunds-table tr:last-child td { border-bottom:none; }
+    .refunds-title { font-weight:600; color:#1a1a2e; }
+    .refunds-meta { color:#7f8c8d; font-size:0.8rem; margin-top:4px; }
+    .status-pill {
+        display:inline-block; padding:4px 10px; border-radius:999px; font-size:0.72rem;
+        text-transform:uppercase; font-weight:700; letter-spacing:0.4px;
+    }
+    .status-pending { background:#fff4db; color:#b7791f; }
+    .status-rejected { background:#ffe3e3; color:#c53030; }
+    .status-completed { background:#d9fbe8; color:#1f7a4d; }
+    .status-approved { background:#dceeff; color:#2166b1; }
+    .action-stack { display:flex; flex-direction:column; gap:8px; min-width:220px; }
+    .approve-btn { background:#1f7a4d; }
+    .empty-state { padding:48px 24px; text-align:center; color:#94a3b8; }
+</style>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="refunds-header">
+    <h4>Refund Requests</h4>
+    <p>Review client refund requests for your events and approve eligible ones.</p>
+</div>
+
+<form method="get" class="refunds-toolbar">
+    <select name="statusFilter">
+        <option value="">All statuses</option>
+        <option value="Pending" selected="@(selectedStatus == "Pending")">Pending</option>
+        <option value="Rejected" selected="@(selectedStatus == "Rejected")">Rejected</option>
+        <option value="Completed" selected="@(selectedStatus == "Completed")">Completed</option>
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<div class="refunds-table-card">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">No refund requests match this view yet.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="refunds-table">
+                <thead>
+                    <tr>
+                        <th>Ticket</th>
+                        <th>Buyer</th>
+                        <th>Event</th>
+                        <th>Amounts</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var refund in Model)
+                {
+                    var statusClass = refund.Status switch
+                    {
+                        RefundStatus.Pending => "status-pending",
+                        RefundStatus.Rejected => "status-rejected",
+                        RefundStatus.Completed => "status-completed",
+                        _ => "status-approved"
+                    };
+
+                    <tr>
+                        <td>
+                            <div class="refunds-title">#@refund.TicketNumber</div>
+                            <div class="refunds-meta">Requested @refund.RequestedAt.ToString("dd MMM yyyy, HH:mm")</div>
+                        </td>
+                        <td>
+                            <div class="refunds-title">@refund.BuyerDisplay</div>
+                            <div class="refunds-meta">@refund.BuyerEmail</div>
+                        </td>
+                        <td>
+                            <div class="refunds-title">@refund.EventName</div>
+                            <div class="refunds-meta">@refund.EventStart.ToString("dd MMM yyyy, HH:mm")</div>
+                        </td>
+                        <td>
+                            <div>Original: @refund.OriginalAmount.ToString("0.00") @refund.Currency</div>
+                            <div class="refunds-meta">Refund: @refund.RefundAmount.ToString("0.00") @refund.Currency</div>
+                        </td>
+                        <td>
+                            <div>@(string.IsNullOrWhiteSpace(refund.Reason) ? "No reason provided." : refund.Reason)</div>
+                            @if (!string.IsNullOrWhiteSpace(refund.ProcessorComment))
+                            {
+                                <div class="refunds-meta">Organizer note: @refund.ProcessorComment</div>
+                            }
+                        </td>
+                        <td>
+                            <span class="status-pill @statusClass">@refund.Status</span>
+                            @if (refund.ProcessedAt.HasValue)
+                            {
+                                <div class="refunds-meta">@refund.ProcessedAt.Value.ToString("dd MMM yyyy, HH:mm")</div>
+                            }
+                        </td>
+                        <td>
+                            @if (refund.Status == RefundStatus.Pending)
+                            {
+                                <div class="action-stack">
+                                    <form asp-action="Approve" method="post">
+                                        <input type="hidden" name="refundId" value="@refund.RefundId" />
+                                        <button type="submit" class="action-btn approve-btn">Approve 70% Refund</button>
+                                    </form>
+                                    <form asp-action="Reject" method="post">
+                                        <input type="hidden" name="refundId" value="@refund.RefundId" />
+                                        <input type="text" name="comment" class="reject-input" maxlength="500" placeholder="Optional rejection note" />
+                                        <button type="submit" class="action-btn">Reject Request</button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="refunds-meta">No actions available</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

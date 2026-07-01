@@ -2,6 +2,18 @@
 
 @{
     ViewData["Title"] = $"Ticket #{Model.TicketNumber}";
+
+    var topStatus = Model.Status == EventHub.Infrastructure.Data.Models.TicketStatus.Refunded
+        ? "Refunded"
+        : Model.IsUsed
+            ? "Used"
+            : "Valid Ticket";
+
+    var topStatusClass = Model.Status == EventHub.Infrastructure.Data.Models.TicketStatus.Refunded
+        ? "status-refunded"
+        : Model.IsUsed
+            ? "status-used"
+            : "status-valid";
 }
 
 <style>
@@ -44,6 +56,7 @@
     }
     .status-valid { background: rgba(39,174,96,0.2); color: #27ae60; }
     .status-used  { background: rgba(150,150,150,0.2); color: #aaa; }
+    .status-refunded { background: rgba(31,122,77,0.2); color: #1f7a4d; }
     .ticket-event-name {
         font-family: 'Poppins', sans-serif;
         font-weight: 700;
@@ -81,17 +94,46 @@
     .eh-detail-row .label { font-size: 0.78rem; color: #bbb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .eh-detail-row .value { font-size: 0.85rem; color: #333; font-weight: 500; text-align: right; max-width: 60%; }
     .eh-detail-row .value.mono { font-family: monospace; font-size: 0.8rem; word-break: break-all; }
+    .refund-panel {
+        margin-top: 18px; padding: 18px; border: 1px solid #e8ecf0; border-radius: 10px; background:#f8fbfd;
+        font-family:'Poppins',sans-serif;
+    }
+    .refund-panel h5 { margin:0 0 12px; font-weight:700; color:#1a1a2e; }
+    .refund-panel p { margin:0 0 12px; color:#617182; font-size:0.88rem; }
+    .refund-note { font-size:0.82rem; color:#617182; margin-top:8px; }
+    .refund-textarea, .refund-button {
+        width:100%; border-radius:8px; font-family:'Poppins',sans-serif;
+    }
+    .refund-textarea { min-height:90px; border:1px solid #d8e1e8; padding:12px; margin-bottom:12px; }
+    .refund-button { border:none; background:#1f6feb; color:#fff; padding:12px; font-weight:600; }
+    .refund-badge {
+        display:inline-block; padding:4px 12px; border-radius:999px; font-size:0.72rem;
+        font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px;
+    }
+    .refund-pending { background:#fff4db; color:#b7791f; }
+    .refund-rejected { background:#ffe3e3; color:#c53030; }
+    .refund-completed { background:#d9fbe8; color:#1f7a4d; }
 </style>
 
 <a asp-action="Index" class="eh-back-link">
     <i class="fa fa-arrow-left"></i> My Tickets
 </a>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 <div class="eh-ticket-wrapper">
     <div class="eh-ticket-card">
         <div class="ticket-top">
-            <div class="eh-ticket-status @(Model.IsUsed ? "status-used" : "status-valid")">
-                @(Model.IsUsed ? "Used" : "Valid Ticket")
+            <div class="eh-ticket-status @topStatusClass">
+                @topStatus
             </div>
             <p class="ticket-event-name">@Model.EventName</p>
         </div>
@@ -127,6 +169,52 @@
                 <span class="label">Purchased</span>
                 <span class="value">@Model.PurchasedAt.ToString("dd MMM yyyy, HH:mm")</span>
             </div>
+            <div class="eh-detail-row">
+                <span class="label">Price</span>
+                <span class="value">@Model.Price.ToString("0.00") @Model.Currency</span>
+            </div>
         </div>
+    </div>
+
+    <div class="refund-panel">
+        <h5>Refund</h5>
+        @if (Model.RefundStatus.HasValue)
+        {
+            var refundClass = Model.RefundStatus.Value switch
+            {
+                EventHub.Infrastructure.Data.Models.Refund.RefundStatus.Pending => "refund-pending",
+                EventHub.Infrastructure.Data.Models.Refund.RefundStatus.Rejected => "refund-rejected",
+                _ => "refund-completed"
+            };
+
+            <span class="refund-badge @refundClass">@Model.RefundStatus.Value</span>
+            <p>Refund amount: @Model.RefundAmount.ToString("0.00") @Model.Currency</p>
+            @if (!string.IsNullOrWhiteSpace(Model.RefundReason))
+            {
+                <p>Reason: @Model.RefundReason</p>
+            }
+            @if (Model.RefundRequestedAt.HasValue)
+            {
+                <p>Requested: @Model.RefundRequestedAt.Value.ToString("dd MMM yyyy, HH:mm")</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.RefundProcessorComment))
+            {
+                <p>Organizer note: @Model.RefundProcessorComment</p>
+            }
+        }
+        else if (Model.CanRequestRefund)
+        {
+            <p>This ticket is eligible for a 70% refund request. The organizer will need to approve it before it is processed.</p>
+            <form asp-action="RequestRefund" method="post">
+                <input type="hidden" name="ticketId" value="@Model.Id" />
+                <textarea name="reason" class="refund-textarea" maxlength="500" placeholder="Optional reason for your refund request"></textarea>
+                <button type="submit" class="refund-button">Request 70% Refund</button>
+            </form>
+        }
+        else
+        {
+            <p>This ticket is not currently eligible for a refund request.</p>
+            <div class="refund-note">Refunds are available only for purchased tickets on active events with refunds enabled, up to 48 hours before the event starts.</div>
+        }
     </div>
 </div>

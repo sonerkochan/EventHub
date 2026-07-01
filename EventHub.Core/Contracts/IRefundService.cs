@@ -14,5 +14,12 @@ namespace EventHub.Core.Contracts
         Task<bool> ApproveAsync(Guid id, Guid processedBy);
         Task<bool> RejectAsync(Guid id, Guid processedBy);
         Task<bool> CompleteAsync(Guid id);
+        Task<RefundOperationResult> RequestTicketRefundAsync(Guid ticketId, Guid requestedBy, string? reason);
+        Task<IEnumerable<RefundListViewModel>> GetRefundsForUserAsync(Guid userId);
+        Task<IEnumerable<OrganizerRefundListItemViewModel>> GetRefundsForOrganizerAsync(
+            Guid organizerId,
+            EventHub.Infrastructure.Data.Models.Refund.RefundStatus? statusFilter = null);
+        Task<RefundOperationResult> ApproveTicketRefundAsync(Guid refundId, Guid organizerId);
+        Task<RefundOperationResult> RejectTicketRefundAsync(Guid refundId, Guid organizerId, string? comment);
     }
 }

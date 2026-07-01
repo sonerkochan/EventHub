@@ -19,4 +19,10 @@
   <data name="Auth.Field.Email" xml:space="preserve"><value>Имейл</value></data>
   <data name="Auth.Field.Password" xml:space="preserve"><value>Парола</value></data>
   <data name="Auth.Field.ConfirmPassword" xml:space="preserve"><value>Потвърдете паролата</value></data>
+  <data name="Auth.External.Or" xml:space="preserve"><value>or</value></data>
+  <data name="Auth.External.Google" xml:space="preserve"><value>Continue with Google</value></data>
+  <data name="Auth.External.ConfirmationTitle" xml:space="preserve"><value>EventHub | Complete registration</value></data>
+  <data name="Auth.External.ConfirmationSubtitle" xml:space="preserve"><value>Choose your EventHub username to finish signing in with Google</value></data>
+  <data name="Auth.External.ConfirmationSubmit" xml:space="preserve"><value>Continue</value></data>
+  <data name="Auth.External.BackToLogin" xml:space="preserve"><value>Back to login</value></data>
 </root>
